@@ -122,7 +122,7 @@ def open_field(path, level=None, type_level=None, short_name=None, param_id=None
 
 
 def open_first(path, names, type_levels, **kw):
-    """Abre o primeiro typeOfLevel que contenha alguma das variaveis em names."""
+    """Abre o primeiro typeOfLevel que contenha alguma das variaveis em `names`."""
     for type_level in type_levels:
         try:
             ds = open_field(path, type_level=type_level, **kw)
