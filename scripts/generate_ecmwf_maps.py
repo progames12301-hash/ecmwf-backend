@@ -70,11 +70,39 @@ def open_field(path, level=None, type_level=None):
         keys = {'typeOfLevel': 'surface'}
     else:
         keys = {'typeOfLevel': 'isobaricInhPa', 'level': level}
-    return xr.open_dataset(path, engine='cfgrib', backend_kwargs={'indexpath': '', 'filter_by_keys': keys})
+    return xr.open_dataset(
+        path,
+        engine='cfgrib',
+        decode_timedelta=False,
+        backend_kwargs={'indexpath': '', 'filter_by_keys': keys},
+    )
 
 
 def field(ds, name, step):
-    da = ds[name]
+    # cfgrib/xarray exposes ECMWF GRIB short names with different aliases
+    # depending on the selected typeOfLevel. Normalize the 2 m and 10 m
+    # fields so the map generator does not depend on the backend naming.
+    aliases = {
+        '2t': ('2t', 't2m'),
+        '2d': ('2d', 'd2m'),
+        '10u': ('10u', 'u10'),
+        '10v': ('10v', 'v10'),
+        '10fg': ('10fg', 'fg10'),
+        'tcc': ('tcc', 'tcc'),
+        'tp': ('tp', 'tp'),
+        'tcwv': ('tcwv', 'tcwv'),
+        'cape': ('cape', 'cape'),
+        'msl': ('msl', 'msl'),
+        't': ('t', 't'),
+        'u': ('u', 'u'),
+        'v': ('v', 'v'),
+        'gh': ('gh', 'gh'),
+    }
+    candidates = aliases.get(name, (name,))
+    selected = next((candidate for candidate in candidates if candidate in ds.variables), None)
+    if selected is None:
+        raise KeyError(f"No ECMWF field {name!r}; available variables: {list(ds.variables)}")
+    da = ds[selected]
     if 'step' in da.dims:
         da = da.sel(step=np.timedelta64(step, 'h'))
     return da.values
@@ -157,7 +185,7 @@ def make_map(surface_path, pressure_path, run, step, out, product):
         mappable = ax.contourf(lon, lat, val, levels=levels, cmap='viridis', extend='max', transform=ccrs.PlateCarree(), zorder=2)
         unit = 'km h⁻¹'
         if product == 'wind10m':
-            sl = max(1, min(12, len(lon)//35)); ax.barbs(lon[::sl,] if lon.ndim else lon, lat[::sl,] if lat.ndim else lat, u[::sl, ::sl], v[::sl, ::sl], length=5, linewidth=.35, transform=ccrs.PlateCarree(), zorder=5)
+            sl = max(1, min(12, len(lon)//35)); ax.barbs(lon[::sl], lat[::sl], u[::sl, ::sl], v[::sl, ::sl], length=5, linewidth=.35, transform=ccrs.PlateCarree(), zorder=5)
     elif product == 'mslp':
         ds = open_field(surface_path, type_level='meanSea')
         msl = field(ds, 'msl', step) / 100.0
