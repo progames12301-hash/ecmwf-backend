@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import xarray as xr
+from cfgrib.dataset import DatasetBuildError
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -38,11 +39,40 @@ PRODUCTS = {
 }
 
 
+class FieldUnavailable(Exception):
+    """O campo nao existe no GRIB para o passo pedido (ex.: rajada nao tem todos os passos)."""
+
+
+_DATASETS = {}
+
+
+def close_datasets():
+    for ds in _DATASETS.values():
+        try:
+            ds.close()
+        except Exception:
+            pass
+    _DATASETS.clear()
+
+
 def latest_available_run():
     now = datetime.now(timezone.utc)
     candidate = now - timedelta(hours=8)
     hour = 12 if candidate.hour >= 12 else 0
     return candidate.replace(hour=hour, minute=0, second=0, microsecond=0)
+
+
+def pick_run(client):
+    """Rodada mais recente COMPLETA (com o ultimo passo) no servidor; cai para o relogio se falhar."""
+    try:
+        latest = client.latest(stream='oper', type='fc', step=STEPS[-1], param=['2t'])
+        run = latest.replace(tzinfo=timezone.utc) if latest.tzinfo is None else latest.astimezone(timezone.utc)
+        if run.hour in (0, 12):
+            return run.replace(minute=0, second=0, microsecond=0)
+        print(f'ECMWF latest() retornou {run:%Y-%m-%d %HZ}; usando rodada pelo relogio.')
+    except Exception as exc:
+        print(f'ECMWF latest() falhou ({type(exc).__name__}: {str(exc)[:120]}); usando rodada pelo relogio.')
+    return latest_available_run()
 
 
 def retrieve(client, run, target_dir):
@@ -61,7 +91,7 @@ def retrieve(client, run, target_dir):
     return surface, pressure
 
 
-def open_field(path, level=None, type_level=None, short_name=None):
+def open_field(path, level=None, type_level=None, short_name=None, param_id=None, step=None):
     if type_level is not None:
         keys = {'typeOfLevel': type_level}
         if level is not None:
@@ -72,15 +102,58 @@ def open_field(path, level=None, type_level=None, short_name=None):
         keys = {'typeOfLevel': 'isobaricInhPa', 'level': level}
     if short_name is not None:
         keys['shortName'] = short_name
-    return xr.open_dataset(
-        path,
-        engine='cfgrib',
-        decode_timedelta=False,
-        backend_kwargs={'indexpath': '', 'filter_by_keys': keys},
-    )
+    if param_id is not None:
+        keys['paramId'] = param_id
+    if step is not None:
+        keys['step'] = step
+    # Cache: com indexpath='' cada open_dataset reescaneia o GRIB inteiro (centenas de MB).
+    cache_key = (str(path), tuple(sorted(keys.items())))
+    ds = _DATASETS.get(cache_key)
+    if ds is None:
+        try:
+            ds = xr.open_dataset(
+                path,
+                engine='cfgrib',
+                decode_timedelta=False,
+                backend_kwargs={'indexpath': '', 'filter_by_keys': keys},
+            )
+        except (KeyError, DatasetBuildError) as exc:
+            # cfgrib pode usar KeyError ou DatasetBuildError quando o filtro não casa.
+            raise FieldUnavailable(f'nenhuma mensagem GRIB para {keys}') from exc
+        if not ds.data_vars:
+            ds.close()
+            raise FieldUnavailable(f'nenhum campo GRIB para {keys}')
+        _DATASETS[cache_key] = ds
+    return ds
 
 
-def field(ds, name, step):
+def open_first(path, names, type_levels, **kw):
+    """Abre o primeiro typeOfLevel que contenha alguma das variaveis em `names`."""
+    for type_level in type_levels:
+        try:
+            ds = open_field(path, type_level=type_level, **kw)
+        except FieldUnavailable:
+            continue
+        if any(n in ds.variables for n in names):
+            return ds
+    raise FieldUnavailable(f'{names} nao encontrado em typeOfLevel {list(type_levels)}')
+
+
+def select_step(da, step, name):
+    """Seleciona o passo em horas, com coordenada float (decode_timedelta=False) ou timedelta64."""
+    if 'step' not in da.coords:
+        return da
+    values = np.atleast_1d(da['step'].values)
+    if np.issubdtype(values.dtype, np.timedelta64):
+        hits = np.flatnonzero(values == np.timedelta64(step, 'h'))
+    else:
+        hits = np.flatnonzero(np.isclose(values.astype('float64'), float(step)))
+    if hits.size == 0:
+        raise FieldUnavailable(f'{name}: sem dados para F{step:03d}')
+    return da.isel(step=int(hits[0])) if 'step' in da.dims else da
+
+
+def field(ds, name, step, allow_single=False):
     # cfgrib/xarray exposes ECMWF GRIB short names with different aliases
     # depending on the selected typeOfLevel. Normalize the 2 m and 10 m
     # fields so the map generator does not depend on the backend naming.
@@ -89,7 +162,7 @@ def field(ds, name, step):
         '2d': ('2d', 'd2m'),
         '10u': ('10u', 'u10'),
         '10v': ('10v', 'v10'),
-        '10fg': ('10fg', 'fg10'),
+        '10fg': ('10fg', 'fg10', 'i10fg'),
         'tcc': ('tcc', 'tcc'),
         'tp': ('tp', 'tp'),
         'tcwv': ('tcwv', 'tcwv'),
@@ -102,12 +175,11 @@ def field(ds, name, step):
     }
     candidates = aliases.get(name, (name,))
     selected = next((candidate for candidate in candidates if candidate in ds.variables), None)
+    if selected is None and allow_single and len(ds.data_vars) == 1:
+        selected = next(iter(ds.data_vars))
     if selected is None:
         raise KeyError(f"No ECMWF field {name!r}; available variables: {list(ds.variables)}")
-    da = ds[selected]
-    if 'step' in da.dims:
-        da = da.sel(step=np.timedelta64(step, 'h'))
-    return da.values
+    return select_step(ds[selected], step, name).values
 
 
 def add_extrema(ax, lon, lat, mslp):
@@ -182,9 +254,9 @@ def make_map(surface_path, pressure_path, run, step, out, product):
             u, v = field(ds10, '10u', step), field(ds10, '10v', step)
             val = np.hypot(u, v) * 3.6
         else:
-            dsfg = open_field(surface_path, level=10, type_level='heightAboveGround', short_name='fg10')
-            val = field(dsfg, '10fg', step) * 3.6
-            dsfg.close()
+            # paramId 49 e estavel; o shortName muda entre versoes do eccodes ('fg10' vs '10fg').
+            dsfg = open_field(surface_path, level=10, type_level='heightAboveGround', param_id=49, step=step)
+            val = field(dsfg, '10fg', step, allow_single=True) * 3.6
         levels = np.arange(0, 81, 5)
         mappable = ax.contourf(lon, lat, val, levels=levels, cmap='viridis', extend='max', transform=ccrs.PlateCarree(), zorder=2)
         unit = 'km h⁻¹'
@@ -197,13 +269,12 @@ def make_map(surface_path, pressure_path, run, step, out, product):
         mappable = ax.contourf(lon, lat, msl, levels=levels, cmap='viridis', alpha=.25, transform=ccrs.PlateCarree(), zorder=2)
         pc = ax.contour(lon, lat, msl, levels=np.arange(960, 1041, 4), colors='#111', linewidths=.65, transform=ccrs.PlateCarree(), zorder=6)
         ax.clabel(pc, fmt='%d', fontsize=7, inline=True); add_extrema(ax, lon, lat, msl); unit = 'hPa'
-        ds.close()
     elif product == 'cloud':
-        val = field(sfc, 'tcc', step) * 100.0
+        val = field(open_first(surface_path, ('tcc',), ('entireAtmosphere', 'surface')), 'tcc', step) * 100.0
         mappable = ax.contourf(lon, lat, val, levels=np.arange(0, 101, 10), cmap='Greys', extend='neither', transform=ccrs.PlateCarree(), zorder=2)
         unit = '%'
     elif product == 'tcwv':
-        val = field(sfc, 'tcwv', step)
+        val = field(open_first(surface_path, ('tcwv',), ('entireAtmosphere', 'surface')), 'tcwv', step)
         mappable = ax.contourf(lon, lat, val, levels=np.arange(0, 71, 5), cmap='GnBu', extend='max', transform=ccrs.PlateCarree(), zorder=2)
         unit = 'kg m⁻²'
     elif product == 'cape':
@@ -223,26 +294,43 @@ def make_map(surface_path, pressure_path, run, step, out, product):
         else:
             u,v=field(ds,'u',step),field(ds,'v',step); val=np.hypot(u,v)*3.6
             mappable=ax.contourf(lon,lat,val,levels=np.arange(0,121,10),cmap='viridis',extend='max',transform=ccrs.PlateCarree(),zorder=2); unit='km h⁻¹'
-        ds.close()
 
     finish(fig, ax, title, unit, mappable)
-    fig.savefig(out, bbox_inches='tight', facecolor='white'); plt.close(fig); sfc.close()
+    fig.savefig(out, bbox_inches='tight', facecolor='white'); plt.close(fig)
 
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--output', default='site'); args = ap.parse_args()
     root = Path(args.output); root.mkdir(parents=True, exist_ok=True)
-    run = latest_available_run(); run_id = run.strftime('%Y%m%d%H'); run_dir = root / 'maps' / run_id; run_dir.mkdir(parents=True, exist_ok=True)
     client = Client(source='ecmwf', model='ifs', resol='0p25', infer_stream_keyword=True)
+    run = pick_run(client); run_id = run.strftime('%Y%m%d%H'); run_dir = root / 'maps' / run_id; run_dir.mkdir(parents=True, exist_ok=True)
+    missing, failed = {}, []
     with tempfile.TemporaryDirectory() as tmp:
-        surface, pressure = retrieve(client, run, Path(tmp))
-        for product in PRODUCTS:
-            pdir = run_dir / product; pdir.mkdir(parents=True, exist_ok=True)
-            for step in STEPS:
-                out = pdir / f'f{step:03d}.png'
-                if not out.exists(): make_map(surface, pressure, run, step, out, product)
-    manifest = {'model':'ECMWF IFS HRES','resolution':'0.25°','run':run.isoformat(),'run_id':run_id,'steps':STEPS,'products':PRODUCTS,'updated':datetime.now(timezone.utc).isoformat()}
+        try:
+            surface, pressure = retrieve(client, run, Path(tmp))
+            for product in PRODUCTS:
+                pdir = run_dir / product; pdir.mkdir(parents=True, exist_ok=True)
+                for step in STEPS:
+                    out = pdir / f'f{step:03d}.png'
+                    if out.exists():
+                        continue
+                    try:
+                        make_map(surface, pressure, run, step, out, product)
+                    except FieldUnavailable as exc:
+                        plt.close('all'); missing.setdefault(product, []).append(step)
+                        print(f'[sem dados] {product} F{step:03d}: {exc}')
+                    except Exception as exc:
+                        plt.close('all'); failed.append({'product': product, 'step': step, 'error': f'{type(exc).__name__}: {str(exc)[:200]}'})
+                        print(f'[ERRO] {product} F{step:03d}: {type(exc).__name__}: {str(exc)[:200]}')
+        finally:
+            close_datasets()  # antes de o diretorio temporario ser removido
+    manifest = {'model':'ECMWF IFS HRES','resolution':'0.25°','run':run.isoformat(),'run_id':run_id,'steps':STEPS,'products':PRODUCTS,'updated':datetime.now(timezone.utc).isoformat(),'missing':missing}
     (root/'maps'/'index.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
     print(json.dumps(manifest, indent=2))
+    if failed:
+        print(f'{len(failed)} frame(s) falharam por erro inesperado:')
+        for item in failed[:30]:
+            print('  ', item)
+        raise SystemExit(1)
 
 if __name__ == '__main__': main()
