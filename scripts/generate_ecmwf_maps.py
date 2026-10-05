@@ -90,7 +90,7 @@ def retrieve(client, run, target_dir):
     return surface, pressure
 
 
-def open_field(path, level=None, type_level=None, short_name=None, param_id=None):
+def open_field(path, level=None, type_level=None, short_name=None, param_id=None, step=None):
     if type_level is not None:
         keys = {'typeOfLevel': type_level}
         if level is not None:
@@ -103,6 +103,8 @@ def open_field(path, level=None, type_level=None, short_name=None, param_id=None
         keys['shortName'] = short_name
     if param_id is not None:
         keys['paramId'] = param_id
+    if step is not None:
+        keys['step'] = step
     # Cache: com indexpath='' cada open_dataset reescaneia o GRIB inteiro (centenas de MB).
     cache_key = (str(path), tuple(sorted(keys.items())))
     ds = _DATASETS.get(cache_key)
@@ -249,7 +251,7 @@ def make_map(surface_path, pressure_path, run, step, out, product):
             val = np.hypot(u, v) * 3.6
         else:
             # paramId 49 e estavel; o shortName muda entre versoes do eccodes ('fg10' vs '10fg').
-            dsfg = open_field(surface_path, level=10, type_level='heightAboveGround', param_id=49)
+            dsfg = open_field(surface_path, level=10, type_level='heightAboveGround', param_id=49, step=step)
             val = field(dsfg, '10fg', step, allow_single=True) * 3.6
         levels = np.arange(0, 81, 5)
         mappable = ax.contourf(lon, lat, val, levels=levels, cmap='viridis', extend='max', transform=ccrs.PlateCarree(), zorder=2)
