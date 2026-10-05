@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import xarray as xr
+from cfgrib.dataset import DatasetBuildError
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -116,9 +117,12 @@ def open_field(path, level=None, type_level=None, short_name=None, param_id=None
                 decode_timedelta=False,
                 backend_kwargs={'indexpath': '', 'filter_by_keys': keys},
             )
-        except KeyError as exc:
-            # cfgrib levanta KeyError('step') quando nenhuma mensagem casa com o filtro
+        except (KeyError, DatasetBuildError) as exc:
+            # cfgrib pode usar KeyError ou DatasetBuildError quando o filtro não casa.
             raise FieldUnavailable(f'nenhuma mensagem GRIB para {keys}') from exc
+        if not ds.data_vars:
+            ds.close()
+            raise FieldUnavailable(f'nenhum campo GRIB para {keys}')
         _DATASETS[cache_key] = ds
     return ds
 
