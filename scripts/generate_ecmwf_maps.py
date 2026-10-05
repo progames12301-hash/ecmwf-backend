@@ -61,7 +61,7 @@ def retrieve(client, run, target_dir):
     return surface, pressure
 
 
-def open_field(path, level=None, type_level=None):
+def open_field(path, level=None, type_level=None, short_name=None):
     if type_level is not None:
         keys = {'typeOfLevel': type_level}
         if level is not None:
@@ -70,6 +70,8 @@ def open_field(path, level=None, type_level=None):
         keys = {'typeOfLevel': 'surface'}
     else:
         keys = {'typeOfLevel': 'isobaricInhPa', 'level': level}
+    if short_name is not None:
+        keys['shortName'] = short_name
     return xr.open_dataset(
         path,
         engine='cfgrib',
@@ -180,7 +182,9 @@ def make_map(surface_path, pressure_path, run, step, out, product):
             u, v = field(ds10, '10u', step), field(ds10, '10v', step)
             val = np.hypot(u, v) * 3.6
         else:
-            val = field(open_field(surface_path, type_level='heightAboveGround'), '10fg', step) * 3.6
+            dsfg = open_field(surface_path, level=10, type_level='heightAboveGround', short_name='fg10')
+            val = field(dsfg, '10fg', step) * 3.6
+            dsfg.close()
         levels = np.arange(0, 81, 5)
         mappable = ax.contourf(lon, lat, val, levels=levels, cmap='viridis', extend='max', transform=ccrs.PlateCarree(), zorder=2)
         unit = 'km h⁻¹'
