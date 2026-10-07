@@ -164,23 +164,29 @@ def make_map(surface_path, pressure_path, run, step, out, product):
     unit = ''
 
     if product == 'precip':
-        tp = field(sfc, 'tp', step) * 1000.0
+        ds_tp = open_field(surface_path, type_level='surface', short_name='tp')
+        tp = field(ds_tp, 'tp', step) * 1000.0
         prev = step - (3 if step <= 144 else 6)
-        rate = np.zeros_like(tp) if step == 0 else np.maximum((tp - field(sfc, 'tp', prev) * 1000.0) / (step - prev), 0)
+        rate = np.zeros_like(tp) if step == 0 else np.maximum((tp - field(ds_tp, 'tp', prev) * 1000.0) / (step - prev), 0)
+        ds_tp.close()
         mappable = ax.contourf(lon, lat, rate, levels=PRECIP_LEVELS, cmap=PRECIP_CMAP, norm=PRECIP_NORM, alpha=.62, extend='max', transform=ccrs.PlateCarree(), zorder=2)
         unit = 'Precipitação (mm h⁻¹)'
         ax.set_title(f'Init: {run:%a %Y-%m-%d %HZ} ECMWF IFS HRES  •  South America', fontsize=9, loc='left', pad=8)
     elif product in ('temp2m', 'dew2m'):
         name = '2t' if product == 'temp2m' else '2d'
-        val = field(open_field(surface_path, level=2, type_level='heightAboveGround'), name, step) - 273.15
+        ds2 = open_field(surface_path, level=2, type_level='heightAboveGround', short_name=name)
+        val = field(ds2, name, step) - 273.15
+        ds2.close()
         levels = np.arange(-10, 41, 2)
         mappable = ax.contourf(lon, lat, val, levels=levels, cmap='RdYlBu_r', extend='both', transform=ccrs.PlateCarree(), zorder=2)
         unit = '°C'
     elif product in ('wind10m', 'gust10m'):
-        ds10 = open_field(surface_path, level=10, type_level='heightAboveGround')
         if product == 'wind10m':
-            u, v = field(ds10, '10u', step), field(ds10, '10v', step)
+            ds_u = open_field(surface_path, level=10, type_level='heightAboveGround', short_name='10u')
+            ds_v = open_field(surface_path, level=10, type_level='heightAboveGround', short_name='10v')
+            u, v = field(ds_u, '10u', step), field(ds_v, '10v', step)
             val = np.hypot(u, v) * 3.6
+            ds_u.close(); ds_v.close()
         else:
             dsfg = open_field(surface_path, level=10, type_level='heightAboveGround', short_name='fg10')
             val = field(dsfg, '10fg', step) * 3.6
@@ -199,15 +205,21 @@ def make_map(surface_path, pressure_path, run, step, out, product):
         ax.clabel(pc, fmt='%d', fontsize=7, inline=True); add_extrema(ax, lon, lat, msl); unit = 'hPa'
         ds.close()
     elif product == 'cloud':
-        val = field(sfc, 'tcc', step) * 100.0
+        ds_tcc = open_field(surface_path, type_level='surface', short_name='tcc')
+        val = field(ds_tcc, 'tcc', step) * 100.0
+        ds_tcc.close()
         mappable = ax.contourf(lon, lat, val, levels=np.arange(0, 101, 10), cmap='Greys', extend='neither', transform=ccrs.PlateCarree(), zorder=2)
         unit = '%'
     elif product == 'tcwv':
-        val = field(sfc, 'tcwv', step)
+        ds_tcwv = open_field(surface_path, type_level='surface', short_name='tcwv')
+        val = field(ds_tcwv, 'tcwv', step)
+        ds_tcwv.close()
         mappable = ax.contourf(lon, lat, val, levels=np.arange(0, 71, 5), cmap='GnBu', extend='max', transform=ccrs.PlateCarree(), zorder=2)
         unit = 'kg m⁻²'
     elif product == 'cape':
-        val = np.maximum(field(sfc, 'cape', step), 0)
+        ds_cape = open_field(surface_path, type_level='surface', short_name='cape')
+        val = np.maximum(field(ds_cape, 'cape', step), 0)
+        ds_cape.close()
         mappable = ax.contourf(lon, lat, val, levels=[0,250,500,1000,1500,2000,3000,4000,6000], cmap='magma', extend='max', transform=ccrs.PlateCarree(), zorder=2)
         unit = 'J kg⁻¹'
     else:
