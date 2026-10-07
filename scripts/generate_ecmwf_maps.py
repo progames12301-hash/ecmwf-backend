@@ -188,7 +188,7 @@ def make_map(surface_path, pressure_path, run, step, out, product):
             val = np.hypot(u, v) * 3.6
             ds_u.close(); ds_v.close()
         else:
-            dsfg = open_field(surface_path, level=10, type_level='heightAboveGround', short_name='fg10')
+            dsfg = open_field(surface_path, short_name='fg10')
             val = field(dsfg, '10fg', step) * 3.6
             dsfg.close()
         levels = np.arange(0, 81, 5)
