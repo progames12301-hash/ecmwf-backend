@@ -89,7 +89,10 @@ def field(ds, name, step):
         '2d': ('2d', 'd2m'),
         '10u': ('10u', 'u10'),
         '10v': ('10v', 'v10'),
-        '10fg': ('10fg', 'fg10'),
+        # ECMWF encodes gusts as 10fg at some steps and 10fg3
+        # for the 3-hour post-processing intervals. Keep both aliases.
+        '10fg': ('10fg', '10fg3', 'fg10'),
+        '10fg3': ('10fg3', '10fg', 'fg10'),
         'tcc': ('tcc', 'tcc'),
         'tp': ('tp', 'tp'),
         'tcwv': ('tcwv', 'tcwv'),
@@ -101,13 +104,56 @@ def field(ds, name, step):
         'gh': ('gh', 'gh'),
     }
     candidates = aliases.get(name, (name,))
-    selected = next((candidate for candidate in candidates if candidate in ds.variables), None)
-    if selected is None:
+    found = [candidate for candidate in candidates if candidate in ds.variables]
+    if not found:
         raise KeyError(f"No ECMWF field {name!r}; available variables: {list(ds.variables)}")
-    da = ds[selected]
-    if 'step' in da.dims:
-        da = da.sel(step=np.timedelta64(step, 'h'))
-    return da.values
+
+    # Resolve the forecast hour against each alias independently. Some GRIB
+    # parameters are split between shortName aliases (notably 10fg/10fg3),
+    # so the first alias may exist but not contain the requested step.
+    step_errors = []
+    for selected in found:
+        da = ds[selected]
+        if 'step' not in da.dims:
+            if 'step' not in da.coords:
+                return da.values
+            raw_step = np.asarray(da.coords['step'].values).item()
+            if isinstance(raw_step, np.timedelta64):
+                available_hour = float(raw_step / np.timedelta64(1, 'h'))
+            else:
+                try:
+                    available_hour = float(raw_step)
+                except (TypeError, ValueError):
+                    available_hour = float('nan')
+            if np.isclose(available_hour, step, atol=1e-6):
+                return da.values
+            step_errors.append(f"{selected}: {available_hour:g} h")
+            continue
+
+        raw_steps = np.asarray(da.coords['step'].values).reshape(-1)
+        if np.issubdtype(raw_steps.dtype, np.timedelta64):
+            available_steps = raw_steps / np.timedelta64(1, 'h')
+        else:
+            try:
+                available_steps = raw_steps.astype(float)
+            except (TypeError, ValueError):
+                available_steps = np.asarray([
+                    float(value / np.timedelta64(1, 'h'))
+                    if isinstance(value, np.timedelta64) else float(value)
+                    for value in raw_steps
+                ])
+        matches = np.flatnonzero(np.isclose(available_steps, step, atol=1e-6))
+        if matches.size:
+            return da.isel(step=int(matches[0])).values
+        step_errors.append(
+            f"{selected}: {', '.join(f'{float(v):g}' for v in available_steps[:12])}"
+            + (" ..." if len(available_steps) > 12 else "")
+        )
+
+    raise KeyError(
+        f"No exact ECMWF forecast step {step} h for {name!r}; "
+        f"available candidate steps: {'; '.join(step_errors)}"
+    )
 
 
 def add_extrema(ax, lon, lat, mslp):
@@ -188,12 +234,32 @@ def make_map(surface_path, pressure_path, run, step, out, product):
             val = np.hypot(u, v) * 3.6
             ds_u.close(); ds_v.close()
         else:
-            dsfg = open_field(surface_path, level=10, type_level='heightAboveGround', short_name='10fg')
-            try:
-                val = field(dsfg, '10fg', step) * 3.6
-            finally:
-                dsfg.close()
-            dsfg.close()
+            # ECMWF may publish the gust field under either shortName 10fg
+            # or 10fg3. Try each separately and require an exact forecast hour.
+            gust = None
+            gust_errors = []
+            for short_name in ('10fg', '10fg3'):
+                dsfg = None
+                try:
+                    dsfg = open_field(
+                        surface_path, level=10, type_level='heightAboveGround',
+                        short_name=short_name,
+                    )
+                    gust = field(dsfg, '10fg', step)
+                except (KeyError, ValueError, OSError) as exc:
+                    gust_errors.append(f"{short_name}: {exc}")
+                    continue
+                finally:
+                    if dsfg is not None:
+                        dsfg.close()
+                if gust is not None:
+                    break
+            if gust is None:
+                raise RuntimeError(
+                    f"Rajada ECMWF indisponível em F{step:03d}; "
+                    + " | ".join(gust_errors)
+                )
+            val = gust * 3.6
         levels = np.arange(0, 81, 5)
         mappable = ax.contourf(lon, lat, val, levels=levels, cmap='viridis', extend='max', transform=ccrs.PlateCarree(), zorder=2)
         unit = 'km h⁻¹'
