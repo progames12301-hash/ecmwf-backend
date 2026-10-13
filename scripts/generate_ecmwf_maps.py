@@ -52,7 +52,7 @@ def retrieve(client, run, target_dir):
     if not surface.exists():
         client.retrieve(date=date, time=hour, stream='oper', type='fc', step=STEPS,
                        levtype='sfc',
-                       param=['tp', '2t', '2d', '10u', '10v', '10fg', 'msl', 'tcc', 'tcwv', 'cape'],
+                       param=['tp', '2t', '2d', '10u', '10v', '10fg', '10fg3', 'msl', 'tcc', 'tcwv', 'cape'],
                        target=str(surface))
     if not pressure.exists():
         client.retrieve(date=date, time=hour, stream='oper', type='fc', step=STEPS,
@@ -234,24 +234,30 @@ def make_map(surface_path, pressure_path, run, step, out, product):
             val = np.hypot(u, v) * 3.6
             ds_u.close(); ds_v.close()
         else:
-            # ECMWF may publish the gust field under either shortName 10fg
-            # or 10fg3. Try each separately and require an exact forecast hour.
+            # ECMWF changes the gust parameter encoding across lead times.
+            # Prefer the 10 m level, but also accept surface-level encodings:
+            # 10fg is common at short leads, while 10fg3 is used for some
+            # 3-hourly fields (notably F093-F144). Both are requested in retrieve().
+            # Continue requiring an exact forecast hour; never substitute stale data.
             gust = None
             gust_errors = []
-            for short_name in ('10fg', '10fg3'):
-                dsfg = None
-                try:
-                    dsfg = open_field(
-                        surface_path, level=10, type_level='heightAboveGround',
-                        short_name=short_name,
-                    )
-                    gust = field(dsfg, '10fg', step)
-                except (KeyError, ValueError, OSError) as exc:
-                    gust_errors.append(f"{short_name}: {exc}")
-                    continue
-                finally:
-                    if dsfg is not None:
-                        dsfg.close()
+            for type_level, gust_level in (('heightAboveGround', 10), ('surface', None)):
+                for short_name in ('10fg', '10fg3'):
+                    dsfg = None
+                    try:
+                        dsfg = open_field(
+                            surface_path, level=gust_level, type_level=type_level,
+                            short_name=short_name,
+                        )
+                        gust = field(dsfg, '10fg', step)
+                    except (KeyError, ValueError, OSError) as exc:
+                        gust_errors.append(f"{type_level}/{short_name}: {exc}")
+                        continue
+                    finally:
+                        if dsfg is not None:
+                            dsfg.close()
+                    if gust is not None:
+                        break
                 if gust is not None:
                     break
             if gust is None:
