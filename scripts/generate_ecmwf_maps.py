@@ -91,8 +91,10 @@ def field(ds, name, step):
         '10v': ('10v', 'v10'),
         # ECMWF encodes gusts as 10fg at some steps and 10fg3
         # for the 3-hour post-processing intervals. Keep both aliases.
-        '10fg': ('10fg', '10fg3', 'fg10'),
-        '10fg3': ('10fg3', '10fg', 'fg10'),
+        # cfgrib may normalize the ECMWF 3-hour gust shortName 10fg3
+        # to the variable name fg310. Include it for both gust aliases.
+        '10fg': ('10fg', '10fg3', 'fg10', 'fg310'),
+        '10fg3': ('10fg3', '10fg', 'fg10', 'fg310'),
         'tcc': ('tcc', 'tcc'),
         'tp': ('tp', 'tp'),
         'tcwv': ('tcwv', 'tcwv'),
