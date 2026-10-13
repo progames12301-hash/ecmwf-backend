@@ -12,6 +12,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from scipy.ndimage import maximum_filter, minimum_filter
 from ecmwf.opendata import Client
+from eccodes import codes_get, codes_grib_new_from_file, codes_release
 
 EXTENT = (-90, -30, -60, 15)
 STEPS = list(range(0, 145, 3)) + list(range(150, 241, 6))
@@ -29,7 +30,7 @@ PRODUCTS = {
     'mslp': {'label': 'Pressão ao nível do mar', 'file': 'mslp', 'group': 'surface'},
     'cloud': {'label': 'Cobertura de nuvens', 'file': 'cloud', 'group': 'surface'},
     'tcwv': {'label': 'Água precipitável (TCWV)', 'file': 'tcwv', 'group': 'surface'},
-    'cape': {'label': 'CAPE', 'file': 'cape', 'group': 'surface'},
+    'cape': {'label': 'MUCAPE (parcela mais instável)', 'file': 'cape', 'group': 'surface'},
     't850': {'label': 'Temperatura 850 hPa', 'file': 't850', 'group': 'pressure'},
     'wind850': {'label': 'Vento 850 hPa', 'file': 'wind850', 'group': 'pressure'},
     'gh500': {'label': 'Geopotencial 500 hPa', 'file': 'gh500', 'group': 'pressure'},
@@ -52,7 +53,7 @@ def retrieve(client, run, target_dir):
     if not surface.exists():
         client.retrieve(date=date, time=hour, stream='oper', type='fc', step=STEPS,
                        levtype='sfc',
-                       param=['tp', '2t', '2d', '10u', '10v', '10fg', '10fg3', 'msl', 'tcc', 'tcwv', 'cape'],
+                       param=['tp', '2t', '2d', '10u', '10v', '10fg', '10fg3', 'msl', 'tcc', 'tcwv', 'mucape'],
                        target=str(surface))
     if not pressure.exists():
         client.retrieve(date=date, time=hour, stream='oper', type='fc', step=STEPS,
@@ -61,23 +62,219 @@ def retrieve(client, run, target_dir):
     return surface, pressure
 
 
+# Reuse the successful GRIB selector for each field across forecast hours.
+# ECMWF's API "levtype=sfc" is not the same thing as ecCodes' typeOfLevel.
+_OPEN_FIELD_STRATEGIES = {}
+_FIELD_ALIASES = {
+    '2t': ('2t', 't2m'), '2d': ('2d', 'd2m'),
+    '10u': ('10u', 'u10'), '10v': ('10v', 'v10'),
+    '10fg': ('10fg', '10fg3', 'fg10', 'fg310'),
+    '10fg3': ('10fg3', '10fg', 'fg10', 'fg310'),
+    'tcc': ('tcc',), 'tp': ('tp',), 'tcwv': ('tcwv',),
+    'mucape': ('mucape', 'cape'), 'cape': ('cape', 'mucape'),
+    'msl': ('msl',), 't': ('t',), 'u': ('u',), 'v': ('v',),
+    'gh': ('gh',),
+}
+
+
+def _dataset_has_requested_field(ds, short_name):
+    if short_name is None:
+        return bool(ds.data_vars)
+    accepted = set(_FIELD_ALIASES.get(short_name, (short_name,)))
+    for name, da in ds.data_vars.items():
+        if name in accepted or da.attrs.get('GRIB_shortName') in accepted:
+            return True
+    return False
+
+
 def open_field(path, level=None, type_level=None, short_name=None):
+    # Prefer the precise level selector, then relax only typeOfLevel while
+    # retaining shortName and (when supplied) level. ECMWF's API levtype=sfc
+    # does not equal a single ecCodes/cfgrib typeOfLevel for every parameter.
     if type_level is not None:
-        keys = {'typeOfLevel': type_level}
+        exact = {'typeOfLevel': type_level}
         if level is not None:
-            keys['level'] = level
+            exact['level'] = level
     elif level is None:
-        keys = {'typeOfLevel': 'surface'}
+        exact = {'typeOfLevel': 'surface'}
     else:
-        keys = {'typeOfLevel': 'isobaricInhPa', 'level': level}
+        exact = {'typeOfLevel': 'isobaricInhPa', 'level': level}
     if short_name is not None:
-        keys['shortName'] = short_name
-    return xr.open_dataset(
-        path,
-        engine='cfgrib',
-        decode_timedelta=False,
-        backend_kwargs={'indexpath': '', 'filter_by_keys': keys},
+        exact['shortName'] = short_name
+
+    selectors = [exact]
+    if short_name is not None and level is not None:
+        selectors.append({'shortName': short_name, 'level': level})
+    if short_name is not None:
+        selectors.append({'shortName': short_name})
+    unique_selectors = []
+    for keys in selectors:
+        if keys not in unique_selectors:
+            unique_selectors.append(keys)
+
+    cache_key = (str(Path(path).resolve()), level, type_level, short_name)
+    cached = _OPEN_FIELD_STRATEGIES.get(cache_key)
+    if cached is not None:
+        unique_selectors = [cached] + [keys for keys in unique_selectors if keys != cached]
+    errors = []
+    for keys in unique_selectors:
+        ds = None
+        try:
+            ds = xr.open_dataset(
+                path, engine='cfgrib', decode_timedelta=False,
+                backend_kwargs={'indexpath': '', 'filter_by_keys': keys},
+            )
+            if _dataset_has_requested_field(ds, short_name):
+                _OPEN_FIELD_STRATEGIES[cache_key] = keys
+                return ds
+            errors.append(f"{keys}: no matching data variable (found {list(ds.data_vars)})")
+            ds.close()
+        except (KeyError, ValueError, OSError, EOFError) as exc:
+            errors.append(f"{keys}: {exc}")
+            if ds is not None:
+                ds.close()
+
+    raise KeyError(
+        f"ECMWF GRIB field unavailable: shortName={short_name!r}, "
+        f"typeOfLevel={type_level!r}, level={level!r}; " + " | ".join(errors)
     )
+
+
+def _safe_codes_get(gid, key, default=None):
+    try:
+        return codes_get(gid, key)
+    except Exception:
+        return default
+
+
+def inventory_grib(path):
+    """Inspect GRIB message headers only; do not decompress grid values."""
+    grouped = {}
+    message_count = 0
+    read_error = None
+    try:
+        with open(path, 'rb') as handle:
+            while True:
+                gid = codes_grib_new_from_file(handle, headers_only=True)
+                if gid is None:
+                    break
+                message_count += 1
+                try:
+                    short_name = str(_safe_codes_get(gid, 'shortName', 'unknown'))
+                    param_id = _safe_codes_get(gid, 'paramId')
+                    name = str(_safe_codes_get(gid, 'name', ''))
+                    type_of_level = str(_safe_codes_get(gid, 'typeOfLevel', 'unknown'))
+                    level = _safe_codes_get(gid, 'level')
+                    step_type = str(_safe_codes_get(gid, 'stepType', 'unknown'))
+                    start_step = _safe_codes_get(gid, 'startStep')
+                    end_step = _safe_codes_get(gid, 'endStep')
+                    step_range = str(_safe_codes_get(gid, 'stepRange', ''))
+                    key = (short_name, str(param_id), type_of_level, str(level), step_type)
+                    item = grouped.setdefault(key, {
+                        'shortName': short_name, 'paramId': param_id, 'name': name,
+                        'typeOfLevel': type_of_level, 'level': level,
+                        'stepType': step_type, 'steps': set(), 'stepRanges': set(),
+                        'messages': 0,
+                    })
+                    item['messages'] += 1
+                    try:
+                        item['steps'].add(int(float(end_step)))
+                    except (TypeError, ValueError):
+                        pass
+                    if step_range:
+                        item['stepRanges'].add(step_range)
+                    if start_step is not None:
+                        item.setdefault('startSteps', set()).add(str(start_step))
+                finally:
+                    codes_release(gid)
+    except Exception as exc:
+        read_error = f"{type(exc).__name__}: {exc}"
+
+    fields = []
+    for item in grouped.values():
+        item['steps'] = sorted(item['steps'])
+        item['stepRanges'] = sorted(item['stepRanges'])
+        item['startSteps'] = sorted(item.get('startSteps', set()))
+        fields.append(item)
+    fields.sort(key=lambda x: (
+        x['shortName'], x['typeOfLevel'], str(x['level']),
+        x['stepType'], str(x['paramId'])
+    ))
+    report = {
+        'file': Path(path).name,
+        'sizeBytes': Path(path).stat().st_size if Path(path).exists() else None,
+        'messageCount': message_count,
+        'fields': fields,
+    }
+    if read_error:
+        report['readError'] = read_error
+    return report
+
+
+FIELD_REQUIREMENTS = {
+    'precip': [('surface', ('tp',), None)],
+    'temp2m': [('surface', ('2t', 't2m'), 2)],
+    'dew2m': [('surface', ('2d', 'd2m'), 2)],
+    'wind10m': [('surface', ('10u', 'u10'), 10), ('surface', ('10v', 'v10'), 10)],
+    'gust10m': [('surface', ('10fg', '10fg3', 'fg10', 'fg310'), None)],
+    'mslp': [('surface', ('msl',), None)],
+    'cloud': [('surface', ('tcc',), None)],
+    'tcwv': [('surface', ('tcwv',), None)],
+    # Current ECMWF Open Data lists MUCAPE, not the generic CAPE parameter.
+    'cape': [('surface', ('mucape', 'cape'), None)],
+    't850': [('pressure', ('t',), 850)],
+    'wind850': [('pressure', ('u',), 850), ('pressure', ('v',), 850)],
+    'gh500': [('pressure', ('gh',), 500)],
+    'wind500': [('pressure', ('u',), 500), ('pressure', ('v',), 500)],
+    'wind250': [('pressure', ('u',), 250), ('pressure', ('v',), 250)],
+}
+
+
+def build_availability_report(inventory):
+    """Compare requested products against actual parameter names, levels and steps."""
+    files = {'surface': inventory.get('surface', {}), 'pressure': inventory.get('pressure', {})}
+    result = {}
+    for product, requirements in FIELD_REQUIREMENTS.items():
+        requirement_steps = []
+        requirement_details = []
+        for file_key, names, required_level in requirements:
+            file_report = files.get(file_key, {})
+            fields = file_report.get('fields', [])
+            matching = []
+            steps = set()
+            for item in fields:
+                if item.get('shortName') not in names:
+                    continue
+                if required_level is not None:
+                    try:
+                        if not np.isclose(float(item.get('level')), required_level):
+                            continue
+                    except (TypeError, ValueError):
+                        continue
+                matching.append({
+                    'shortName': item.get('shortName'),
+                    'paramId': item.get('paramId'),
+                    'typeOfLevel': item.get('typeOfLevel'),
+                    'level': item.get('level'),
+                    'stepType': item.get('stepType'),
+                    'steps': item.get('steps', []),
+                })
+                steps.update(item.get('steps', []))
+            requirement_steps.append(steps)
+            requirement_details.append({
+                'file': file_key,
+                'acceptedShortNames': list(names),
+                'requiredLevel': required_level,
+                'matches': matching,
+            })
+        common_steps = set.intersection(*requirement_steps) if requirement_steps else set()
+        result[product] = {
+            'status': 'available' if common_steps else 'unavailable_or_unverified',
+            'availableSteps': sorted(common_steps),
+            'missingSteps': [step for step in STEPS if step not in common_steps],
+            'requirements': requirement_details,
+        }
+    return result
 
 
 def field(ds, name, step):
@@ -104,6 +301,7 @@ def field(ds, name, step):
         'u': ('u', 'u'),
         'v': ('v', 'v'),
         'gh': ('gh', 'gh'),
+        'mucape': ('mucape', 'cape'),
     }
     candidates = aliases.get(name, (name,))
     found = [candidate for candidate in candidates if candidate in ds.variables]
@@ -274,7 +472,7 @@ def make_map(surface_path, pressure_path, run, step, out, product):
         if product == 'wind10m':
             sl = max(1, min(12, len(lon)//35)); ax.barbs(lon[::sl], lat[::sl], u[::sl, ::sl], v[::sl, ::sl], length=5, linewidth=.35, transform=ccrs.PlateCarree(), zorder=5)
     elif product == 'mslp':
-        ds = open_field(surface_path, type_level='meanSea')
+        ds = open_field(surface_path, type_level='meanSea', short_name='msl')
         msl = field(ds, 'msl', step) / 100.0
         levels = np.arange(960, 1041, 2)
         mappable = ax.contourf(lon, lat, msl, levels=levels, cmap='viridis', alpha=.25, transform=ccrs.PlateCarree(), zorder=2)
@@ -316,8 +514,10 @@ def make_map(surface_path, pressure_path, run, step, out, product):
         mappable = ax.contourf(lon, lat, val, levels=np.arange(0, 71, 5), cmap='GnBu', extend='max', transform=ccrs.PlateCarree(), zorder=2)
         unit = 'kg m⁻²'
     elif product == 'cape':
-        ds_cape = open_field(surface_path, type_level='surface', short_name='cape')
-        val = np.maximum(field(ds_cape, 'cape', step), 0)
+        # The current IFS Open Data catalogue exposes most-unstable CAPE.
+        # Generic CAPE (shortName=cape, paramId 59) is not in that feed list.
+        ds_cape = open_field(surface_path, type_level='surface', short_name='mucape')
+        val = np.maximum(field(ds_cape, 'mucape', step), 0)
         ds_cape.close()
         mappable = ax.contourf(lon, lat, val, levels=[0,250,500,1000,1500,2000,3000,4000,6000], cmap='magma', extend='max', transform=ccrs.PlateCarree(), zorder=2)
         unit = 'J kg⁻¹'
@@ -347,13 +547,90 @@ def main():
     client = Client(source='ecmwf', model='ifs', resol='0p25', infer_stream_keyword=True)
     with tempfile.TemporaryDirectory() as tmp:
         surface, pressure = retrieve(client, run, Path(tmp))
+        # Inspect GRIB headers first. This reports true availability separately
+        # from cfgrib's decoded variable names and level filters.
+        inventory = {
+            'generatedAt': datetime.now(timezone.utc).isoformat(),
+            'model': 'ECMWF IFS HRES',
+            'run': run.isoformat(),
+            'surface': inventory_grib(surface),
+            'pressure': inventory_grib(pressure),
+        }
+        availability = build_availability_report(inventory)
+        inventory['productAvailability'] = availability
+        (run_dir / 'field-inventory.json').write_text(
+            json.dumps(inventory, indent=2), encoding='utf-8'
+        )
+
+        failures = []
+        generated_count = 0
+        reused_count = 0
+        inventory_ok = (
+            not inventory['surface'].get('readError')
+            and not inventory['pressure'].get('readError')
+            and inventory['surface'].get('messageCount', 0) > 0
+            and inventory['pressure'].get('messageCount', 0) > 0
+        )
         for product in PRODUCTS:
-            pdir = run_dir / product; pdir.mkdir(parents=True, exist_ok=True)
+            pdir = run_dir / product
+            pdir.mkdir(parents=True, exist_ok=True)
+            product_steps = set(availability.get(product, {}).get('availableSteps', []))
             for step in STEPS:
                 out = pdir / f'f{step:03d}.png'
-                if not out.exists(): make_map(surface, pressure, run, step, out, product)
-    manifest = {'model':'ECMWF IFS HRES','resolution':'0.25°','run':run.isoformat(),'run_id':run_id,'steps':STEPS,'products':PRODUCTS,'updated':datetime.now(timezone.utc).isoformat()}
+                if out.exists():
+                    reused_count += 1
+                    continue
+                if inventory_ok and step not in product_steps:
+                    failures.append({
+                        'product': product, 'step': step,
+                        'error': 'Parâmetro/horário ausente no inventário GRIB',
+                    })
+                    print(f"AVISO: {product} F{step:03d} ausente no inventário GRIB; seguindo para o próximo mapa.")
+                    continue
+                try:
+                    make_map(surface, pressure, run, step, out, product)
+                    generated_count += 1
+                except Exception as exc:
+                    failures.append({
+                        'product': product, 'step': step,
+                        'error': f'{type(exc).__name__}: {exc}',
+                    })
+                    print(f"AVISO: falha em {product} F{step:03d}: {type(exc).__name__}: {exc}")
+                    plt.close('all')
+
+        report = {
+            'model': 'ECMWF IFS HRES',
+            'resolution': '0.25°',
+            'run': run.isoformat(),
+            'run_id': run_id,
+            'generatedAt': datetime.now(timezone.utc).isoformat(),
+            'generatedMapsThisRun': generated_count,
+            'existingMapsReused': reused_count,
+            'failureCount': len(failures),
+            'failures': failures,
+            'inventoryFile': 'field-inventory.json',
+            'productAvailability': availability,
+        }
+        (run_dir / 'generation-report.json').write_text(
+            json.dumps(report, indent=2), encoding='utf-8'
+        )
+
+    manifest = {
+        'model': 'ECMWF IFS HRES', 'resolution': '0.25°',
+        'run': run.isoformat(), 'run_id': run_id, 'steps': STEPS,
+        'products': PRODUCTS, 'updated': datetime.now(timezone.utc).isoformat(),
+        'fieldInventory': f'maps/{run_id}/field-inventory.json',
+        'generationReport': f'maps/{run_id}/generation-report.json',
+        'productAvailability': {
+            product: {
+                'status': details['status'],
+                'availableStepCount': len(details['availableSteps']),
+                'missingStepCount': len(details['missingSteps']),
+            }
+            for product, details in availability.items()
+        },
+    }
     (root/'maps'/'index.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
-    print(json.dumps(manifest, indent=2))
+    print(json.dumps(report, indent=2))
 
 if __name__ == '__main__': main()
