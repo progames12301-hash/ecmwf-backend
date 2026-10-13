@@ -282,9 +282,31 @@ def make_map(surface_path, pressure_path, run, step, out, product):
         ax.clabel(pc, fmt='%d', fontsize=7, inline=True); add_extrema(ax, lon, lat, msl); unit = 'hPa'
         ds.close()
     elif product == 'cloud':
-        ds_tcc = open_field(surface_path, type_level='surface', short_name='tcc')
-        val = field(ds_tcc, 'tcc', step) * 100.0
-        ds_tcc.close()
+        # ECMWF encodes total cloud cover as a surface-to-top-of-atmosphere
+        # layer. Depending on the ecCodes/cfgrib version, its typeOfLevel can
+        # be reported as entireAtmosphere/atmosphere rather than surface.
+        # Try the recognized encodings and only accept the exact forecast step.
+        val = None
+        cloud_errors = []
+        for type_level in ('entireAtmosphere', 'atmosphere', 'surface'):
+            ds_tcc = None
+            try:
+                ds_tcc = open_field(
+                    surface_path, type_level=type_level, short_name='tcc'
+                )
+                val = field(ds_tcc, 'tcc', step) * 100.0
+                break
+            except (KeyError, ValueError, OSError) as exc:
+                cloud_errors.append(f"{type_level}: {exc}")
+            finally:
+                if ds_tcc is not None:
+                    ds_tcc.close()
+        if val is None:
+            raise RuntimeError(
+                f"Cobertura total de nuvens ECMWF indisponível em F{step:03d}; "
+                + " | ".join(cloud_errors)
+            )
+        val = np.clip(val, 0.0, 100.0)
         mappable = ax.contourf(lon, lat, val, levels=np.arange(0, 101, 10), cmap='Greys', extend='neither', transform=ccrs.PlateCarree(), zorder=2)
         unit = '%'
     elif product == 'tcwv':
