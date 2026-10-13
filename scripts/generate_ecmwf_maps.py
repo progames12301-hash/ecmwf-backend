@@ -104,8 +104,10 @@ def open_field(path, level=None, type_level=None, short_name=None):
 
     selectors = [exact]
     if short_name is not None and level is not None:
+        # Never drop an explicitly requested level; that could return 500 hPa
+        # when the caller asked for 850 hPa.
         selectors.append({'shortName': short_name, 'level': level})
-    if short_name is not None:
+    elif short_name is not None:
         selectors.append({'shortName': short_name})
     unique_selectors = []
     for keys in selectors:
@@ -129,8 +131,10 @@ def open_field(path, level=None, type_level=None, short_name=None):
                 return ds
             errors.append(f"{keys}: no matching data variable (found {list(ds.data_vars)})")
             ds.close()
-        except (KeyError, ValueError, OSError, EOFError) as exc:
-            errors.append(f"{keys}: {exc}")
+        except Exception as exc:
+            # cfgrib/eccodes exceptions vary by the precise filter and version;
+            # record the rejection and try the next safe selector.
+            errors.append(f"{keys}: {type(exc).__name__}: {exc}")
             if ds is not None:
                 ds.close()
 
