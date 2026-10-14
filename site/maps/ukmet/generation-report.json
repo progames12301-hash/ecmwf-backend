@@ -1,0 +1,15 @@
+{
+  "model": "UKMET",
+  "createdUTC": "2026-10-14T15:53:43.632584+00:00",
+  "source": "Met Office Weather DataHub",
+  "status": "skipped_missing_credentials",
+  "extent": [
+    -90,
+    -30,
+    -60,
+    15
+  ],
+  "generated": [],
+  "failures": [],
+  "reason": "Configure os secrets METOFFICE_API_KEY e METOFFICE_GRIB_URLS com a chave DataHub e URL(s) direta(s) de arquivos/ZIP GRIB2 do produto global UKMET contratado."
+}
