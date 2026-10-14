@@ -183,6 +183,9 @@ def _levels_and_norm(family: str, key: str, title: str):
         if "taxa" in str(title).lower() or "rate" in str(key).lower():
             ticks = np.array([0, .1, .25, .5, 1, 2.5, 5, 10, 15, 20, 30, 40, 50, 75], dtype=float)
             vmax = 75.0
+        elif "período" in str(title).lower() or "period" in str(title).lower():
+            ticks = np.array([0, .1, .25, .5, 1, 2.5, 5, 10, 15, 20, 30, 40, 50, 75], dtype=float)
+            vmax = 75.0
         else:
             ticks = np.array([0, .1, .25, .5, 1, 2.5, 5, 10, 15, 20, 30, 40, 50, 75, 100, 150, 200, 250, 300, 400, 500], dtype=float)
             vmax = 500.0
@@ -326,7 +329,7 @@ def render_map(lon, lat, values, key, title, valid, output, source,
         out_unit = "%"
     elif data_family == "precip":
         data = np.maximum(data, 0)
-        out_unit = unit or ("mm h⁻¹" if "taxa" in str(title).lower() or "rate" in str(key).lower() else "mm")
+        out_unit = "mm h⁻¹" if "taxa" in str(title).lower() or "rate" in str(key).lower() else "mm"
     elif data_family == "tcwv":
         data = np.maximum(data, 0)
         out_unit = unit or "kg m⁻²"
