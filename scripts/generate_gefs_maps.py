@@ -112,6 +112,12 @@ def main():
       written=render(lon,lat,vals,key,member,hour,run,out,units=units,wind_u=wind_u,wind_v=wind_v)
       report["generated"].extend(str(p) for p in written); count+=len(written)
       print(f"OK {out} + {len(written)-1} recortes regionais",flush=True)
+     except FileNotFoundError as exc:
+      # Some GEFS surface parameters are not present in every long-range subfile.
+      # Record the native-source absence explicitly instead of failing the whole run or inventing values.
+      report["skipped"].append({"member":member,"hour":hour,"field":key,
+                                "reason":f"Parâmetro/arquivo não publicado pelo GEFS nesta validade: {exc}"})
+      print(f"PULADO GEFS {member} F{hour:03d} {key}: campo não publicado nesta validade",flush=True)
      except Exception as exc:
       report["failures"].append({"member":member,"hour":hour,"field":key,"error":f"{type(exc).__name__}: {exc}"})
       print(f"FALHA GEFS {member} F{hour:03d} {key}: {exc}",flush=True)
