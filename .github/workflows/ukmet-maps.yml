@@ -16,7 +16,7 @@ permissions:
 
 concurrency:
   group: ukmo-global-maps
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   generate:
