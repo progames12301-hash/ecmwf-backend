@@ -7,7 +7,6 @@ from pathlib import Path
 from urllib.parse import urlparse
 import numpy as np
 import xarray as xr
-import cfgrib
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -118,6 +117,7 @@ def main():
   (OUT/"generation-report.json").write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
   print("AVISO: UKMET não baixado. Faltam METOFFICE_API_KEY e/ou METOFFICE_GRIB_URLS; nenhum mapa fictício foi criado.")
   return
+ import cfgrib
  CACHE.mkdir(parents=True,exist_ok=True)
  urls=[u.strip() for u in raw_urls.splitlines() if u.strip()]
  files=[]
