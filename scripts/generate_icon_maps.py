@@ -17,7 +17,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 
 EXTENT=(-90,-30,-60,15)
-STEPS=[0,24,48,72,120]
+STEPS=list(range(0,79,3))+list(range(84,181,6))  # cadência DWD ICON Global até F180
 BASE="https://opendata.dwd.de/weather/nwp/icon/grib"
 CACHE=Path("work/icon-grib")
 GRID_CACHE=Path("work/icon-grid")
@@ -38,10 +38,14 @@ def latest_run():
  t=datetime.now(timezone.utc)-timedelta(hours=6)
  return t.replace(hour=(t.hour//6)*6,minute=0,second=0,microsecond=0)
 
+_INDEX_CACHE={}
 def links_from_index(url):
+ if url in _INDEX_CACHE: return _INDEX_CACHE[url]
  req=urllib.request.Request(url,headers={"User-Agent":"SideralMeteorologia-map-runner/1.0"})
  with urllib.request.urlopen(req,timeout=60) as r: html=r.read().decode("utf-8","replace")
- return re.findall(r"""href=["']([^"']+\.grib2\.bz2)["']""", html, re.I)
+ names=re.findall(r"""href=["']([^"']+\.grib2\.bz2)["']""", html, re.I)
+ _INDEX_CACHE[url]=names
+ return names
 
 def fetch_grib(run,step,folder,suffix):
  cycle=f"{run.hour:02d}"
@@ -129,58 +133,28 @@ def extract(path):
  finally:
   ds.close()
 
-def render(lon,lat,values,key,run,step,out):
+def render(lon,lat,values,key,run,step,out,units=""):
  cfg=FIELDS[key]
- vals=np.array(values,dtype=float,copy=True)
- if cfg["kind"]=="temp" and np.nanmedian(vals)>150: vals-=273.15
- if cfg["kind"]=="precip": vals=np.maximum(vals,0)
- tri=mtri.Triangulation(lon,lat)
- # Remove long triangles caused by the longitude seam or sparse edge coverage.
- triangles=tri.triangles
- x=lon[triangles]; y=lat[triangles]
- max_edge=np.maximum.reduce([
-  np.hypot(x[:,0]-x[:,1],y[:,0]-y[:,1]),
-  np.hypot(x[:,1]-x[:,2],y[:,1]-y[:,2]),
-  np.hypot(x[:,2]-x[:,0],y[:,2]-y[:,0])
- ])
- tri.set_mask((max_edge>2.0)|np.any(~np.isfinite(vals[triangles]),axis=1))
- fig=plt.figure(figsize=(12,8),dpi=115)
- ax=plt.axes(projection=ccrs.PlateCarree()); ax.set_extent(EXTENT,crs=ccrs.PlateCarree())
- ax.set_facecolor("#f8fafc")
- ax.add_feature(cfeature.OCEAN,facecolor="#f8fafc",zorder=0)
- ax.add_feature(cfeature.LAND,facecolor="#f2f0e8",edgecolor="#999999",linewidth=.35,zorder=1)
- im=ax.tricontourf(tri,vals,levels=24,cmap=cfg["cmap"],vmin=cfg["vmin"],vmax=cfg["vmax"],transform=ccrs.PlateCarree(),zorder=2)
- ax.coastlines("110m",linewidth=.65,color="#333333",zorder=3)
- ax.add_feature(cfeature.BORDERS,linewidth=.4,edgecolor="#666666",zorder=3)
- gl=ax.gridlines(draw_labels=True,linewidth=.25,color="#666666",alpha=.35,linestyle=":")
- gl.top_labels=False; gl.right_labels=False
  valid=run+timedelta(hours=step)
- fig.suptitle(f"ICON GLOBAL • {cfg['label']}\\nF{step:03d} | válido {valid:%Y-%m-%d %HZ}",fontsize=13,fontweight="bold",y=.97)
- cb=fig.colorbar(im,ax=ax,orientation="horizontal",pad=.045,fraction=.045); cb.set_label(cfg["unit"])
- fig.text(.995,.006,"Fonte: DWD ICON Global Open Data • Sideral Meteorologia",ha="right",fontsize=7,color="#555")
- out.parent.mkdir(parents=True,exist_ok=True)
- fig.savefig(out,bbox_inches="tight",facecolor="white"); plt.close(fig)
- if not out.exists() or out.stat().st_size<1000: raise RuntimeError(f"PNG inválido: {out}")
+ title=f"{cfg['label']}\nF{step:03d} Valid: {valid:%a %Y-%m-%d %HZ}"
+ render_sideral_map(
+  lon,lat,values,key,title,valid,out,
+  source="DWD ICON Global Open Data",unit=units or cfg["unit"],
+  unstructured=True,
+ )
 
 def render_wind(u,v,run,step,out):
- lon,lat,uv,_=extract(u); lon2,lat2,vv,_=extract(v)
+ lon,lat,uv,units=extract(u); lon2,lat2,vv,_=extract(v)
  if lon.shape!=lon2.shape or not np.allclose(lon,lon2) or not np.allclose(lat,lat2):
   raise ValueError("Grades U/V do ICON não coincidem")
- cfg={"label":"Velocidade do vento a 10 m","unit":"m/s","cmap":"turbo","vmin":0,"vmax":30}
  speed=np.hypot(uv,vv)
- tri=mtri.Triangulation(lon,lat); tri.set_mask(np.any(~np.isfinite(speed[tri.triangles]),axis=1))
- fig=plt.figure(figsize=(12,8),dpi=115); ax=plt.axes(projection=ccrs.PlateCarree())
- ax.set_extent(EXTENT,crs=ccrs.PlateCarree()); ax.add_feature(cfeature.OCEAN,facecolor="#f8fafc",zorder=0)
- ax.add_feature(cfeature.LAND,facecolor="#f2f0e8",edgecolor="#999999",linewidth=.35,zorder=1)
- im=ax.tricontourf(tri,speed,levels=24,cmap=cfg["cmap"],vmin=cfg["vmin"],vmax=cfg["vmax"],transform=ccrs.PlateCarree(),zorder=2)
- ax.coastlines("110m",linewidth=.65,color="#333333",zorder=3); ax.add_feature(cfeature.BORDERS,linewidth=.4,edgecolor="#666666",zorder=3)
- gl=ax.gridlines(draw_labels=True,linewidth=.25,color="#666666",alpha=.35,linestyle=":"); gl.top_labels=False; gl.right_labels=False
  valid=run+timedelta(hours=step)
- fig.suptitle(f"ICON GLOBAL • {cfg['label']}\\nF{step:03d} | válido {valid:%Y-%m-%d %HZ}",fontsize=13,fontweight="bold",y=.97)
- cb=fig.colorbar(im,ax=ax,orientation="horizontal",pad=.045,fraction=.045); cb.set_label(cfg["unit"])
- fig.text(.995,.006,"Fonte: DWD ICON Global Open Data • Sideral Meteorologia",ha="right",fontsize=7,color="#555")
- out.parent.mkdir(parents=True,exist_ok=True); fig.savefig(out,bbox_inches="tight",facecolor="white"); plt.close(fig)
- if not out.exists() or out.stat().st_size<1000: raise RuntimeError(f"PNG inválido: {out}")
+ title=f"Velocidade do vento a 10 m\nF{step:03d} Valid: {valid:%a %Y-%m-%d %HZ}"
+ render_sideral_map(
+  lon,lat,speed,"wind10m",title,valid,out,
+  source="DWD ICON Global Open Data",unit=units or "m/s",
+  wind_u=uv,wind_v=vv,unstructured=True,
+ )
 
 def main():
  run=latest_run(); tag=run.strftime("%Y%m%d%H")
@@ -197,7 +171,7 @@ def main():
   for key,cfg in FIELDS.items():
    try:
     path=fetch_grib(run,step,cfg["folder"],cfg["suffix"]); lon,lat,values,units=extract(path)
-    out=OUT/tag/key/f"f{step:03d}.png"; render(lon,lat,values,key,run,step,out)
+    out=OUT/tag/key/f"f{step:03d}.png"; render(lon,lat,values,key,run,step,out,units)
     report["generated"].append(str(out)); print(f"OK {out}")
    except Exception as exc:
     report["failures"].append({"hour":step,"field":key,"error":f"{type(exc).__name__}: {exc}"})
