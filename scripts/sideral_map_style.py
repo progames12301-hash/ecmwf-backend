@@ -354,7 +354,7 @@ def render_map(lon, lat, values, key, title, valid, output, source,
     cmap = CMAPS.get(data_family, CMAPS["generic"])
     fig_w, fig_h = (10.0, 8.0) if region_name is None else (10.0, 8.0)
     fig = plt.figure(figsize=(fig_w, fig_h), dpi=100, facecolor="white")
-    ax = fig.add_axes([0.035, 0.14, 0.93, 0.78])
+    ax = fig.add_axes([0.035, 0.14, 0.93, 0.78], projection=ccrs.PlateCarree())
     ax.set_extent(extent, crs=ccrs.PlateCarree())
     ax.set_facecolor("white")
     ax.add_feature(cfeature.OCEAN, facecolor="white", zorder=0)
