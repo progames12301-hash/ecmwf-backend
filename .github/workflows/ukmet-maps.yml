@@ -44,7 +44,7 @@ jobs:
           UKMET_BATCH_SIZE: "50"
           UKMET_API_WORKERS: "3"
         run: python scripts/generate_ukmet_maps.py
-      - name: Validate UKMO output
+      - name: Validate UKMO native output
         run: |
           python - <<'PY'
           import json
@@ -53,21 +53,28 @@ jobs:
           if not p.exists(): raise SystemExit("ERRO: relatório UKMO ausente")
           r=json.loads(p.read_text(encoding="utf-8"))
           print(json.dumps({
-            "status":r.get("status"),
             "run":r.get("run"),
-            "gridPoints":r.get("gridPoints"),
+            "nativeResolution":r.get("nativeResolution"),
             "generatedCount":r.get("generatedCount"),
             "failureCount":r.get("failureCount"),
-            "fatalError":r.get("fatalError"),
-            "gridSampling":r.get("gridSampling")
+            "fieldMapCounts":r.get("fieldMapCounts"),
+            "skippedCount":len(r.get("skipped",[]))
           },indent=2,ensure_ascii=False))
-          expected_maps = len(r.get("forecastHours", [])) * 7 - 1  # precipitação F000 é inexistente
-          if r.get("status") == "failed":
-            raise SystemExit("ERRO: nenhum mapa UKMO válido foi gerado")
-          if r.get("generatedCount", 0) != expected_maps:
-            raise SystemExit(f"ERRO: UKMO publicou {r.get('generatedCount')} PNG; esperado {expected_maps}")
-          if r.get("failureCount", 0) != 0:
-            raise SystemExit(f"ERRO: UKMO tem {r.get('failureCount')} campos/validades com falha")
+          if not r.get("gridResolutionPreserved"):
+            raise SystemExit("ERRO: UKMO não confirmou grade nativa")
+          if r.get("failureCount",0) != 0:
+            raise SystemExit(f"ERRO: UKMO tem {r.get('failureCount')} falhas de geração")
+          counts=r.get("fieldMapCounts") or {}
+          required=("temperature_2m","dew_point_2m","wind_speed_10m","pressure_msl","precipitation","cape_surface")
+          missing=[field for field in required if counts.get(field,0)==0]
+          if missing:
+            raise SystemExit(f"ERRO: faltam produtos UKMO obrigatórios: {missing}")
+          if r.get("generatedCount",0) != sum(counts.values()):
+            raise SystemExit("ERRO: generatedCount não bate com fieldMapCounts")
+          if r.get("generatedCount",0) < 100:
+            raise SystemExit("ERRO: cobertura UKMO nativa insuficiente")
+          if any(count % 6 for count in counts.values()):
+            raise SystemExit("ERRO: cada saída UKMO deve conter a América do Sul e cinco regiões")
           PY
       - name: Publish maps to model-ukmet branch
         run: |
