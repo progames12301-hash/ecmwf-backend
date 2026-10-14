@@ -96,12 +96,23 @@ def make_map(lon, lat, values, units, key, title, valid, out):
         raise RuntimeError(f"PNG inválido: {out}")
 
 def load_one(h, search):
-    ds = h.xarray(search)
-    try:
-        return extract(ds)
-    finally:
-        try: ds.close()
-        except Exception: pass
+    result = h.xarray(search)
+    datasets = result if isinstance(result, list) else [result]
+    errors = []
+    for ds in datasets:
+        try:
+            if not hasattr(ds, "data_vars"):
+                errors.append(f"retorno não é Dataset: {type(ds).__name__}")
+                continue
+            return extract(ds)
+        except Exception as exc:
+            errors.append(f"{type(exc).__name__}: {exc}")
+        finally:
+            try:
+                ds.close()
+            except Exception:
+                pass
+    raise ValueError(f"Nenhum Dataset GRIB válido para {search!r}: {' | '.join(errors)}")
 
 def main():
     run = latest_run()
