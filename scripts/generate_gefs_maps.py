@@ -11,9 +11,10 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from herbie import Herbie
+from sideral_map_style import render_map as render_sideral_map
 
 EXTENT=(-90,-30,-60,15)
-HOURS=[0,24,48,72,96,120]
+HOURS=list(range(0,145,3))+list(range(150,241,6))  # cadência alinhada aos mapas ECMWF
 MEMBERS={"mean":"mean","spread":"spr","control":"c00"}
 FIELDS={
  "temp2m":("TMP:2 m","Temperatura a 2 m","°C","coolwarm",-10,40,"temp"),
@@ -59,29 +60,15 @@ def load_one(h,search):
    except Exception: pass
  raise ValueError(f"Nenhum Dataset GRIB válido para {search!r}: {' | '.join(errors)}")
 
-def render(lon,lat,vals,key,member,step,run,out):
+def render(lon,lat,vals,key,member,step,run,out,units="",wind_u=None,wind_v=None):
  label,unit,cmap,vmin,vmax,convert=FIELDS[key][1:]
- vals=np.array(vals,dtype=float,copy=True)
- if convert=="temp" and np.nanmedian(vals)>150: vals-=273.15
- if convert=="pressure" and np.nanmedian(vals)>2000: vals/=100
- fig=plt.figure(figsize=(12,8),dpi=115)
- ax=plt.axes(projection=ccrs.PlateCarree())
- ax.set_extent(EXTENT,crs=ccrs.PlateCarree())
- ax.set_facecolor("#f8fafc")
- ax.add_feature(cfeature.OCEAN,facecolor="#f8fafc",zorder=0)
- ax.add_feature(cfeature.LAND,facecolor="#f2f0e8",edgecolor="#999999",linewidth=.35,zorder=1)
- im=ax.pcolormesh(lon,lat,vals,transform=ccrs.PlateCarree(),shading="auto",cmap=cmap,vmin=vmin,vmax=vmax,rasterized=True,zorder=2)
- ax.coastlines("110m",linewidth=.65,color="#333333",zorder=3)
- ax.add_feature(cfeature.BORDERS,linewidth=.4,edgecolor="#666666",zorder=3)
- gl=ax.gridlines(draw_labels=True,linewidth=.25,color="#666666",alpha=.35,linestyle=":")
- gl.top_labels=False; gl.right_labels=False
  valid=run+timedelta(hours=step)
- fig.suptitle(f"GEFS • {label} • {member.upper()}\nF{step:03d} | válido {valid:%Y-%m-%d %HZ}",fontsize=13,fontweight="bold",y=.97)
- cb=fig.colorbar(im,ax=ax,orientation="horizontal",pad=.045,fraction=.045); cb.set_label(unit)
- fig.text(.995,.006,"Fonte: NOAA/NCEP GEFS • Sideral Meteorologia",ha="right",fontsize=7,color="#555")
- out.parent.mkdir(parents=True,exist_ok=True)
- fig.savefig(out,bbox_inches="tight",facecolor="white"); plt.close(fig)
- if not out.exists() or out.stat().st_size<1000: raise RuntimeError(f"PNG inválido: {out}")
+ title=f"{label}\nF{step:03d} Valid: {valid:%a %Y-%m-%d %HZ}"
+ render_sideral_map(
+  lon,lat,vals,key,title,valid,out,
+  source=f"NOAA/NCEP GEFS {member.upper()} • 0.5° Open Data",
+  unit=units or unit,wind_u=wind_u,wind_v=wind_v,
+)
 
 def main():
  run=latest_run(); run_tag=run.strftime("%Y%m%d%H")
@@ -98,16 +85,17 @@ def main():
       report["skipped"].append({"member":member,"hour":hour,"field":key,"reason":"F000 não tem precipitação acumulada desde o tempo inicial"})
       continue
      try:
+      wind_u=wind_v=None
       if key=="wind10m":
-       lon,lat,uvals,units=load_one(h,"UGRD:10 m")
-       lon2,lat2,vvals,_=load_one(h,"VGRD:10 m")
-       if not (np.allclose(lon,lon2) and np.allclose(lat,lat2) and uvals.shape==vvals.shape):
+       lon,lat,wind_u,units=load_one(h,"UGRD:10 m")
+       lon2,lat2,wind_v,_=load_one(h,"VGRD:10 m")
+       if not (np.allclose(lon,lon2) and np.allclose(lat,lat2) and wind_u.shape==wind_v.shape):
         raise ValueError("Grades U/V do GEFS não coincidem")
-       vals=np.hypot(uvals,vvals)
+       vals=np.hypot(wind_u,wind_v)
       else:
        lon,lat,vals,units=load_one(h,search)
       out=OUT/"atmos.5"/member/run_tag/key/f"f{hour:03d}.png"
-      render(lon,lat,vals,key,member,hour,run,out)
+      render(lon,lat,vals,key,member,hour,run,out,units=units,wind_u=wind_u,wind_v=wind_v)
       report["generated"].append(str(out)); count+=1; print(f"OK {out}")
      except Exception as exc:
       report["failures"].append({"member":member,"hour":hour,"field":key,"error":f"{type(exc).__name__}: {exc}"})
