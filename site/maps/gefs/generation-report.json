@@ -1,0 +1,132 @@
+{
+  "model": "GEFS",
+  "run": "2026101406",
+  "source": "NOAA/NCEP GEFS via Herbie/AWS",
+  "product": "atmos.5",
+  "ensembleProducts": {
+    "mean": "ensemble mean",
+    "spr": "ensemble spread",
+    "c00": "control"
+  },
+  "forecastHours": [
+    0,
+    24,
+    48,
+    72,
+    96,
+    120
+  ],
+  "extent": [
+    -90,
+    -30,
+    -60,
+    15
+  ],
+  "generated": [
+    "site/maps/gefs/atmos.5/mean/2026101406/temp2m/f000.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/mslp/f000.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/gh500/f000.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/temp2m/f024.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/precip/f024.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/mslp/f024.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/gh500/f024.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/temp2m/f048.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/precip/f048.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/mslp/f048.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/gh500/f048.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/temp2m/f072.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/precip/f072.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/mslp/f072.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/gh500/f072.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/temp2m/f096.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/precip/f096.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/mslp/f096.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/gh500/f096.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/temp2m/f120.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/precip/f120.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/mslp/f120.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/gh500/f120.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/temp2m/f000.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/mslp/f000.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/gh500/f000.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/temp2m/f024.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/precip/f024.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/mslp/f024.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/gh500/f024.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/temp2m/f048.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/precip/f048.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/mslp/f048.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/gh500/f048.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/temp2m/f072.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/precip/f072.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/mslp/f072.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/gh500/f072.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/temp2m/f096.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/precip/f096.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/mslp/f096.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/gh500/f096.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/temp2m/f120.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/precip/f120.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/mslp/f120.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/gh500/f120.png",
+    "site/maps/gefs/atmos.5/control/2026101406/temp2m/f000.png",
+    "site/maps/gefs/atmos.5/control/2026101406/mslp/f000.png",
+    "site/maps/gefs/atmos.5/control/2026101406/gh500/f000.png",
+    "site/maps/gefs/atmos.5/control/2026101406/temp2m/f024.png",
+    "site/maps/gefs/atmos.5/control/2026101406/precip/f024.png",
+    "site/maps/gefs/atmos.5/control/2026101406/mslp/f024.png",
+    "site/maps/gefs/atmos.5/control/2026101406/gh500/f024.png",
+    "site/maps/gefs/atmos.5/control/2026101406/temp2m/f048.png",
+    "site/maps/gefs/atmos.5/control/2026101406/precip/f048.png",
+    "site/maps/gefs/atmos.5/control/2026101406/mslp/f048.png",
+    "site/maps/gefs/atmos.5/control/2026101406/gh500/f048.png",
+    "site/maps/gefs/atmos.5/control/2026101406/temp2m/f072.png",
+    "site/maps/gefs/atmos.5/control/2026101406/precip/f072.png",
+    "site/maps/gefs/atmos.5/control/2026101406/mslp/f072.png",
+    "site/maps/gefs/atmos.5/control/2026101406/gh500/f072.png",
+    "site/maps/gefs/atmos.5/control/2026101406/temp2m/f096.png",
+    "site/maps/gefs/atmos.5/control/2026101406/precip/f096.png",
+    "site/maps/gefs/atmos.5/control/2026101406/mslp/f096.png",
+    "site/maps/gefs/atmos.5/control/2026101406/gh500/f096.png",
+    "site/maps/gefs/atmos.5/control/2026101406/temp2m/f120.png",
+    "site/maps/gefs/atmos.5/control/2026101406/precip/f120.png",
+    "site/maps/gefs/atmos.5/control/2026101406/mslp/f120.png",
+    "site/maps/gefs/atmos.5/control/2026101406/gh500/f120.png"
+  ],
+  "failures": [
+    {
+      "member": "mean",
+      "hour": 0,
+      "field": "precip",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/data/gefs/20261014/subset_9fefb1fe__geavg.t06z.pgrb2a.0p50.f000'"
+    },
+    {
+      "member": "spread",
+      "hour": 0,
+      "field": "precip",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/data/gefs/20261014/subset_9fefb1fe__gespr.t06z.pgrb2a.0p50.f000'"
+    },
+    {
+      "member": "control",
+      "hour": 0,
+      "field": "precip",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/data/gefs/20261014/subset_9fefb1fe__gec00.t06z.pgrb2a.0p50.f000'"
+    }
+  ],
+  "members": {
+    "mean": {
+      "herbieMember": "mean",
+      "mapsGenerated": 23
+    },
+    "spread": {
+      "herbieMember": "spr",
+      "mapsGenerated": 23
+    },
+    "control": {
+      "herbieMember": "c00",
+      "mapsGenerated": 23
+    }
+  },
+  "generatedCount": 69,
+  "failureCount": 3
+}
