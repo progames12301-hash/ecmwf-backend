@@ -348,8 +348,8 @@ def render_map(lon, lat, values, key, title, valid, output, source,
 
     norm, ticks = _levels_and_norm(data_family, key, title)
     cmap = CMAPS.get(data_family, CMAPS["generic"])
-    fig_w, fig_h = (14.0, 8.2) if region_name is None else (10.5, 8.2)
-    fig = plt.figure(figsize=(fig_w, fig_h), dpi=130, facecolor="white")
+    fig_w, fig_h = (10.0, 8.0) if region_name is None else (10.0, 8.0)
+    fig = plt.figure(figsize=(fig_w, fig_h), dpi=100, facecolor="white")
     ax = fig.add_axes([0.035, 0.14, 0.93, 0.78])
     ax.set_extent(extent, crs=ccrs.PlateCarree())
     ax.set_facecolor("white")
@@ -425,8 +425,8 @@ def render_map(lon, lat, values, key, title, valid, output, source,
     gl = ax.gridlines(draw_labels=True, linewidth=.28, color="#777777", alpha=.45, linestyle=":")
     gl.top_labels = False
     gl.right_labels = False
-    gl.xlabel_style = {"size": 7}
-    gl.ylabel_style = {"size": 7}
+    gl.xlabel_style = {"size": 6.5}
+    gl.ylabel_style = {"size": 6.5}
 
     model_text = model_label or source
     model_text = str(model_text).replace("Open Data", "").strip(" •")
@@ -442,30 +442,30 @@ def render_map(lon, lat, values, key, title, valid, output, source,
         int((valid_dt - run_dt).total_seconds() // 3600) if valid_dt is not None and run_dt is not None else None
     )
     step_text = f"(+{step:03d}h)" if step is not None else ""
-    fig.text(.014, .983, f"Rodada: {run_text}", ha="left", va="top", fontsize=9, color="#111111")
+    fig.text(.014, .983, f"Rodada: {run_text}", ha="left", va="top", fontsize=8.5, color="#111111")
     fig.text(.5, .983, f"Modelo: {model_text}", ha="center", va="top", fontsize=9, color="#111111")
     fig.text(.986, .983, f"Previsão: {valid_text} {step_text}", ha="right", va="top", fontsize=9, color="#111111")
     subtitle = str(title).replace("\n", " ").strip()
     if region_name:
         subtitle = f"{subtitle} — {region_name.upper()}"
-    fig.text(.5, .952, subtitle, ha="center", va="top", fontsize=10, color="#343434")
+    fig.text(.5, .952, subtitle, ha="center", va="top", fontsize=9, color="#343434")
 
     cax = fig.add_axes([.10, .078, .80, .018])
     cbar = fig.colorbar(mappable, cax=cax, orientation="horizontal")
-    cbar.set_label(out_unit, fontsize=8, labelpad=1)
-    cbar.ax.tick_params(labelsize=7, length=2, pad=1)
+    cbar.set_label(out_unit, fontsize=7.5, labelpad=1)
+    cbar.ax.tick_params(labelsize=6.5, length=2, pad=1)
     if ticks is not None and len(ticks) <= 21:
         cbar.set_ticks(ticks)
 
     fig.text(.014, .023, f"Fonte: {source} • Limites internos: Natural Earth Admin-1", ha="left", va="bottom",
-             fontsize=6.5, color="#555555")
+             fontsize=5.7, color="#555555")
     logo = logo_image()
     if logo is not None:
         logo_ax = fig.add_axes([.85, .002, .14, .056])
         logo_ax.imshow(logo)
         logo_ax.set_axis_off()
     else:
-        fig.text(.986, .018, "SIDERAL", ha="right", va="bottom", fontsize=10, fontweight="bold", color="#c21f30")
+        fig.text(.986, .018, "SIDERAL", ha="right", va="bottom", fontsize=8.5, fontweight="bold", color="#c21f30")
 
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
