@@ -1,0 +1,252 @@
+{
+  "model": "GFS",
+  "run": "2026101406",
+  "source": "NOAA/NCEP via Herbie (AWS/NOMADS)",
+  "extent": [
+    -90,
+    -30,
+    -60,
+    15
+  ],
+  "forecastHours": [
+    0,
+    24,
+    48,
+    72,
+    96,
+    120
+  ],
+  "variants": {
+    "0p25": {
+      "product": "pgrb2.0p25",
+      "mapsGenerated": 29
+    },
+    "0p50": {
+      "product": "pgrb2.0p50",
+      "mapsGenerated": 29
+    },
+    "1p00": {
+      "product": "pgrb2.1p00",
+      "mapsGenerated": 29
+    }
+  },
+  "generated": [
+    "site/maps/gfs/0p25/2026101406/dew2m/f000.png",
+    "site/maps/gfs/0p25/2026101406/mslp/f000.png",
+    "site/maps/gfs/0p25/2026101406/t850/f000.png",
+    "site/maps/gfs/0p25/2026101406/gh500/f000.png",
+    "site/maps/gfs/0p25/2026101406/dew2m/f024.png",
+    "site/maps/gfs/0p25/2026101406/precip/f024.png",
+    "site/maps/gfs/0p25/2026101406/mslp/f024.png",
+    "site/maps/gfs/0p25/2026101406/t850/f024.png",
+    "site/maps/gfs/0p25/2026101406/gh500/f024.png",
+    "site/maps/gfs/0p25/2026101406/dew2m/f048.png",
+    "site/maps/gfs/0p25/2026101406/precip/f048.png",
+    "site/maps/gfs/0p25/2026101406/mslp/f048.png",
+    "site/maps/gfs/0p25/2026101406/t850/f048.png",
+    "site/maps/gfs/0p25/2026101406/gh500/f048.png",
+    "site/maps/gfs/0p25/2026101406/dew2m/f072.png",
+    "site/maps/gfs/0p25/2026101406/precip/f072.png",
+    "site/maps/gfs/0p25/2026101406/mslp/f072.png",
+    "site/maps/gfs/0p25/2026101406/t850/f072.png",
+    "site/maps/gfs/0p25/2026101406/gh500/f072.png",
+    "site/maps/gfs/0p25/2026101406/dew2m/f096.png",
+    "site/maps/gfs/0p25/2026101406/precip/f096.png",
+    "site/maps/gfs/0p25/2026101406/mslp/f096.png",
+    "site/maps/gfs/0p25/2026101406/t850/f096.png",
+    "site/maps/gfs/0p25/2026101406/gh500/f096.png",
+    "site/maps/gfs/0p25/2026101406/dew2m/f120.png",
+    "site/maps/gfs/0p25/2026101406/precip/f120.png",
+    "site/maps/gfs/0p25/2026101406/mslp/f120.png",
+    "site/maps/gfs/0p25/2026101406/t850/f120.png",
+    "site/maps/gfs/0p25/2026101406/gh500/f120.png",
+    "site/maps/gfs/0p50/2026101406/dew2m/f000.png",
+    "site/maps/gfs/0p50/2026101406/mslp/f000.png",
+    "site/maps/gfs/0p50/2026101406/t850/f000.png",
+    "site/maps/gfs/0p50/2026101406/gh500/f000.png",
+    "site/maps/gfs/0p50/2026101406/dew2m/f024.png",
+    "site/maps/gfs/0p50/2026101406/precip/f024.png",
+    "site/maps/gfs/0p50/2026101406/mslp/f024.png",
+    "site/maps/gfs/0p50/2026101406/t850/f024.png",
+    "site/maps/gfs/0p50/2026101406/gh500/f024.png",
+    "site/maps/gfs/0p50/2026101406/dew2m/f048.png",
+    "site/maps/gfs/0p50/2026101406/precip/f048.png",
+    "site/maps/gfs/0p50/2026101406/mslp/f048.png",
+    "site/maps/gfs/0p50/2026101406/t850/f048.png",
+    "site/maps/gfs/0p50/2026101406/gh500/f048.png",
+    "site/maps/gfs/0p50/2026101406/dew2m/f072.png",
+    "site/maps/gfs/0p50/2026101406/precip/f072.png",
+    "site/maps/gfs/0p50/2026101406/mslp/f072.png",
+    "site/maps/gfs/0p50/2026101406/t850/f072.png",
+    "site/maps/gfs/0p50/2026101406/gh500/f072.png",
+    "site/maps/gfs/0p50/2026101406/dew2m/f096.png",
+    "site/maps/gfs/0p50/2026101406/precip/f096.png",
+    "site/maps/gfs/0p50/2026101406/mslp/f096.png",
+    "site/maps/gfs/0p50/2026101406/t850/f096.png",
+    "site/maps/gfs/0p50/2026101406/gh500/f096.png",
+    "site/maps/gfs/0p50/2026101406/dew2m/f120.png",
+    "site/maps/gfs/0p50/2026101406/precip/f120.png",
+    "site/maps/gfs/0p50/2026101406/mslp/f120.png",
+    "site/maps/gfs/0p50/2026101406/t850/f120.png",
+    "site/maps/gfs/0p50/2026101406/gh500/f120.png",
+    "site/maps/gfs/1p00/2026101406/dew2m/f000.png",
+    "site/maps/gfs/1p00/2026101406/mslp/f000.png",
+    "site/maps/gfs/1p00/2026101406/t850/f000.png",
+    "site/maps/gfs/1p00/2026101406/gh500/f000.png",
+    "site/maps/gfs/1p00/2026101406/dew2m/f024.png",
+    "site/maps/gfs/1p00/2026101406/precip/f024.png",
+    "site/maps/gfs/1p00/2026101406/mslp/f024.png",
+    "site/maps/gfs/1p00/2026101406/t850/f024.png",
+    "site/maps/gfs/1p00/2026101406/gh500/f024.png",
+    "site/maps/gfs/1p00/2026101406/dew2m/f048.png",
+    "site/maps/gfs/1p00/2026101406/precip/f048.png",
+    "site/maps/gfs/1p00/2026101406/mslp/f048.png",
+    "site/maps/gfs/1p00/2026101406/t850/f048.png",
+    "site/maps/gfs/1p00/2026101406/gh500/f048.png",
+    "site/maps/gfs/1p00/2026101406/dew2m/f072.png",
+    "site/maps/gfs/1p00/2026101406/precip/f072.png",
+    "site/maps/gfs/1p00/2026101406/mslp/f072.png",
+    "site/maps/gfs/1p00/2026101406/t850/f072.png",
+    "site/maps/gfs/1p00/2026101406/gh500/f072.png",
+    "site/maps/gfs/1p00/2026101406/dew2m/f096.png",
+    "site/maps/gfs/1p00/2026101406/precip/f096.png",
+    "site/maps/gfs/1p00/2026101406/mslp/f096.png",
+    "site/maps/gfs/1p00/2026101406/t850/f096.png",
+    "site/maps/gfs/1p00/2026101406/gh500/f096.png",
+    "site/maps/gfs/1p00/2026101406/dew2m/f120.png",
+    "site/maps/gfs/1p00/2026101406/precip/f120.png",
+    "site/maps/gfs/1p00/2026101406/mslp/f120.png",
+    "site/maps/gfs/1p00/2026101406/t850/f120.png",
+    "site/maps/gfs/1p00/2026101406/gh500/f120.png"
+  ],
+  "failures": [
+    {
+      "variant": "0p25",
+      "hour": 0,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p25",
+      "hour": 0,
+      "field": "precip",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/data/gfs/20261014/subset_9fefb1fe__gfs.t06z.pgrb2.0p25.f000'"
+    },
+    {
+      "variant": "0p25",
+      "hour": 24,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p25",
+      "hour": 48,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p25",
+      "hour": 72,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p25",
+      "hour": 96,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p25",
+      "hour": 120,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p50",
+      "hour": 0,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p50",
+      "hour": 0,
+      "field": "precip",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/data/gfs/20261014/subset_9fefb1fe__gfs.t06z.pgrb2.0p50.f000'"
+    },
+    {
+      "variant": "0p50",
+      "hour": 24,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p50",
+      "hour": 48,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p50",
+      "hour": 72,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p50",
+      "hour": 96,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p50",
+      "hour": 120,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "1p00",
+      "hour": 0,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "1p00",
+      "hour": 0,
+      "field": "precip",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/data/gfs/20261014/subset_9fefb1fe__gfs.t06z.pgrb2.1p00.f000'"
+    },
+    {
+      "variant": "1p00",
+      "hour": 24,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "1p00",
+      "hour": 48,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "1p00",
+      "hour": 72,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "1p00",
+      "hour": 96,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "1p00",
+      "hour": 120,
+      "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    }
+  ],
+  "generatedCount": 87,
+  "failureCount": 21
+}
