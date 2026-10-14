@@ -45,7 +45,7 @@ jobs:
           sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
       - name: Install dependencies
         run: pip install -r requirements-model-maps.txt
-      - name: Generate UKMO maps using Open-Meteo Single Runs
+      - name: Generate UKMO native N1280 bulletins from Met Office S3
         env:
           UKMET_BATCH_SIZE: "50"
           UKMET_API_WORKERS: "3"
@@ -75,8 +75,9 @@ jobs:
           missing=[field for field in required if counts.get(field,0)==0]
           if missing:
             raise SystemExit(f"ERRO: faltam produtos UKMO obrigatórios: {missing}")
-          if r.get("generatedCount",0) != sum(counts.values()):
-            raise SystemExit("ERRO: generatedCount não bate com fieldMapCounts")
+          expected_maps=sum(counts.values())
+          if r.get("generatedCount",0) != expected_maps:
+            raise SystemExit(f"ERRO: generatedCount {r.get('generatedCount')} não bate com fieldMapCounts {expected_maps}")
           if r.get("generatedCount",0) < 100:
             raise SystemExit("ERRO: cobertura UKMO nativa insuficiente")
           if any(count % 6 for count in counts.values()):
