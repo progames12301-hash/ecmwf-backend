@@ -68,8 +68,8 @@ _OPEN_FIELD_STRATEGIES = {}
 _FIELD_ALIASES = {
     '2t': ('2t', 't2m'), '2d': ('2d', 'd2m'),
     '10u': ('10u', 'u10'), '10v': ('10v', 'v10'),
-    '10fg': ('10fg', '10fg3', 'fg10', 'fg310'),
-    '10fg3': ('10fg3', '10fg', 'fg10', 'fg310'),
+    '10fg': ('10fg', '10fg3', 'fg10', 'fg310', 'fg10_3'),
+    '10fg3': ('10fg3', '10fg', 'fg10', 'fg310', 'fg10_3'),
     'tcc': ('tcc',), 'tp': ('tp',), 'tcwv': ('tcwv',),
     'mucape': ('mucape', 'cape'), 'cape': ('cape', 'mucape'),
     'msl': ('msl',), 't': ('t',), 'u': ('u',), 'v': ('v',),
@@ -220,7 +220,7 @@ FIELD_REQUIREMENTS = {
     'temp2m': [('surface', ('2t', 't2m'), 2)],
     'dew2m': [('surface', ('2d', 'd2m'), 2)],
     'wind10m': [('surface', ('10u', 'u10'), 10), ('surface', ('10v', 'v10'), 10)],
-    'gust10m': [('surface', ('10fg', '10fg3', 'fg10', 'fg310'), None)],
+    'gust10m': [('surface', ('10fg', '10fg3', 'fg10', 'fg310', 'fg10_3'), None)],
     'mslp': [('surface', ('msl',), None)],
     'cloud': [('surface', ('tcc',), None)],
     'tcwv': [('surface', ('tcwv',), None)],
@@ -294,8 +294,8 @@ def field(ds, name, step):
         # for the 3-hour post-processing intervals. Keep both aliases.
         # cfgrib may normalize the ECMWF 3-hour gust shortName 10fg3
         # to the variable name fg310. Include it for both gust aliases.
-        '10fg': ('10fg', '10fg3', 'fg10', 'fg310'),
-        '10fg3': ('10fg3', '10fg', 'fg10', 'fg310'),
+        '10fg': ('10fg', '10fg3', 'fg10', 'fg310', 'fg10_3'),
+        '10fg3': ('10fg3', '10fg', 'fg10', 'fg310', 'fg10_3'),
         'tcc': ('tcc', 'tcc'),
         'tp': ('tp', 'tp'),
         'tcwv': ('tcwv', 'tcwv'),
