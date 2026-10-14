@@ -6,6 +6,7 @@ on:
     branches: [model-ukmet]
     paths:
       - 'scripts/generate_ukmet_maps.py'
+      - 'scripts/sideral_map_style.py'
       - 'requirements-model-maps.txt'
       - '.github/workflows/ukmet-maps.yml'
   schedule:
@@ -33,6 +34,11 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+      - name: Cache Sideral map assets
+        uses: actions/cache@v4
+        with:
+          path: work/shared-map-assets
+          key: sideral-map-assets-v1-${{ runner.os }}
       - name: Install native libraries
         run: |
           sudo apt-get update
