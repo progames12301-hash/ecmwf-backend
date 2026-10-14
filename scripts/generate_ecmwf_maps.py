@@ -13,8 +13,9 @@ import cartopy.feature as cfeature
 from scipy.ndimage import maximum_filter, minimum_filter
 from ecmwf.opendata import Client
 from eccodes import codes_get, codes_grib_new_from_file, codes_release
+from sideral_map_style import render_all_views, REGIONS
 
-EXTENT = (-90, -30, -60, 15)
+EXTENT = (-90, -20, -60, 15)
 STEPS = list(range(0, 145, 3)) + list(range(150, 241, 6))
 PRECIP_COLORS = ['#eef8ee', '#c7e9c0', '#74c476', '#31a354', '#006d2c', '#ffffb2', '#fecc5c', '#fd8d3c', '#f03b20', '#bd0026']
 PRECIP_LEVELS = [0.05, 0.2, 0.5, 1, 2, 5, 10, 20, 30, 50, 80]
@@ -404,55 +405,58 @@ def finish(fig, ax, title, unit, mappable=None):
     fig.text(.995, .005, 'ECMWF open data • Sideral Meteorologia', ha='right', va='bottom', fontsize=7, color='#555')
 
 
-def make_map(surface_path, pressure_path, run, step, out, product):
-    sfc = open_field(surface_path)
-    lon, lat = sfc['longitude'].values, sfc['latitude'].values
+def make_map(surface_path, pressure_path, run, step, out):
+    """Build a native ECMWF field once and render six views from that same source grid."""
+    coord_ds = open_field(surface_path)
+    lon, lat = np.asarray(coord_ds['longitude'].values), np.asarray(coord_ds['latitude'].values)
+    coord_ds.close()
     valid = run + timedelta(hours=step)
-    title = f"{PRODUCTS[product]['label']}\nF{step:03d} Valid: {valid:%a %Y-%m-%d %HZ}"
-    fig, ax = base_axes()
-    mappable = None
+    product = next((key for key, value in PRODUCTS.items() if out.parent.name == key), None)
+    if product is None:
+        raise ValueError(f"Produto ECMWF não identificado para {out}")
+    title = PRODUCTS[product]['label']
     unit = ''
+    val = None
+    wind_u = wind_v = None
 
     if product == 'precip':
         ds_tp = open_field(surface_path, type_level='surface', short_name='tp')
-        tp = field(ds_tp, 'tp', step) * 1000.0
-        prev = step - (3 if step <= 144 else 6)
-        rate = np.zeros_like(tp) if step == 0 else np.maximum((tp - field(ds_tp, 'tp', prev) * 1000.0) / (step - prev), 0)
-        ds_tp.close()
-        mappable = ax.contourf(lon, lat, rate, levels=PRECIP_LEVELS, cmap=PRECIP_CMAP, norm=PRECIP_NORM, alpha=.62, extend='max', transform=ccrs.PlateCarree(), zorder=2)
-        unit = 'Precipitação (mm h⁻¹)'
-        ax.set_title(f'Init: {run:%a %Y-%m-%d %HZ} ECMWF IFS HRES  •  South America', fontsize=9, loc='left', pad=8)
+        try:
+            tp = field(ds_tp, 'tp', step) * 1000.0
+            prev = step - (3 if step <= 144 else 6)
+            rate = np.zeros_like(tp) if step == 0 else np.maximum(
+                (tp - field(ds_tp, 'tp', prev) * 1000.0) / (step - prev), 0
+            )
+            val = rate
+        finally:
+            ds_tp.close()
+        unit = 'mm h⁻¹'
+        title = 'Taxa de precipitação'
     elif product in ('temp2m', 'dew2m'):
-        name = '2t' if product == 'temp2m' else '2d'
-        ds2 = open_field(surface_path, level=2, type_level='heightAboveGround', short_name=name)
-        val = field(ds2, name, step) - 273.15
-        ds2.close()
-        levels = np.arange(-10, 41, 2)
-        mappable = ax.contourf(lon, lat, val, levels=levels, cmap='RdYlBu_r', extend='both', transform=ccrs.PlateCarree(), zorder=2)
+        short = '2t' if product == 'temp2m' else '2d'
+        ds2 = open_field(surface_path, level=2, type_level='heightAboveGround', short_name=short)
+        try:
+            val = field(ds2, short, step) - 273.15
+        finally:
+            ds2.close()
         unit = '°C'
     elif product in ('wind10m', 'gust10m'):
         if product == 'wind10m':
             ds_u = open_field(surface_path, level=10, type_level='heightAboveGround', short_name='10u')
             ds_v = open_field(surface_path, level=10, type_level='heightAboveGround', short_name='10v')
-            u, v = field(ds_u, '10u', step), field(ds_v, '10v', step)
-            val = np.hypot(u, v) * 3.6
-            ds_u.close(); ds_v.close()
+            try:
+                wind_u, wind_v = field(ds_u, '10u', step), field(ds_v, '10v', step)
+                val = np.hypot(wind_u, wind_v) * 3.6
+            finally:
+                ds_u.close(); ds_v.close()
         else:
-            # ECMWF changes the gust parameter encoding across lead times.
-            # Prefer the 10 m level, but also accept surface-level encodings:
-            # 10fg is common at short leads, while 10fg3 is used for some
-            # 3-hourly fields (notably F093-F144). Both are requested in retrieve().
-            # Continue requiring an exact forecast hour; never substitute stale data.
             gust = None
             gust_errors = []
             for type_level, gust_level in (('heightAboveGround', 10), ('surface', None)):
                 for short_name in ('10fg', '10fg3'):
                     dsfg = None
                     try:
-                        dsfg = open_field(
-                            surface_path, level=gust_level, type_level=type_level,
-                            short_name=short_name,
-                        )
+                        dsfg = open_field(surface_path, level=gust_level, type_level=type_level, short_name=short_name)
                         gust = field(dsfg, '10fg', step)
                     except (KeyError, ValueError, OSError) as exc:
                         gust_errors.append(f"{type_level}/{short_name}: {exc}")
@@ -465,38 +469,24 @@ def make_map(surface_path, pressure_path, run, step, out, product):
                 if gust is not None:
                     break
             if gust is None:
-                raise RuntimeError(
-                    f"Rajada ECMWF indisponível em F{step:03d}; "
-                    + " | ".join(gust_errors)
-                )
+                raise RuntimeError(f"Rajada ECMWF indisponível em F{step:03d}; " + " | ".join(gust_errors))
             val = gust * 3.6
-        levels = np.arange(0, 81, 5)
-        mappable = ax.contourf(lon, lat, val, levels=levels, cmap='viridis', extend='max', transform=ccrs.PlateCarree(), zorder=2)
         unit = 'km h⁻¹'
-        if product == 'wind10m':
-            sl = max(1, min(12, len(lon)//35)); ax.barbs(lon[::sl], lat[::sl], u[::sl, ::sl], v[::sl, ::sl], length=5, linewidth=.35, transform=ccrs.PlateCarree(), zorder=5)
     elif product == 'mslp':
         ds = open_field(surface_path, type_level='meanSea', short_name='msl')
-        msl = field(ds, 'msl', step) / 100.0
-        levels = np.arange(960, 1041, 2)
-        mappable = ax.contourf(lon, lat, msl, levels=levels, cmap='viridis', alpha=.25, transform=ccrs.PlateCarree(), zorder=2)
-        pc = ax.contour(lon, lat, msl, levels=np.arange(960, 1041, 4), colors='#111', linewidths=.65, transform=ccrs.PlateCarree(), zorder=6)
-        ax.clabel(pc, fmt='%d', fontsize=7, inline=True); add_extrema(ax, lon, lat, msl); unit = 'hPa'
-        ds.close()
+        try:
+            val = field(ds, 'msl', step) / 100.0
+        finally:
+            ds.close()
+        unit = 'hPa'
     elif product == 'cloud':
-        # ECMWF encodes total cloud cover as a surface-to-top-of-atmosphere
-        # layer. Depending on the ecCodes/cfgrib version, its typeOfLevel can
-        # be reported as entireAtmosphere/atmosphere rather than surface.
-        # Try the recognized encodings and only accept the exact forecast step.
         val = None
         cloud_errors = []
         for type_level in ('entireAtmosphere', 'atmosphere', 'surface'):
             ds_tcc = None
             try:
-                ds_tcc = open_field(
-                    surface_path, type_level=type_level, short_name='tcc'
-                )
-                val = field(ds_tcc, 'tcc', step) * 100.0
+                ds_tcc = open_field(surface_path, type_level=type_level, short_name='tcc')
+                val = np.clip(field(ds_tcc, 'tcc', step) * 100.0, 0.0, 100.0)
                 break
             except (KeyError, ValueError, OSError) as exc:
                 cloud_errors.append(f"{type_level}: {exc}")
@@ -504,45 +494,51 @@ def make_map(surface_path, pressure_path, run, step, out, product):
                 if ds_tcc is not None:
                     ds_tcc.close()
         if val is None:
-            raise RuntimeError(
-                f"Cobertura total de nuvens ECMWF indisponível em F{step:03d}; "
-                + " | ".join(cloud_errors)
-            )
-        val = np.clip(val, 0.0, 100.0)
-        mappable = ax.contourf(lon, lat, val, levels=np.arange(0, 101, 10), cmap='Greys', extend='neither', transform=ccrs.PlateCarree(), zorder=2)
+            raise RuntimeError(f"Cobertura total de nuvens ECMWF indisponível em F{step:03d}; " + " | ".join(cloud_errors))
         unit = '%'
     elif product == 'tcwv':
         ds_tcwv = open_field(surface_path, type_level='surface', short_name='tcwv')
-        val = field(ds_tcwv, 'tcwv', step)
-        ds_tcwv.close()
-        mappable = ax.contourf(lon, lat, val, levels=np.arange(0, 71, 5), cmap='GnBu', extend='max', transform=ccrs.PlateCarree(), zorder=2)
+        try:
+            val = field(ds_tcwv, 'tcwv', step)
+        finally:
+            ds_tcwv.close()
         unit = 'kg m⁻²'
     elif product == 'cape':
-        # The current IFS Open Data catalogue exposes most-unstable CAPE.
-        # Generic CAPE (shortName=cape, paramId 59) is not in that feed list.
         ds_cape = open_field(surface_path, type_level='surface', short_name='mucape')
-        val = np.maximum(field(ds_cape, 'mucape', step), 0)
-        ds_cape.close()
-        mappable = ax.contourf(lon, lat, val, levels=[0,250,500,1000,1500,2000,3000,4000,6000], cmap='magma', extend='max', transform=ccrs.PlateCarree(), zorder=2)
+        try:
+            val = np.maximum(field(ds_cape, 'mucape', step), 0)
+        finally:
+            ds_cape.close()
         unit = 'J kg⁻¹'
     else:
-        level = {'t850':850, 'wind850':850, 'gh500':500, 'wind500':500, 'wind250':250}[product]
+        level = {'t850': 850, 'wind850': 850, 'gh500': 500, 'wind500': 500, 'wind250': 250}[product]
         ds = open_field(pressure_path, level=level)
-        if product.startswith('t'):
-            val = field(ds, 't', step) - 273.15
-            mappable = ax.contourf(lon, lat, val, levels=np.arange(-30, 31, 2), cmap='RdYlBu_r', extend='both', transform=ccrs.PlateCarree(), zorder=2); unit='°C'
-        elif product == 'gh500':
-            val = field(ds, 'gh', step)
-            mappable = ax.contourf(lon, lat, val, levels=np.arange(4800, 6001, 60), cmap='viridis', transform=ccrs.PlateCarree(), zorder=2); unit='m'
-            pc=ax.contour(lon,lat,val,levels=np.arange(4800,6001,60),colors='#222',linewidths=.45,transform=ccrs.PlateCarree(),zorder=5); ax.clabel(pc,fmt='%d',fontsize=6)
-        else:
-            u,v=field(ds,'u',step),field(ds,'v',step); val=np.hypot(u,v)*3.6
-            mappable=ax.contourf(lon,lat,val,levels=np.arange(0,121,10),cmap='viridis',extend='max',transform=ccrs.PlateCarree(),zorder=2); unit='km h⁻¹'
-        ds.close()
+        try:
+            if product == 't850':
+                val = field(ds, 't', step) - 273.15
+                unit = '°C'
+            elif product == 'gh500':
+                val = field(ds, 'gh', step)
+                unit = 'm'
+            else:
+                wind_u, wind_v = field(ds, 'u', step), field(ds, 'v', step)
+                val = np.hypot(wind_u, wind_v) * 3.6
+                unit = 'km h⁻¹'
+        finally:
+            ds.close()
 
-    finish(fig, ax, title, unit, mappable)
-    fig.savefig(out, bbox_inches='tight', facecolor='white'); plt.close(fig); sfc.close()
-
+    if val is None:
+        raise RuntimeError(f"ECMWF não produziu valores para {product} F{step:03d}")
+    maps_root = out.parents[2]
+    region_root = maps_root / 'regions'
+    region_relative = out.relative_to(maps_root)
+    return render_all_views(
+        lon, lat, val, product, title, valid, out,
+        source='ECMWF IFS HRES 0.25° • Open Data',
+        region_root=region_root, region_relative=region_relative,
+        unit=unit, wind_u=wind_u, wind_v=wind_v,
+        run_time=run, forecast_hour=step, model_label='ECMWF IFS HRES 0.25°',
+    )
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--output', default='site'); args = ap.parse_args()
@@ -581,8 +577,13 @@ def main():
             product_steps = set(availability.get(product, {}).get('availableSteps', []))
             for step in STEPS:
                 out = pdir / f'f{step:03d}.png'
-                if out.exists():
-                    reused_count += 1
+                maps_root = root / 'maps'
+                region_paths = [
+                    maps_root / 'regions' / region_key / run_id / product / f'f{step:03d}.png'
+                    for region_key in REGIONS
+                ]
+                if out.exists() and all(path.exists() for path in region_paths):
+                    reused_count += 1 + len(region_paths)
                     continue
                 if inventory_ok and step not in product_steps:
                     failures.append({
@@ -592,8 +593,8 @@ def main():
                     print(f"AVISO: {product} F{step:03d} ausente no inventário GRIB; seguindo para o próximo mapa.")
                     continue
                 try:
-                    make_map(surface, pressure, run, step, out, product)
-                    generated_count += 1
+                    written = make_map(surface, pressure, run, step, out)
+                    generated_count += len(written)
                 except Exception as exc:
                     failures.append({
                         'product': product, 'step': step,
@@ -609,7 +610,11 @@ def main():
             'run_id': run_id,
             'generatedAt': datetime.now(timezone.utc).isoformat(),
             'generatedMapsThisRun': generated_count,
+            'generatedFullMapsThisRun': generated_count // 6,
+            'generatedRegionalMapsThisRun': generated_count - (generated_count // 6),
             'existingMapsReused': reused_count,
+            'regionalViewsPerSourceMap': 5,
+            'nativeGridResolutionPreserved': True,
             'failureCount': len(failures),
             'failures': failures,
             'inventoryFile': 'field-inventory.json',
@@ -623,6 +628,15 @@ def main():
         'model': 'ECMWF IFS HRES', 'resolution': '0.25°',
         'run': run.isoformat(), 'run_id': run_id, 'steps': STEPS,
         'products': PRODUCTS, 'updated': datetime.now(timezone.utc).isoformat(),
+        'regionalViewsPerSourceMap': 5,
+        'regionalProducts': {
+            region: {
+                'label': details['label'],
+                'extent': details['extent'],
+                'pathTemplate': f'maps/regions/{region}/{run_id}/<product>/f<step>.png',
+            }
+            for region, details in REGIONS.items()
+        },
         'fieldInventory': f'maps/{run_id}/field-inventory.json',
         'generationReport': f'maps/{run_id}/generation-report.json',
         'productAvailability': {
