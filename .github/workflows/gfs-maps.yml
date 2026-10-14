@@ -58,8 +58,8 @@ jobs:
           r = json.loads(p.read_text(encoding="utf-8"))
           print(json.dumps({"run": r.get("run"), "generatedCount": r.get("generatedCount"),
                             "failureCount": r.get("failureCount"), "variants": r.get("variants")}, indent=2))
-          expected_hours = len(list(range(0, 145, 3)) + list(range(150, 241, 6)))
-          expected_maps = expected_hours * 3 * 7 - 3  # 3 resoluções; precipitação não existe em F000
+          expected_hours = len(list(range(0, 121, 3)) + list(range(126, 385, 6)))
+          expected_maps = (expected_hours * 3 * 14 - 3) * 6  # 14 campos, 3 resoluções, 6 visões por mapa; precip F000 não existe
           if r.get("generatedCount", 0) != expected_maps:
               raise SystemExit(f"ERRO: GFS publicou {r.get('generatedCount')} PNG; esperado {expected_maps}")
           if r.get("failureCount", 0) != 0:
