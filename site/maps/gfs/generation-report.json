@@ -129,13 +129,19 @@
     {
       "variant": "0p25",
       "hour": 0,
-      "field": "precip",
-      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/data/gfs/20261014/subset_9fefb1fe__gfs.t06z.pgrb2.0p25.f000'"
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
     },
     {
       "variant": "0p25",
       "hour": 24,
       "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p25",
+      "hour": 24,
+      "field": "wind10m",
       "error": "AttributeError: 'list' object has no attribute 'data_vars'"
     },
     {
@@ -146,8 +152,20 @@
     },
     {
       "variant": "0p25",
+      "hour": 48,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p25",
       "hour": 72,
       "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p25",
+      "hour": 72,
+      "field": "wind10m",
       "error": "AttributeError: 'list' object has no attribute 'data_vars'"
     },
     {
@@ -158,11 +176,23 @@
     },
     {
       "variant": "0p25",
+      "hour": 96,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p25",
       "hour": 120,
       "field": "temp2m",
       "error": "AttributeError: 'list' object has no attribute 'data_vars'"
     },
     {
+      "variant": "0p25",
+      "hour": 120,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
       "variant": "0p50",
       "hour": 0,
       "field": "temp2m",
@@ -171,13 +201,19 @@
     {
       "variant": "0p50",
       "hour": 0,
-      "field": "precip",
-      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/data/gfs/20261014/subset_9fefb1fe__gfs.t06z.pgrb2.0p50.f000'"
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
     },
     {
       "variant": "0p50",
       "hour": 24,
       "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p50",
+      "hour": 24,
+      "field": "wind10m",
       "error": "AttributeError: 'list' object has no attribute 'data_vars'"
     },
     {
@@ -188,8 +224,20 @@
     },
     {
       "variant": "0p50",
+      "hour": 48,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p50",
       "hour": 72,
       "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p50",
+      "hour": 72,
+      "field": "wind10m",
       "error": "AttributeError: 'list' object has no attribute 'data_vars'"
     },
     {
@@ -200,11 +248,23 @@
     },
     {
       "variant": "0p50",
+      "hour": 96,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "0p50",
       "hour": 120,
       "field": "temp2m",
       "error": "AttributeError: 'list' object has no attribute 'data_vars'"
     },
     {
+      "variant": "0p50",
+      "hour": 120,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
       "variant": "1p00",
       "hour": 0,
       "field": "temp2m",
@@ -213,13 +273,19 @@
     {
       "variant": "1p00",
       "hour": 0,
-      "field": "precip",
-      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/data/gfs/20261014/subset_9fefb1fe__gfs.t06z.pgrb2.1p00.f000'"
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
     },
     {
       "variant": "1p00",
       "hour": 24,
       "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "1p00",
+      "hour": 24,
+      "field": "wind10m",
       "error": "AttributeError: 'list' object has no attribute 'data_vars'"
     },
     {
@@ -230,8 +296,20 @@
     },
     {
       "variant": "1p00",
+      "hour": 48,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "1p00",
       "hour": 72,
       "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "1p00",
+      "hour": 72,
+      "field": "wind10m",
       "error": "AttributeError: 'list' object has no attribute 'data_vars'"
     },
     {
@@ -242,11 +320,43 @@
     },
     {
       "variant": "1p00",
+      "hour": 96,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "1p00",
       "hour": 120,
       "field": "temp2m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "variant": "1p00",
+      "hour": 120,
+      "field": "wind10m",
       "error": "AttributeError: 'list' object has no attribute 'data_vars'"
     }
   ],
+  "skipped": [
+    {
+      "variant": "0p25",
+      "hour": 0,
+      "field": "precip",
+      "reason": "F000 não tem precipitação acumulada desde o tempo inicial"
+    },
+    {
+      "variant": "0p50",
+      "hour": 0,
+      "field": "precip",
+      "reason": "F000 não tem precipitação acumulada desde o tempo inicial"
+    },
+    {
+      "variant": "1p00",
+      "hour": 0,
+      "field": "precip",
+      "reason": "F000 não tem precipitação acumulada desde o tempo inicial"
+    }
+  ],
   "generatedCount": 87,
-  "failureCount": 21
+  "failureCount": 36
 }
