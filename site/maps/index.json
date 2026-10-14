@@ -1,8 +1,8 @@
 {
   "model": "ECMWF IFS HRES",
   "resolution": "0.25\u00b0",
-  "run": "2026-10-13T12:00:00+00:00",
-  "run_id": "2026101312",
+  "run": "2026-10-14T00:00:00+00:00",
+  "run_id": "2026101400",
   "steps": [
     0,
     3,
@@ -142,9 +142,9 @@
       "group": "pressure"
     }
   },
-  "updated": "2026-10-14T02:07:24.278913+00:00",
-  "fieldInventory": "maps/2026101312/field-inventory.json",
-  "generationReport": "maps/2026101312/generation-report.json",
+  "updated": "2026-10-14T13:18:33.059724+00:00",
+  "fieldInventory": "maps/2026101400/field-inventory.json",
+  "generationReport": "maps/2026101400/generation-report.json",
   "productAvailability": {
     "precip": {
       "status": "available",
