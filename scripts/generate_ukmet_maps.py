@@ -1,302 +1,445 @@
 #!/usr/bin/env python3
-"""UKMO Global 10 km maps using the same public Open-Meteo Single Runs source as Sideral Skew-T.
+"""UK Met Office Global deterministic native-grid bulletin runner.
 
-The Open-Meteo API returns point forecasts rather than native GRIB grids. This runner samples the
-UKMO model on a regular 1-degree grid over South America, and records that sampling explicitly
-in its report rather than claiming the PNGs are native 10-km grids.
+Reads the public Met Office NetCDF objects from AWS S3 (N1280; 2560 x 1920 grid),
+crops only by selecting native coordinates, and creates one South America map plus
+five separate regional maps from the same unresampled native values.
 """
 from __future__ import annotations
 
-import concurrent.futures
 import datetime as dt
 import json
 import os
+import re
 import time
+import urllib.error
+import urllib.parse
+import urllib.request
+import xml.etree.ElementTree as ET
 from pathlib import Path
-from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
-from urllib.request import Request, urlopen
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
-from sideral_map_style import render_map as render_sideral_map
+import xarray as xr
+from sideral_map_style import render_all_views
 
-BASE_URL = "https://single-runs-api.open-meteo.com/v1/forecast"
-MODEL_ID = "ukmo_global_deterministic_10km"
-MODEL_LABEL = "UK Met Office Global 10 km"
-USER_AGENT = "SideralMeteorologia/2.0 (UKMO map runner)"
-EXTENT = (-90, -30, -60, 15)  # South America + adjacent oceans
-LATITUDES = np.round(np.arange(-60.0, 15.001, 1.0), 3)
-LONGITUDES = np.round(np.arange(-90.0, -29.999, 1.0), 3)
-FORECAST_HOURS = list(range(0, 55)) + list(range(57, 145, 3)) + list(range(150, 169, 6))
-API_FORECAST_HOURS = 169  # horizonte completo UKMO Global (7 dias), com a cadência nativa
-BATCH_SIZE = int(os.environ.get("UKMET_BATCH_SIZE", "50"))
-MAX_WORKERS = int(os.environ.get("UKMET_API_WORKERS", "3"))
+S3_BUCKET = "met-office-atmospheric-model-data"
+S3_REGION = "eu-west-2"
+S3_BASE = f"https://{S3_BUCKET}.s3.{S3_REGION}.amazonaws.com/"
+S3_PREFIX = "global-deterministic-10km"
 OUT = Path("site/maps/ukmet")
-RUNS_TO_TRY = 8
+CACHE = Path("work/ukmo-native")
+EXTENT = (-90.0, -20.0, -60.0, 15.0)
 
-API_VARIABLES = [
-    "temperature_2m",
-    "dew_point_2m",
-    "precipitation",
-    "pressure_msl",
-    "temperature_850hPa",
-    "geopotential_height_500hPa",
-    "wind_speed_10m",
-    "wind_direction_10m",
-]
+# Met Office Global N1280 valid lead-time schedule (latest OS47 public files).
+LONG_STEPS = list(range(0, 55)) + list(range(57, 145, 3)) + list(range(150, 169, 6))
+SHORT_STEPS = list(range(0, 55)) + list(range(57, 70, 3))
+
 FIELDS = {
-    "temperature_2m": {"label": "Temperatura a 2 m", "unit": "°C", "cmap": "coolwarm"},
-    "dew_point_2m": {"label": "Ponto de orvalho a 2 m", "unit": "°C", "cmap": "BrBG"},
-    "precipitation": {"label": "Precipitação horária", "unit": "mm", "cmap": "YlGnBu"},
-    "pressure_msl": {"label": "Pressão ao nível do mar", "unit": "hPa", "cmap": "viridis"},
-    "temperature_850hPa": {"label": "Temperatura em 850 hPa", "unit": "°C", "cmap": "coolwarm"},
-    "geopotential_height_500hPa": {"label": "Altura geopotencial em 500 hPa", "unit": "m", "cmap": "viridis"},
-    "wind_speed_10m": {"label": "Velocidade do vento a 10 m", "unit": "kn", "cmap": "viridis"},
+    "temperature_2m": {
+        "label": "Temperatura a 2 m", "unit": "°C", "level": None,
+        "parameters": ["temperature_at_screen_level"],
+    },
+    "dew_point_2m": {
+        "label": "Ponto de orvalho a 2 m", "unit": "°C", "level": None,
+        "parameters": ["temperature_of_dew_point_at_screen_level"],
+    },
+    "wind_speed_10m": {
+        "label": "Velocidade do vento a 10 m", "unit": "m s⁻¹", "level": None,
+        "parameters": ["wind_speed_at_10m"],
+    },
+    "wind_gust_10m": {
+        "label": "Rajada máxima a 10 m", "unit": "m s⁻¹", "level": None,
+        "parameters": ["wind_gust_at_10m"],
+    },
+    "precipitation": {
+        "label": "Precipitação acumulada no período", "unit": "mm", "level": None,
+        "parameters": [],  # the accumulation period is selected for each forecast step
+    },
+    "pressure_msl": {
+        "label": "Pressão ao nível do mar", "unit": "Pa", "level": None,
+        "parameters": ["pressure_at_mean_sea_level"],
+    },
+    "cape_surface": {
+        "label": "CAPE superficial", "unit": "J kg⁻¹", "level": None,
+        "parameters": ["CAPE_surface", "cape_surface", "convective_available_potential_energy_at_surface"],
+    },
+    "cloud": {
+        "label": "Cobertura total de nuvens", "unit": "%", "level": None,
+        "parameters": [
+            "cloud_amount_on_whole_atmosphere", "cloud_area_fraction_on_whole_atmosphere",
+            "cloud_area_fraction", "cloud_amount_on_atmosphere",
+        ],
+    },
+    "tcwv": {
+        "label": "Água precipitável total", "unit": "kg m⁻²", "level": None,
+        "parameters": [
+            "total_column_integrated_water_vapour", "total_column_water_vapour",
+            "atmosphere_mass_content_of_water_vapour", "atmosphere_mass_content_of_water_vapor",
+        ],
+    },
+    "temperature_850hPa": {
+        "label": "Temperatura em 850 hPa", "unit": "K", "level": 850,
+        "parameters": ["air_temperature_on_pressure_levels"],
+    },
+    "wind_speed_850hPa": {
+        "label": "Vento em 850 hPa", "unit": "m s⁻¹", "level": 850,
+        "u_parameters": ["eastward_wind_on_pressure_levels"],
+        "v_parameters": ["northward_wind_on_pressure_levels"],
+    },
+    "geopotential_height_500hPa": {
+        "label": "Altura geopotencial em 500 hPa", "unit": "m", "level": 500,
+        "parameters": ["geopotential_height_on_pressure_levels"],
+    },
+    "wind_speed_500hPa": {
+        "label": "Vento em 500 hPa", "unit": "m s⁻¹", "level": 500,
+        "u_parameters": ["eastward_wind_on_pressure_levels"],
+        "v_parameters": ["northward_wind_on_pressure_levels"],
+    },
+    "wind_speed_250hPa": {
+        "label": "Vento em 250 hPa", "unit": "m s⁻¹", "level": 250,
+        "u_parameters": ["eastward_wind_on_pressure_levels"],
+        "v_parameters": ["northward_wind_on_pressure_levels"],
+    },
 }
+REQUIRED_FIELDS = ("temperature_2m", "dew_point_2m", "wind_speed_10m", "pressure_msl", "precipitation", "cape_surface")
+NS = {"s3": "http://s3.amazonaws.com/doc/2006-03-01/"}
 
 
-def api_json(params: dict, retries: int = 5):
-    url = BASE_URL + "?" + urlencode(params)
-    last_error = None
-    for attempt in range(retries):
-        try:
-            request = Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
-            with urlopen(request, timeout=180) as response:
-                payload = json.loads(response.read().decode("utf-8"))
-            if isinstance(payload, dict) and payload.get("error"):
-                raise RuntimeError(str(payload.get("reason", "Open-Meteo returned an API error")))
-            return payload
-        except HTTPError as exc:
-            detail = ""
-            try:
-                body = exc.read().decode("utf-8", errors="replace")
-                detail = body[:500]
-            except Exception:
-                pass
-            last_error = f"HTTP {exc.code} {detail}"
-            if exc.code not in (408, 429, 500, 502, 503, 504) or attempt + 1 == retries:
-                break
-        except (URLError, TimeoutError, OSError, json.JSONDecodeError, RuntimeError) as exc:
-            last_error = f"{type(exc).__name__}: {exc}"
-            if attempt + 1 == retries:
-                break
-        pause = min(30, 2 ** attempt)
-        print(f"[Open-Meteo] tentativa {attempt + 1}/{retries}: {last_error}; nova tentativa em {pause}s", flush=True)
-        time.sleep(pause)
-    raise RuntimeError(f"Open-Meteo Single Runs indisponível após {retries} tentativas: {last_error}")
+def _request(url: str, method: str = "GET", headers: dict | None = None, timeout: int = 90):
+    req = urllib.request.Request(url, method=method, headers={
+        "User-Agent": "SideralMeteorologia-UKMO-native-bulletins/1.0", **(headers or {})
+    })
+    return urllib.request.urlopen(req, timeout=timeout)
 
 
-def candidate_runs(now: dt.datetime):
-    current_hour = (now.hour // 6) * 6
-    latest = now.replace(hour=current_hour, minute=0, second=0, microsecond=0)
-    for back in range(RUNS_TO_TRY):
-        yield latest - dt.timedelta(hours=6 * back)
+def _object_url(key: str) -> str:
+    return S3_BASE + urllib.parse.quote(key, safe="/-_.TZ")
 
 
-def make_params(run: dt.datetime, points: list[tuple[float, float]]):
-    return {
-        "latitude": ",".join(f"{lat:.3f}" for lat, _ in points),
-        "longitude": ",".join(f"{lon:.3f}" for _, lon in points),
-        "hourly": ",".join(API_VARIABLES),
-        "models": MODEL_ID,
-        "run": run.strftime("%Y-%m-%dT%H:%M"),
-        "forecast_hours": str(API_FORECAST_HOURS),
-        "wind_speed_unit": "kn",
-        "temperature_unit": "celsius",
-        "pressure_unit": "hPa",
-        "precipitation_unit": "mm",
-        "timeformat": "iso8601",
-        "timezone": "UTC",
-        "cell_selection": "nearest",
-    }
+def _prefix_for_run(run: dt.datetime) -> str:
+    return f"{S3_PREFIX}/{run:%Y%m%d}T{run:%H}00Z/"
 
 
-def payload_locations(payload, expected_count: int):
-    if isinstance(payload, dict):
-        locations = [payload]
-    elif isinstance(payload, list):
-        locations = payload
-    else:
-        raise RuntimeError(f"Resposta Open-Meteo inesperada: {type(payload).__name__}")
-    if len(locations) != expected_count:
-        raise RuntimeError(f"Open-Meteo retornou {len(locations)} pontos; esperados {expected_count}")
-    return locations
+def _native_f000_exists(run: dt.datetime) -> bool:
+    prefix = _prefix_for_run(run)
+    key = f"{prefix}{run:%Y%m%d}T{run:%H}00Z-PT0000H00M-temperature_at_screen_level.nc"
+    try:
+        with _request(_object_url(key), method="HEAD", timeout=20):
+            return True
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, OSError):
+        return False
 
 
-def find_available_run():
+def latest_run() -> dt.datetime:
+    # UKMO Global files normally arrive ~3–6 hours after model initialisation;
+    # probe the newest plausible cycle and fall back until an actual native file exists.
     now = dt.datetime.now(dt.timezone.utc)
-    probe = [(float(LATITUDES[len(LATITUDES) // 2]), float(LONGITUDES[len(LONGITUDES) // 2]))]
-    errors = []
-    for run in candidate_runs(now):
-        try:
-            payload = api_json(make_params(run, probe), retries=2)
-            loc = payload_locations(payload, 1)[0]
-            hourly = loc.get("hourly") or {}
-            times = hourly.get("time") or []
-            if not times or not any(hourly.get(key) for key in ("temperature_2m", "pressure_msl", "precipitation")):
-                raise RuntimeError("resposta sem séries horárias úteis")
-            print(f"[UKMO] rodada confirmada pela API: {run:%Y-%m-%d %HZ}", flush=True)
+    candidate = now - dt.timedelta(hours=7)
+    cycle = candidate.replace(hour=(candidate.hour // 6) * 6, minute=0, second=0, microsecond=0)
+    for offset in range(20):
+        run = cycle - dt.timedelta(hours=6 * offset)
+        if _native_f000_exists(run):
+            print(f"[UKMO native] rodada disponível confirmada no S3: {run:%Y-%m-%d %HZ}", flush=True)
             return run
-        except Exception as exc:
-            note = f"{run:%Y-%m-%d %HZ}: {exc}"
-            errors.append(note)
-            print(f"[UKMO] rodada ainda indisponível: {note}", flush=True)
-    raise RuntimeError("Nenhuma rodada UKMO recente ficou disponível na Single Runs API: " + " | ".join(errors))
+        print(f"[UKMO native] rodada ainda não publicada: {run:%Y-%m-%d %HZ}", flush=True)
+    raise RuntimeError("Nenhuma rodada UKMO nativa disponível no bucket público nas últimas 120 horas.")
 
 
-def request_batch(args):
-    batch_number, run, points = args
-    payload = api_json(make_params(run, points))
-    locations = payload_locations(payload, len(points))
-    records = []
-    for point, location in zip(points, locations):
-        hourly = location.get("hourly") or {}
-        if not hourly.get("time"):
-            raise RuntimeError(f"Ponto {point} sem eixo temporal na resposta")
-        record = {"point": point, "time": hourly["time"], "values": {}}
-        for variable in API_VARIABLES:
-            raw = hourly.get(variable)
-            if not isinstance(raw, list):
-                record["values"][variable] = []
-            else:
-                record["values"][variable] = [
-                    float(value) if value is not None and np.isfinite(float(value)) else np.nan
-                    for value in raw
-                ]
-        records.append(record)
-    print(f"[Open-Meteo] lote {batch_number}: {len(records)} pontos", flush=True)
-    return records
+def list_cycle_objects(run: dt.datetime) -> dict[int, dict[str, tuple[str, int]]]:
+    """List metadata only for one cycle (about 3–5 pages); never downloads the whole forecast data."""
+    prefix = _prefix_for_run(run)
+    token = None
+    catalogue: dict[int, dict[str, tuple[str, int]]] = {}
+    pages = 0
+    while True:
+        params = {"list-type": "2", "prefix": prefix, "max-keys": "1000"}
+        if token:
+            params["continuation-token"] = token
+        url = S3_BASE + "?" + urllib.parse.urlencode(params)
+        with _request(url, timeout=90) as response:
+            xml_payload = response.read()
+        root = ET.fromstring(xml_payload)
+        pages += 1
+        for obj in root.findall("s3:Contents", NS):
+            key_node = obj.find("s3:Key", NS)
+            size_node = obj.find("s3:Size", NS)
+            if key_node is None or key_node.text is None:
+                continue
+            key = key_node.text
+            name = key.rsplit("/", 1)[-1]
+            match = re.fullmatch(r"(\d{8})T(\d{4})Z-PT(\d{4})H(\d{2})M-(.+)\.nc", name)
+            if not match:
+                continue
+            lead = int(match.group(3)) + (int(match.group(4)) / 60.0)
+            if abs(lead - round(lead)) > 1e-6:
+                continue
+            parameter = match.group(5).lower()
+            size = int(size_node.text) if size_node is not None and size_node.text else 0
+            catalogue.setdefault(int(round(lead)), {})[parameter] = (key, size)
+        truncated = root.findtext("s3:IsTruncated", default="false", namespaces=NS).lower() == "true"
+        token = root.findtext("s3:NextContinuationToken", default=None, namespaces=NS)
+        if not truncated or not token:
+            break
+    if not catalogue:
+        raise RuntimeError(f"O S3 não retornou arquivos NetCDF indexáveis para {prefix}")
+    print(f"[UKMO native] catálogo de {sum(len(v) for v in catalogue.values())} arquivos; páginas={pages}", flush=True)
+    return catalogue
 
 
-def collect_grid(run: dt.datetime):
-    points = [(float(lat), float(lon)) for lat in LATITUDES for lon in LONGITUDES]
-    batches = [points[i:i + BATCH_SIZE] for i in range(0, len(points), BATCH_SIZE)]
-    values = {
-        key: np.full((len(LATITUDES), len(LONGITUDES), API_FORECAST_HOURS), np.nan, dtype=np.float32)
-        for key in API_VARIABLES
-    }
-    time_axis = None
-    jobs = [(i + 1, run, batch) for i, batch in enumerate(batches)]
-    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-        futures = {pool.submit(request_batch, job): job[0] for job in jobs}
-        done = 0
-        for future in concurrent.futures.as_completed(futures):
-            records = future.result()
-            done += 1
-            for record in records:
-                lat, lon = record["point"]
-                yi = int(round(lat - LATITUDES[0]))
-                xi = int(round(lon - LONGITUDES[0]))
-                if time_axis is None:
-                    time_axis = record["time"]
-                elif record["time"] != time_axis:
-                    raise RuntimeError("Eixos temporais divergentes entre pontos UKMO")
-                for key, series in record["values"].items():
-                    count = min(len(series), API_FORECAST_HOURS)
-                    if count:
-                        values[key][yi, xi, :count] = np.asarray(series[:count], dtype=np.float32)
-            if done % 10 == 0 or done == len(batches):
-                print(f"[Open-Meteo] lotes concluídos: {done}/{len(batches)}", flush=True)
-    if not time_axis:
-        raise RuntimeError("A API não retornou eixo temporal para a grade UKMO")
-    return values, time_axis
+def _find_param(catalogue, step: int, candidates: list[str]) -> tuple[str, str] | None:
+    at_step = catalogue.get(step, {})
+    for candidate in candidates:
+        found = at_step.get(candidate.lower())
+        if found:
+            return found[0], candidate
+    return None
 
+
+def _precip_parameter(step: int) -> list[str]:
+    period = 1 if step <= 54 else 3 if step <= 144 else 6
+    return [
+        f"precipitation_accumulation-PT{period:02d}H",
+        f"precipitation_accumulation-PT{period:02d}h",
+    ]
+
+
+def _coord_name(ds: xr.Dataset, axis: str) -> str:
+    aliases = {"latitude": {"latitude", "lat"}, "longitude": {"longitude", "lon", "long"}}
+    for name, var in ds.variables.items():
+        std = str(var.attrs.get("standard_name", "")).lower()
+        lower = name.lower()
+        if std == axis or lower in aliases[axis]:
+            if getattr(var, "ndim", 0) == 1:
+                return name
+    raise ValueError(f"NetCDF sem coordenada 1D de {axis}: {list(ds.variables)[:30]}")
+
+
+def _pressure_dimension(ds: xr.Dataset, da: xr.DataArray, target_hpa: int):
+    candidates = []
+    for dim in da.dims:
+        if dim not in ds.variables:
+            continue
+        coord = ds[dim]
+        if coord.ndim != 1 or coord.size < 2:
+            continue
+        name = (dim + " " + str(coord.attrs.get("standard_name", "")) + " " +
+                str(coord.attrs.get("long_name", ""))).lower()
+        if any(token in name for token in ("pressure", "isobaric", "level")):
+            values = np.asarray(coord.values, dtype=float)
+            finite = values[np.isfinite(values)]
+            if not finite.size:
+                continue
+            target = target_hpa * 100.0 if np.nanmedian(finite) > 2000 else float(target_hpa)
+            idx = int(np.nanargmin(np.abs(values - target)))
+            candidates.append((dim, idx, float(values[idx]), values.size))
+    if not candidates:
+        return None, None
+    dim, idx, selected, _ = sorted(candidates, key=lambda item: abs(item[2] - (target_hpa * 100 if item[2] > 2000 else target_hpa)))[0]
+    return dim, idx
+
+
+def read_native_subset(url: str, key: str, level_hpa: int | None = None):
+    """Read just the South America native-grid chunks from a NetCDF object using HTTP byte ranges."""
+    import fsspec
+    cache_dir = CACHE / "http-cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    # blockcache issues HTTP Range requests instead of downloading the full 10 km global file.
+    open_file = fsspec.open(url, mode="rb", block_size=2 * 1024 * 1024, cache_type="blockcache")
+    with open_file as remote:
+        with xr.open_dataset(remote, engine="h5netcdf", decode_times=False, cache=False) as ds:
+            lat_name = _coord_name(ds, "latitude")
+            lon_name = _coord_name(ds, "longitude")
+            lat_coord = np.asarray(ds[lat_name].values, dtype=float)
+            lon_coord_raw = np.asarray(ds[lon_name].values, dtype=float)
+            lon_normalized = ((lon_coord_raw + 180.0) % 360.0) - 180.0
+            lat_dim = ds[lat_name].dims[0]
+            lon_dim = ds[lon_name].dims[0]
+            y_idx = np.flatnonzero((lat_coord >= EXTENT[2] - 0.6) & (lat_coord <= EXTENT[3] + 0.6))
+            x_idx = np.flatnonzero((lon_normalized >= EXTENT[0] - 0.6) & (lon_normalized <= EXTENT[1] + 0.6))
+            if not len(y_idx) or not len(x_idx):
+                raise ValueError(f"NetCDF sem células na área da América do Sul: lat={lat_coord.shape}, lon={lon_coord_raw.shape}")
+
+            candidates = []
+            for name, var in ds.data_vars.items():
+                if name.lower() in {"flag", "crs", "latitude_bnds", "longitude_bnds"} or "flag" in name.lower():
+                    continue
+                if lat_dim not in var.dims or lon_dim not in var.dims:
+                    continue
+                if level_hpa is None and any(ds[d].size > 1 and any(t in d.lower() for t in ("pressure", "level")) for d in var.dims if d in ds.variables):
+                    continue
+                candidates.append((name, var))
+            if not candidates:
+                raise ValueError(f"NetCDF sem variável principal lat/lon para {key}: {list(ds.data_vars)}")
+            var_name, var = candidates[0]
+            lev_dim, lev_idx = (None, None)
+            if level_hpa is not None:
+                lev_dim, lev_idx = _pressure_dimension(ds, var, level_hpa)
+                if lev_dim is None:
+                    raise ValueError(f"{key}: não encontrei nível de pressão para {level_hpa} hPa em {var_name} ({var.dims})")
+
+            # The South American longitudes occupy a contiguous native-grid interval on the 0–360 grid.
+            y_slice = slice(int(y_idx.min()), int(y_idx.max()) + 1)
+            x_slice = slice(int(x_idx.min()), int(x_idx.max()) + 1)
+            indexers = {lat_dim: y_slice, lon_dim: x_slice}
+            if lev_dim is not None:
+                indexers[lev_dim] = lev_idx
+            data_da = var.isel(indexers)
+            order_dims = [lat_dim, lon_dim]
+            for dim in list(data_da.dims):
+                if dim not in order_dims and data_da.sizes[dim] == 1:
+                    data_da = data_da.isel({dim: 0})
+            if set(data_da.dims) != set(order_dims):
+                extra = [dim for dim in data_da.dims if dim not in order_dims]
+                raise ValueError(f"{key}: dimensões inesperadas após seleção: {data_da.dims} (extras={extra})")
+            data = np.asarray(data_da.transpose(lat_dim, lon_dim).values, dtype=float)
+            lat = lat_coord[y_slice]
+            lon_unwrapped = lon_normalized[x_slice]
+            order_x = np.argsort(lon_unwrapped)
+            lon = lon_unwrapped[order_x]
+            data = data[:, order_x]
+
+            # Post-OS47 pressure-level files include a flag: 1 means below the surface.
+            if lev_dim is not None and "flag" in ds.data_vars:
+                try:
+                    flag_da = ds["flag"]
+                    flag_indexers = {lat_dim: y_slice, lon_dim: x_slice}
+                    if lev_dim in flag_da.dims:
+                        flag_indexers[lev_dim] = lev_idx
+                    for dim in flag_da.dims:
+                        if dim not in flag_indexers and flag_da.sizes[dim] == 1:
+                            flag_indexers[dim] = 0
+                    flag_slice = flag_da.isel({k: v for k, v in flag_indexers.items() if k in flag_da.dims})
+                    flag_values = np.asarray(flag_slice.transpose(lat_dim, lon_dim).values)
+                    flag_values = flag_values[:, order_x]
+                    data = np.where(flag_values == 1, np.nan, data)
+                except Exception as exc:
+                    print(f"[UKMO native] aviso: máscara de pressão não aplicada em {key}: {exc}", flush=True)
+
+            units = str(var.attrs.get("units", ""))
+            if not np.isfinite(data).any():
+                raise ValueError(f"{key}: todos os valores nativos da América do Sul são ausentes")
+            return lon, lat, data, units
+
+
+def _read_field(catalogue, step: int, field_key: str):
+    spec = FIELDS[field_key]
+    if field_key == "precipitation":
+        candidates = _precip_parameter(step)
+    else:
+        candidates = spec.get("parameters", [])
+    found = _find_param(catalogue, step, candidates)
+    if not found:
+        return None
+    object_key, parameter = found
+    url = _object_url(object_key)
+    level = spec.get("level")
+    lon, lat, values, unit = read_native_subset(url, field_key, level)
+    return lon, lat, values, unit, parameter
+
+
+def _read_wind_level(catalogue, step: int, field_key: str):
+    spec = FIELDS[field_key]
+    level = int(spec["level"])
+    u_found = _find_param(catalogue, step, spec["u_parameters"])
+    v_found = _find_param(catalogue, step, spec["v_parameters"])
+    if not u_found or not v_found:
+        return None
+    lu, pu = u_found
+    lv, pv = v_found
+    u_lon, u_lat, u, u_unit = read_native_subset(_object_url(lu), field_key + "_u", level)
+    v_lon, v_lat, v, v_unit = read_native_subset(_object_url(lv), field_key + "_v", level)
+    if u.shape != v.shape or not np.allclose(u_lon, v_lon) or not np.allclose(u_lat, v_lat):
+        raise ValueError(f"{field_key}: grades nativas U/V não coincidem")
+    return u_lon, u_lat, np.hypot(u, v), u_unit or v_unit, u, v, f"{pu}+{pv}"
 
 
 def main():
-    if BATCH_SIZE < 2 or BATCH_SIZE > 80:
-        raise SystemExit("UKMET_BATCH_SIZE deve ficar entre 2 e 80.")
-    if MAX_WORKERS < 1 or MAX_WORKERS > 5:
-        raise SystemExit("UKMET_API_WORKERS deve ficar entre 1 e 5.")
     OUT.mkdir(parents=True, exist_ok=True)
-    created = dt.datetime.now(dt.timezone.utc)
+    CACHE.mkdir(parents=True, exist_ok=True)
+    run = latest_run()
+    tag = run.strftime("%Y%m%d%H")
+    steps = LONG_STEPS if run.hour in (0, 12) else SHORT_STEPS
+    catalogue = list_cycle_objects(run)
     report = {
-        "model": MODEL_LABEL,
-        "modelId": MODEL_ID,
-        "source": "Open-Meteo Single Runs API (the same source/model ID used by Sideral Skew-T)",
-        "createdUTC": created.isoformat(),
-        "status": "pending",
+        "model": "UK Met Office Global Deterministic",
+        "modelId": "gl_det / N1280",
+        "run": tag,
+        "runUTC": run.isoformat(),
+        "source": "Met Office Global Deterministic 10 km • public AWS NetCDF",
+        "license": "British Crown copyright Met Office • CC BY-SA 4.0",
+        "nativeResolution": {"grid": "N1280", "longitudePoints": 2560, "latitudePoints": 1920,
+                             "spacingDegrees": {"longitude": 0.140625, "latitude": 0.09375}},
         "extent": list(EXTENT),
-        "gridSampling": {
-            "latitudeStepDegrees": 1.0,
-            "longitudeStepDegrees": 1.0,
-            "note": "Valores UKMO consultados em pontos regulares pela API; PNG não é um GRIB nativo de 10 km.",
-        },
-        "forecastHours": FORECAST_HOURS,
-        "nativeCadence": {"hourlyThrough": 54, "threeHourlyThrough": 144, "sixHourlyThrough": 168},
+        "forecastHours": steps,
         "generated": [],
         "failures": [],
+        "skipped": [],
+        "fieldMapCounts": {},
     }
-    try:
-        run = find_available_run()
-        values, time_axis = collect_grid(run)
-        report["run"] = run.strftime("%Y%m%d%H")
-        report["timeAxisStartUTC"] = time_axis[0]
-        report["gridPoints"] = int(len(LATITUDES) * len(LONGITUDES))
-        report["validPointsByField"] = {
-            key: int(np.isfinite(arr[:, :, 0]).sum()) for key, arr in values.items()
-        }
-        wind_speed = values["wind_speed_10m"]
-        wind_direction = values["wind_direction_10m"]
-        for field_key in FIELDS:
-            for step in FORECAST_HOURS:
-                if step >= len(time_axis):
-                    report["failures"].append({"field": field_key, "step": step, "error": "validade fora da resposta API"})
+    for step in steps:
+        valid = run + dt.timedelta(hours=step)
+        for key, spec in FIELDS.items():
+            out = OUT / tag / key / f"f{step:03d}.png"
+            try:
+                if key == "precipitation" and step == 0:
+                    report["skipped"].append({"field": key, "step": step, "reason": "Sem acumulação de precipitação no F000"})
                     continue
-                if field_key == "precipitation" and step == 0:
-                    report.setdefault("skipped", []).append({
-                        "field": field_key, "step": step,
-                        "reason": "F000 não representa precipitação acumulada desde o tempo inicial",
-                    })
-                    continue
-                valid_time = str(time_axis[step])
-                out = OUT / report["run"] / field_key / f"f{step:03d}.png"
-                try:
-                    wind_dir = wind_direction[:, :, step] if field_key == "wind_speed_10m" else None
-                    unit = FIELDS[field_key]["unit"]
-                    title = f"{FIELDS[field_key]['label']}\nF{step:03d} Valid: {valid_time.replace('T', ' ')}Z"
-                    render_sideral_map(
-                        LONGITUDES, LATITUDES, values[field_key][:, :, step],
-                        field_key, title, valid_time, out,
-                        source="UK Met Office Global 10 km via Open-Meteo Single Runs",
-                        unit=unit, wind_direction=wind_dir,
+                if key in ("wind_speed_850hPa", "wind_speed_500hPa", "wind_speed_250hPa"):
+                    result = _read_wind_level(catalogue, step, key)
+                    if result is None:
+                        report["skipped"].append({"field": key, "step": step, "reason": "Parâmetro nativo não publicado nesta validade"})
+                        continue
+                    lon, lat, values, units, u, v, parameter = result
+                    title = spec["label"]
+                    written = render_all_views(
+                        lon, lat, values, key, title, valid, out,
+                        source="Met Office Global Deterministic N1280 • AWS open data (CC BY-SA 4.0)",
+                        region_root=OUT / "regions", region_relative=out.relative_to(OUT),
+                        unit=units or spec["unit"], wind_u=u, wind_v=v,
+                        run_time=run, forecast_hour=step, model_label="UKMO Global 10 km • N1280",
                     )
-                    report["generated"].append(str(out))
-                    print(f"OK {out}", flush=True)
-                except Exception as exc:
-                    report["failures"].append({
-                        "field": field_key, "step": step,
-                        "error": f"{type(exc).__name__}: {exc}",
-                    })
-                    print(f"FALHA {field_key} F{step:03d}: {exc}", flush=True)
-        report["generatedCount"] = len(report["generated"])
-        report["failureCount"] = len(report["failures"])
-        if report["generatedCount"] == 0:
-            report["status"] = "failed"
-        elif report["failureCount"]:
-            report["status"] = "complete_with_errors"
-        else:
-            report["status"] = "complete"
-    except Exception as exc:
-        report["status"] = "failed"
-        report["fatalError"] = f"{type(exc).__name__}: {exc}"
-        report["generatedCount"] = len(report["generated"])
-        report["failureCount"] = len(report["failures"]) + 1
-    (OUT / "generation-report.json").write_text(
-        json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
+                else:
+                    result = _read_field(catalogue, step, key)
+                    if result is None:
+                        report["skipped"].append({"field": key, "step": step, "reason": "Parâmetro nativo não publicado nesta validade"})
+                        continue
+                    lon, lat, values, units, parameter = result
+                    wind_direction = None
+                    if key == "wind_speed_10m":
+                        direction_field = _find_param(catalogue, step, ["wind_direction_at_10m"])
+                        if direction_field:
+                            direction_key, _ = direction_field
+                            _, _, wind_direction, _ = read_native_subset(_object_url(direction_key), "wind_direction_10m")
+                    title = spec["label"]
+                    written = render_all_views(
+                        lon, lat, values, key, title, valid, out,
+                        source="Met Office Global Deterministic N1280 • AWS open data (CC BY-SA 4.0)",
+                        region_root=OUT / "regions", region_relative=out.relative_to(OUT),
+                        unit=units or spec["unit"], wind_direction=wind_direction,
+                        run_time=run, forecast_hour=step, model_label="UKMO Global 10 km • N1280",
+                    )
+                report["generated"].extend(str(p) for p in written)
+                report["fieldMapCounts"][key] = report["fieldMapCounts"].get(key, 0) + len(written)
+                print(f"OK UKMO N1280 F{step:03d} {key}: {len(written)} PNGs", flush=True)
+            except Exception as exc:
+                report["failures"].append({
+                    "field": key, "step": step,
+                    "error": f"{type(exc).__name__}: {exc}",
+                })
+                print(f"FALHA UKMO N1280 F{step:03d} {key}: {type(exc).__name__}: {exc}", flush=True)
+
+    report["generatedCount"] = len(report["generated"])
+    report["failureCount"] = len(report["failures"])
+    report["regionalViewsPerSourceMap"] = 5
+    report["gridResolutionPreserved"] = True
+    (OUT / "generation-report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     print(json.dumps({
-        key: report.get(key) for key in (
-            "status", "run", "gridPoints", "generatedCount", "failureCount", "fatalError"
-        )
+        "run": report["run"], "nativeResolution": report["nativeResolution"],
+        "generatedCount": report["generatedCount"], "failureCount": report["failureCount"],
+        "fields": report["fieldMapCounts"], "skippedCount": len(report["skipped"]),
     }, indent=2, ensure_ascii=False), flush=True)
-    if report["status"] == "failed":
-        raise SystemExit("UKMO map generation failed; inspect site/maps/ukmet/generation-report.json")
+    if report["generatedCount"] == 0:
+        raise SystemExit("Nenhum mapa UKMO nativo válido foi gerado; verifique o relatório S3.")
 
 
 if __name__ == "__main__":
