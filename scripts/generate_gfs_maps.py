@@ -12,10 +12,10 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from herbie import Herbie
-from sideral_map_style import render_map as render_sideral_map
+from sideral_map_style import render_all_views
 
-EXTENT = (-90, -30, -60, 15)
-HOURS = list(range(0, 145, 3)) + list(range(150, 241, 6))  # mesma cadência operacional do ECMWF
+EXTENT = (-90, -20, -60, 15)
+HOURS = list(range(0, 121, 3)) + list(range(126, 385, 6))  # cadência nativa do GFS até F384
 VARIANTS = {
     "0p25": "pgrb2.0p25",
     "0p50": "pgrb2.0p50",
@@ -24,12 +24,21 @@ VARIANTS = {
 FIELDS = {
     "temp2m": ("TMP:2 m", "Temperatura a 2 m", "°C", "coolwarm", -10, 40, "temp"),
     "dew2m": ("DPT:2 m", "Ponto de orvalho a 2 m", "°C", "BrBG", -20, 30, "temp"),
-    "wind10m": (None, "Velocidade do vento a 10 m", "m/s", "turbo", 0, 30, "wind"),
-    "precip": ("APCP:surface", "Precipitação acumulada", "mm", "turbo", 0, 80, "precip"),
+    "wind10m": (None, "Velocidade do vento a 10 m", "km h⁻¹", "viridis", 0, 80, "wind"),
+    "gust10m": ("GUST:surface", "Rajada máxima a 10 m", "km h⁻¹", "viridis", 0, 80, "wind"),
+    "precip": ("APCP:surface", "Precipitação acumulada", "mm", "turbo", 0, 500, "precip"),
     "mslp": ("PRMSL:mean sea level", "Pressão ao nível do mar", "hPa", "viridis", 940, 1040, "pressure"),
-    "t850": ("TMP:850 mb", "Temperatura em 850 hPa", "°C", "coolwarm", -25, 25, "temp"),
+    "cloud": ("TCDC:entire atmosphere", "Cobertura total de nuvens", "%", "Greys", 0, 100, "cloud"),
+    "tcwv": ("PWAT:entire atmosphere", "Água precipitável", "mm", "GnBu", 0, 70, "tcwv"),
+    "cape": ("CAPE:surface", "CAPE superficial", "J kg⁻¹", "magma", 0, 6000, "cape"),
+    "t850": ("TMP:850 mb", "Temperatura em 850 hPa", "°C", "coolwarm", -30, 30, "temp"),
+    "wind850": ("UGRD:850 mb", "Vento em 850 hPa", "km h⁻¹", "viridis", 0, 120, "wind"),
     "gh500": ("HGT:500 mb", "Altura geopotencial em 500 hPa", "m", "viridis", 4800, 6000, "height"),
+    "wind500": ("UGRD:500 mb", "Vento em 500 hPa", "km h⁻¹", "viridis", 0, 120, "wind"),
+    "wind250": ("UGRD:250 mb", "Vento em 250 hPa", "km h⁻¹", "viridis", 0, 120, "wind"),
 }
+WIND_LEVELS = {"wind10m": "10 m", "wind850": "850 mb", "wind500": "500 mb", "wind250": "250 mb"}
+
 OUT = Path("site/maps/gfs")
 
 def latest_run():
@@ -68,11 +77,13 @@ def extract(ds):
 
 def make_map(lon, lat, values, units, key, variant, step, valid, out, wind_u=None, wind_v=None):
     _, label, unit, cmap, vmin, vmax, transform = FIELDS[key]
-    title = f"{label}\nF{step:03d} Valid: {valid:%a %Y-%m-%d %HZ}"
-    render_sideral_map(
-        lon, lat, values, key, title, valid, out,
-        source=f"NOAA/NCEP GFS {variant} Open Data", unit=units or unit,
-        wind_u=wind_u, wind_v=wind_v,
+    return render_all_views(
+        lon, lat, values, key, label, valid, out,
+        source=f"NOAA/NCEP GFS {variant} • native grid",
+        region_root=OUT / "regions", region_relative=out.relative_to(OUT),
+        unit=units or unit, wind_u=wind_u, wind_v=wind_v,
+        run_time=valid - timedelta(hours=step), forecast_hour=step,
+        model_label=f"GFS {variant}",
     )
 
 def load_one(h, search):
@@ -98,7 +109,8 @@ def main():
     run = latest_run()
     run_tag = run.strftime("%Y%m%d%H")
     report = {"model": "GFS", "run": run_tag, "source": "NOAA/NCEP via Herbie (AWS/NOMADS)",
-              "extent": list(EXTENT), "forecastHours": HOURS, "variants": {}, "generated": [], "failures": [], "skipped": []}
+              "extent": list(EXTENT), "forecastHours": HOURS, "variants": {},
+              "generated": [], "failures": [], "skipped": []}
     for variant, product in VARIANTS.items():
         variant_count = 0
         for hour in HOURS:
@@ -107,38 +119,44 @@ def main():
                 for key, spec in FIELDS.items():
                     search, label, unit, cmap, vmin, vmax, transform = spec
                     if key == "precip" and hour == 0:
-                        report["skipped"].append({"variant": variant, "hour": hour, "field": key, "reason": "F000 não tem precipitação acumulada desde o tempo inicial"})
+                        report["skipped"].append({"variant": variant, "hour": hour, "field": key,
+                                                  "reason": "F000 não tem precipitação acumulada desde o tempo inicial"})
                         continue
                     try:
                         wind_u = wind_v = None
-                        if key == "wind10m":
-                            lon, lat, wind_u, units = load_one(h, "UGRD:10 m")
-                            lon2, lat2, wind_v, _ = load_one(h, "VGRD:10 m")
+                        if key in WIND_LEVELS:
+                            level = WIND_LEVELS[key]
+                            lon, lat, wind_u, units = load_one(h, f"UGRD:{level}")
+                            lon2, lat2, wind_v, _ = load_one(h, f"VGRD:{level}")
                             if not (np.allclose(lon, lon2) and np.allclose(lat, lat2) and wind_u.shape == wind_v.shape):
-                                raise ValueError("Grades U/V do GFS não coincidem")
+                                raise ValueError(f"Grades U/V do GFS não coincidem para {level}")
                             vals = np.hypot(wind_u, wind_v)
                         else:
                             lon, lat, vals, units = load_one(h, search)
                         out = OUT / variant / run_tag / key / f"f{hour:03d}.png"
-                        make_map(lon, lat, vals, units, key, variant, hour, run + timedelta(hours=hour), out,
-                                 wind_u=wind_u, wind_v=wind_v)
-                        report["generated"].append(str(out)); variant_count += 1
-                        print(f"OK {out}")
+                        written = make_map(lon, lat, vals, units, key, variant, hour,
+                                           run + timedelta(hours=hour), out, wind_u=wind_u, wind_v=wind_v)
+                        report["generated"].extend(str(p) for p in written)
+                        variant_count += len(written)
+                        print(f"OK {out} + {len(written)-1} recortes regionais")
                     except Exception as exc:
                         report["failures"].append({"variant": variant, "hour": hour, "field": key,
                                                    "error": f"{type(exc).__name__}: {exc}"})
-                        print(f"FALHA {variant} F{hour:03d} {key}: {exc}")
+                        print(f"FALHA {variant} F{hour:03d} {key}: {exc}", flush=True)
             except Exception as exc:
                 report["failures"].append({"variant": variant, "hour": hour, "field": "cycle",
                                            "error": f"{type(exc).__name__}: {exc}"})
-                print(f"FALHA ciclo GFS {variant} F{hour:03d}: {exc}")
-        report["variants"][variant] = {"product": product, "mapsGenerated": variant_count}
+                print(f"FALHA ciclo GFS {variant} F{hour:03d}: {exc}", flush=True)
+        report["variants"][variant] = {"product": product, "mapsGeneratedIncludingRegions": variant_count}
     OUT.mkdir(parents=True, exist_ok=True)
     report["generatedCount"] = len(report["generated"])
     report["failureCount"] = len(report["failures"])
+    report["regionalViewsPerSourceMap"] = 5
+    report["gridResolutionPreserved"] = True
     (OUT / "generation-report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(json.dumps({k: report[k] for k in ("run","generatedCount","failureCount","variants")}, indent=2))
+    print(json.dumps({k: report[k] for k in ("run", "generatedCount", "failureCount", "variants")}, indent=2))
     if report["generatedCount"] == 0:
         raise SystemExit("Nenhum mapa GFS foi gerado; veja site/maps/gfs/generation-report.json")
+
 if __name__ == "__main__":
     main()
