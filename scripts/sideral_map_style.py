@@ -201,8 +201,12 @@ def _levels_and_norm(family: str, key: str, title: str):
         "generic": (0.0, 1.0, None),
     }
     lo, hi, ticks = fixed.get(family, fixed["generic"])
-    if family == "temperature" and any(x in str(key).lower() for x in ("850", "500", "250")):
-        lo, hi, ticks = (-80.0, 30.0, np.arange(-80, 31, 10))
+    if family == "temperature" and "850" in str(key).lower():
+        lo, hi, ticks = (-30.0, 30.0, np.arange(-30, 31, 5))
+    elif family == "temperature" and "500" in str(key).lower():
+        lo, hi, ticks = (-70.0, 0.0, np.arange(-70, 1, 10))
+    elif family == "temperature" and "250" in str(key).lower():
+        lo, hi, ticks = (-80.0, -20.0, np.arange(-80, -19, 10))
     if family == "height" and "250" in str(key).lower():
         lo, hi, ticks = (9000.0, 12000.0, np.arange(9000, 12001, 200))
     return Normalize(lo, hi, clip=True), ticks
