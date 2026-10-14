@@ -422,16 +422,12 @@ def make_map(surface_path, pressure_path, run, step, out):
     if product == 'precip':
         ds_tp = open_field(surface_path, type_level='surface', short_name='tp')
         try:
-            tp = field(ds_tp, 'tp', step) * 1000.0
-            prev = step - (3 if step <= 144 else 6)
-            rate = np.zeros_like(tp) if step == 0 else np.maximum(
-                (tp - field(ds_tp, 'tp', prev) * 1000.0) / (step - prev), 0
-            )
-            val = rate
+            # Precipitação acumulada desde o início da rodada, como no boletim de referência.
+            val = np.maximum(field(ds_tp, 'tp', step) * 1000.0, 0.0)
         finally:
             ds_tp.close()
-        unit = 'mm h⁻¹'
-        title = 'Taxa de precipitação'
+        unit = 'mm'
+        title = 'Precipitação acumulada'
     elif product in ('temp2m', 'dew2m'):
         short = '2t' if product == 'temp2m' else '2d'
         ds2 = open_field(surface_path, level=2, type_level='heightAboveGround', short_name=short)
