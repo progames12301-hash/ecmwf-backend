@@ -23,6 +23,7 @@ VARIANTS = {
 FIELDS = {
     "temp2m": ("TMP:2 m", "Temperatura a 2 m", "°C", "coolwarm", -10, 40, "temp"),
     "dew2m": ("DPT:2 m", "Ponto de orvalho a 2 m", "°C", "BrBG", -20, 30, "temp"),
+    "wind10m": (None, "Velocidade do vento a 10 m", "m/s", "turbo", 0, 30, "wind"),
     "precip": ("APCP:surface", "Precipitação acumulada", "mm", "turbo", 0, 80, "precip"),
     "mslp": ("PRMSL:mean sea level", "Pressão ao nível do mar", "hPa", "viridis", 940, 1040, "pressure"),
     "t850": ("TMP:850 mb", "Temperatura em 850 hPa", "°C", "coolwarm", -25, 25, "temp"),
@@ -106,7 +107,7 @@ def main():
     run = latest_run()
     run_tag = run.strftime("%Y%m%d%H")
     report = {"model": "GFS", "run": run_tag, "source": "NOAA/NCEP via Herbie (AWS/NOMADS)",
-              "extent": list(EXTENT), "forecastHours": HOURS, "variants": {}, "generated": [], "failures": []}
+              "extent": list(EXTENT), "forecastHours": HOURS, "variants": {}, "generated": [], "failures": [], "skipped": []}
     for variant, product in VARIANTS.items():
         variant_count = 0
         for hour in HOURS:
@@ -114,8 +115,18 @@ def main():
                 h = Herbie(run.replace(tzinfo=None), model="gfs", product=product, fxx=hour, priority=["aws", "nomads"])
                 for key, spec in FIELDS.items():
                     search, label, unit, cmap, vmin, vmax, transform = spec
+                    if key == "precip" and hour == 0:
+                        report["skipped"].append({"variant": variant, "hour": hour, "field": key, "reason": "F000 não tem precipitação acumulada desde o tempo inicial"})
+                        continue
                     try:
-                        lon, lat, vals, units = load_one(h, search)
+                        if key == "wind10m":
+                            lon, lat, uvals, units = load_one(h, "UGRD:10 m")
+                            lon2, lat2, vvals, _ = load_one(h, "VGRD:10 m")
+                            if not (np.allclose(lon, lon2) and np.allclose(lat, lat2) and uvals.shape == vvals.shape):
+                                raise ValueError("Grades U/V do GFS não coincidem")
+                            vals = np.hypot(uvals, vvals)
+                        else:
+                            lon, lat, vals, units = load_one(h, search)
                         out = OUT / variant / run_tag / key / f"f{hour:03d}.png"
                         make_map(lon, lat, vals, units, key, f"{variant} • F{hour:03d}", run + timedelta(hours=hour), out)
                         report["generated"].append(str(out)); variant_count += 1
