@@ -2,7 +2,7 @@
   "model": "UK Met Office Global 10 km",
   "modelId": "ukmo_global_deterministic_10km",
   "source": "Open-Meteo Single Runs API (the same source/model ID used by Sideral Skew-T)",
-  "createdUTC": "2026-10-14T16:32:51.264848+00:00",
+  "createdUTC": "2026-10-14T16:46:51.345802+00:00",
   "status": "complete_with_errors",
   "extent": [
     -90,
@@ -83,16 +83,16 @@
   ],
   "run": "2026101406",
   "timeAxisStartUTC": "2026-10-14T06:00",
-  "gridPoints": 4560,
+  "gridPoints": 4636,
   "validPointsByField": {
-    "temperature_2m": 4560,
-    "dew_point_2m": 4560,
+    "temperature_2m": 4636,
+    "dew_point_2m": 4636,
     "precipitation": 0,
-    "pressure_msl": 4560,
-    "temperature_850hPa": 4560,
-    "geopotential_height_500hPa": 4560,
-    "wind_speed_10m": 4560,
-    "wind_direction_10m": 4560
+    "pressure_msl": 4636,
+    "temperature_850hPa": 4636,
+    "geopotential_height_500hPa": 4636,
+    "wind_speed_10m": 4636,
+    "wind_direction_10m": 4636
   },
   "generatedCount": 48,
   "failureCount": 1
