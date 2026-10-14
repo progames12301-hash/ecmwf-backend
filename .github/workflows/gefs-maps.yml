@@ -16,7 +16,7 @@ permissions:
 
 concurrency:
   group: gefs-ensemble-maps
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   generate:
