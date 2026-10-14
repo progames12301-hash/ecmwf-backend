@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Operational DWD ICON-GLOBAL maps for South America; downloads only selected fields/steps."""
 from __future__ import annotations
-import bz2, json, re, urllib.request
+import bz2, json, re, shutil, urllib.request
 from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urljoin
 import numpy as np
 import xarray as xr
+from netCDF4 import Dataset
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -19,6 +20,9 @@ EXTENT=(-90,-30,-60,15)
 STEPS=[0,24,48,72,120]
 BASE="https://opendata.dwd.de/weather/nwp/icon/grib"
 CACHE=Path("work/icon-grib")
+GRID_CACHE=Path("work/icon-grid")
+COORDS_FILE=GRID_CACHE/"icon_coords_subset.npz"
+GRID_URL="https://opendata.dwd.de/weather/lib/cdo/icon_grid_0026_R03B07_G.nc.bz2"
 OUT=Path("site/maps/icon/global")
 # DWD ICON-GLOBAL operational single-level fields. EU-only ICON is intentionally not used:
 # it does not cover South America.
@@ -62,6 +66,47 @@ def fetch_grib(run,step,folder,suffix):
  out.write_bytes(payload)
  return out
 
+def ensure_coordinates():
+ # ICON global GRIB stores values on its native unstructured grid without lon/lat.
+ # Cache the relevant grid-point coordinates extracted from DWD's official grid file.
+ if COORDS_FILE.exists() and COORDS_FILE.stat().st_size>1000:
+  with np.load(COORDS_FILE) as saved:
+   if all(k in saved for k in ("indices","lon","lat","total")):
+    return
+ GRID_CACHE.mkdir(parents=True,exist_ok=True)
+ compressed=GRID_CACHE/"icon_grid_0026_R03B07_G.nc.bz2"
+ grid_path=GRID_CACHE/"icon_grid_0026_R03B07_G.nc"
+ if not compressed.exists() or compressed.stat().st_size<100000000:
+  req=urllib.request.Request(GRID_URL,headers={"User-Agent":"SideralMeteorologia-map-runner/1.0"})
+  temp=compressed.with_suffix(".download")
+  with urllib.request.urlopen(req,timeout=900) as response, open(temp,"wb") as out:
+   shutil.copyfileobj(response,out,length=1024*1024)
+  if temp.stat().st_size<100000000:
+   temp.unlink(missing_ok=True)
+   raise ValueError("Download incompleto do grid ICON Global: arquivo menor que 100 MB")
+  temp.replace(compressed)
+ if not grid_path.exists() or grid_path.stat().st_size<1000000000:
+  with bz2.open(compressed,"rb") as src, open(grid_path,"wb") as dst:
+   shutil.copyfileobj(src,dst,length=1024*1024)
+ if grid_path.stat().st_size<1000000000:
+  raise ValueError("O grid ICON Global descompactado parece incompleto")
+ with Dataset(str(grid_path),"r") as grid:
+  if "clon" not in grid.variables or "clat" not in grid.variables:
+   raise ValueError(f"Grid DWD sem clon/clat: {list(grid.variables)[:30]}")
+  lon=np.rad2deg(np.asarray(grid.variables["clon"][:],dtype=np.float64))
+  lat=np.rad2deg(np.asarray(grid.variables["clat"][:],dtype=np.float64))
+ lon=((lon+180.0)%360.0)-180.0
+ mask=(lon>=EXTENT[0]-5)&(lon<=EXTENT[1]+5)&(lat>=EXTENT[2]-5)&(lat<=EXTENT[3]+5)
+ indices=np.flatnonzero(mask).astype(np.int32)
+ if indices.size<1000:
+  raise ValueError(f"Poucos pontos do grid ICON na área solicitada: {indices.size}")
+ np.savez_compressed(COORDS_FILE,indices=indices,lon=lon[mask].astype(np.float32),
+                     lat=lat[mask].astype(np.float32),total=np.int64(lon.size))
+ # Only the compact coordinate subset is needed for subsequent runs.
+ grid_path.unlink(missing_ok=True)
+ compressed.unlink(missing_ok=True)
+ print(f"Grid ICON preparado: {indices.size:,} pontos na área de estudo; arquivo de coordenadas={COORDS_FILE}")
+
 def extract(path):
  ds=xr.open_dataset(path,engine="cfgrib",decode_timedelta=False,backend_kwargs={"indexpath":""})
  try:
@@ -71,16 +116,16 @@ def extract(path):
    if arr.ndim==1:
     chosen=(da,arr); break
   if chosen is None: raise ValueError(f"ICON não contém campo 1D não estruturado: {list(ds.data_vars)}")
-  da,values=chosen
-  lon=np.asarray(ds["longitude"].values).reshape(-1)
-  lat=np.asarray(ds["latitude"].values).reshape(-1)
-  if lon.size!=values.size or lat.size!=values.size:
-   raise ValueError(f"Dimensões ICON incoerentes: val={values.shape}, lon={lon.shape}, lat={lat.shape}")
-  lon=((lon+180)%360)-180
-  mask=(lon>=EXTENT[0]-5)&(lon<=EXTENT[1]+5)&(lat>=EXTENT[2]-5)&(lat<=EXTENT[3]+5)&np.isfinite(values)
-  lon,lat,values=lon[mask],lat[mask],np.asarray(values[mask],dtype=float)
-  if values.size<100: raise ValueError(f"Poucos pontos ICON na área: {values.size}")
-  return lon,lat,values,str(da.attrs.get("units",""))
+  da,raw_values=chosen
+  values=np.asarray(raw_values,dtype=float).reshape(-1)
+  with np.load(COORDS_FILE) as coords:
+   indices=coords["indices"]; lon=coords["lon"]; lat=coords["lat"]; total=int(coords["total"])
+  if values.size!=total or lon.size!=indices.size or lat.size!=indices.size:
+   raise ValueError(f"Grade ICON incoerente: valores={values.size}, totalGrid={total}, pontosÁrea={indices.size}")
+  values=values[indices]
+  valid=np.isfinite(values)
+  if int(valid.sum())<100: raise ValueError("Poucos valores ICON válidos na área")
+  return lon[valid],lat[valid],values[valid],str(da.attrs.get("units",""))
  finally:
   ds.close()
 
@@ -140,6 +185,14 @@ def render_wind(u,v,run,step,out):
 def main():
  run=latest_run(); tag=run.strftime("%Y%m%d%H")
  report={"model":"ICON-GLOBAL","run":tag,"source":BASE,"extent":list(EXTENT),"forecastHours":STEPS,"generated":[],"failures":[]}
+ try:
+  ensure_coordinates()
+ except Exception as exc:
+  report["failures"].append({"field":"grid_coordinates","error":f"{type(exc).__name__}: {exc}"})
+  report["generatedCount"]=0; report["failureCount"]=1
+  OUT.mkdir(parents=True,exist_ok=True)
+  (OUT/"generation-report.json").write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
+  raise SystemExit(f"Falha ao preparar grid ICON Global: {exc}")
  for step in STEPS:
   for key,cfg in FIELDS.items():
    try:
