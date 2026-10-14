@@ -111,7 +111,7 @@ def main():
         variant_count = 0
         for hour in HOURS:
             try:
-                h = Herbie(run, model="gfs", product=product, fxx=hour, priority=["aws", "nomads"])
+                h = Herbie(run.replace(tzinfo=None), model="gfs", product=product, fxx=hour, priority=["aws", "nomads"])
                 for key, spec in FIELDS.items():
                     search, label, unit, cmap, vmin, vmax, transform = spec
                     try:
