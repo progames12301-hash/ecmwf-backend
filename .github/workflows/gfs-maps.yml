@@ -52,8 +52,12 @@ jobs:
           r = json.loads(p.read_text(encoding="utf-8"))
           print(json.dumps({"run": r.get("run"), "generatedCount": r.get("generatedCount"),
                             "failureCount": r.get("failureCount"), "variants": r.get("variants")}, indent=2))
-          if r.get("generatedCount", 0) < 1:
-              raise SystemExit("ERRO: nenhum mapa GFS gerado")
+          expected_hours = len(list(range(0, 145, 3)) + list(range(150, 241, 6)))
+          expected_maps = expected_hours * 3 * 7 - 3  # 3 resoluções; precipitação não existe em F000
+          if r.get("generatedCount", 0) != expected_maps:
+              raise SystemExit(f"ERRO: GFS publicou {r.get('generatedCount')} PNG; esperado {expected_maps}")
+          if r.get("failureCount", 0) != 0:
+              raise SystemExit(f"ERRO: GFS tem {r.get('failureCount')} campos/validades com falha")
       - name: Publish maps to model-gfs branch
         run: |
           git config user.name "github-actions[bot]"
