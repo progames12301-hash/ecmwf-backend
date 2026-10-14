@@ -15,8 +15,9 @@ import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
+from sideral_map_style import render_all_views
 
-EXTENT=(-90,-30,-60,15)
+EXTENT=(-90,-20,-60,15)
 def steps_for_run(run):
  # DWD ICON Global: F000-F078 horário; depois a cada 3 h.
  # As rodadas 00/12Z chegam a F180; 06/18Z chegam a F120.
@@ -143,11 +144,12 @@ def extract(path):
 def render(lon,lat,values,key,run,step,out,units=""):
  cfg=FIELDS[key]
  valid=run+timedelta(hours=step)
- title=f"{cfg['label']}\nF{step:03d} Valid: {valid:%a %Y-%m-%d %HZ}"
- render_sideral_map(
-  lon,lat,values,key,title,valid,out,
-  source="DWD ICON Global Open Data",unit=units or cfg["unit"],
-  unstructured=True,
+ return render_all_views(
+  lon,lat,values,key,cfg["label"],valid,out,
+  source="DWD ICON Global Open Data • native grid",
+  region_root=OUT/"regions",region_relative=out.relative_to(OUT),
+  unit=units or cfg["unit"],unstructured=True,
+  run_time=run,forecast_hour=step,model_label="DWD ICON Global",
  )
 
 def render_wind(u,v,run,step,out):
@@ -156,11 +158,12 @@ def render_wind(u,v,run,step,out):
   raise ValueError("Grades U/V do ICON não coincidem")
  speed=np.hypot(uv,vv)
  valid=run+timedelta(hours=step)
- title=f"Velocidade do vento a 10 m\nF{step:03d} Valid: {valid:%a %Y-%m-%d %HZ}"
- render_sideral_map(
-  lon,lat,speed,"wind10m",title,valid,out,
-  source="DWD ICON Global Open Data",unit=units or "m/s",
-  wind_u=uv,wind_v=vv,unstructured=True,
+ return render_all_views(
+  lon,lat,speed,"wind10m","Velocidade do vento a 10 m",valid,out,
+  source="DWD ICON Global Open Data • native grid",
+  region_root=OUT/"regions",region_relative=out.relative_to(OUT),
+  unit=units or "m/s",wind_u=uv,wind_v=vv,unstructured=True,
+  run_time=run,forecast_hour=step,model_label="DWD ICON Global",
  )
 
 def main():
@@ -179,21 +182,21 @@ def main():
   for key,cfg in FIELDS.items():
    try:
     path=fetch_grib(run,step,cfg["folder"],cfg["suffix"]); lon,lat,values,units=extract(path)
-    out=OUT/tag/key/f"f{step:03d}.png"; render(lon,lat,values,key,run,step,out,units)
-    report["generated"].append(str(out)); print(f"OK {out}")
+    out=OUT/tag/key/f"f{step:03d}.png"; written=render(lon,lat,values,key,run,step,out,units)
+    report["generated"].extend(str(p) for p in written); print(f"OK {out} + {len(written)-1} recortes regionais")
    except Exception as exc:
     report["failures"].append({"hour":step,"field":key,"error":f"{type(exc).__name__}: {exc}"})
     print(f"FALHA ICON F{step:03d} {key}: {exc}")
   try:
    up=fetch_grib(run,step,WIND["u"]["folder"],WIND["u"]["suffix"])
    vp=fetch_grib(run,step,WIND["v"]["folder"],WIND["v"]["suffix"])
-   out=OUT/tag/"wind10m"/f"f{step:03d}.png"; render_wind(up,vp,run,step,out)
-   report["generated"].append(str(out)); print(f"OK {out}")
+   out=OUT/tag/"wind10m"/f"f{step:03d}.png"; written=render_wind(up,vp,run,step,out)
+   report["generated"].extend(str(p) for p in written); print(f"OK {out} + {len(written)-1} recortes regionais")
   except Exception as exc:
    report["failures"].append({"hour":step,"field":"wind10m","error":f"{type(exc).__name__}: {exc}"})
    print(f"FALHA ICON F{step:03d} wind10m: {exc}")
  OUT.mkdir(parents=True,exist_ok=True)
- report["generatedCount"]=len(report["generated"]); report["failureCount"]=len(report["failures"])
+ report["generatedCount"]=len(report["generated"]); report["failureCount"]=len(report["failures"]); report["regionalViewsPerSourceMap"]=5; report["gridResolutionPreserved"]=True
  (OUT/"generation-report.json").write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
  print(json.dumps({k:report[k] for k in ("run","generatedCount","failureCount")},indent=2))
  if report["generatedCount"]==0: raise SystemExit("Nenhum mapa ICON gerado; consulte o relatório")
