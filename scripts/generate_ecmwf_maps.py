@@ -16,6 +16,7 @@ from eccodes import codes_get, codes_grib_new_from_file, codes_release
 from sideral_map_style import render_all_views, REGIONS
 
 EXTENT = (-90, -20, -60, 15)
+STYLE_VERSION = 'sideral-bulletin-v2-20261014'
 STEPS = list(range(0, 145, 3)) + list(range(150, 241, 6))
 PRECIP_COLORS = ['#eef8ee', '#c7e9c0', '#74c476', '#31a354', '#006d2c', '#ffffb2', '#fecc5c', '#fd8d3c', '#f03b20', '#bd0026']
 PRECIP_LEVELS = [0.05, 0.2, 0.5, 1, 2, 5, 10, 20, 30, 50, 80]
@@ -540,6 +541,13 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--output', default='site'); args = ap.parse_args()
     root = Path(args.output); root.mkdir(parents=True, exist_ok=True)
     run = latest_available_run(); run_id = run.strftime('%Y%m%d%H'); run_dir = root / 'maps' / run_id; run_dir.mkdir(parents=True, exist_ok=True)
+    style_marker = root / 'maps' / 'render-style-version.json'
+    try:
+        previous_style = json.loads(style_marker.read_text(encoding='utf-8')).get('version')
+    except (OSError, ValueError, AttributeError):
+        previous_style = None
+    style_cache_valid = previous_style == STYLE_VERSION
+    print(f"Estilo do boletim: {STYLE_VERSION}; cache de imagens válido={style_cache_valid}", flush=True)
     client = Client(source='ecmwf', model='ifs', resol='0p25', infer_stream_keyword=True)
     with tempfile.TemporaryDirectory() as tmp:
         surface, pressure = retrieve(client, run, Path(tmp))
@@ -578,7 +586,8 @@ def main():
                     maps_root / 'regions' / region_key / run_id / product / f'f{step:03d}.png'
                     for region_key in REGIONS
                 ]
-                if out.exists() and all(path.exists() for path in region_paths):
+                # Never reuse PNGs from an older bulletin renderer. Missing or stale style marker forces native-grid rerender.
+                if style_cache_valid and out.exists() and all(path.exists() for path in region_paths):
                     reused_count += 1 + len(region_paths)
                     continue
                 if inventory_ok and step not in product_steps:
@@ -602,6 +611,7 @@ def main():
         report = {
             'model': 'ECMWF IFS HRES',
             'resolution': '0.25°',
+            'renderStyleVersion': STYLE_VERSION,
             'run': run.isoformat(),
             'run_id': run_id,
             'generatedAt': datetime.now(timezone.utc).isoformat(),
@@ -644,7 +654,15 @@ def main():
             for product, details in availability.items()
         },
     }
+    manifest['renderStyleVersion'] = STYLE_VERSION
     (root/'maps'/'index.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
+    if report.get('failureCount', 1) == 0:
+        style_marker.write_text(json.dumps({
+            'version': STYLE_VERSION,
+            'updated': datetime.now(timezone.utc).isoformat(),
+            'model': 'ECMWF IFS HRES 0.25°',
+            'nativeGridResolutionPreserved': True,
+        }, indent=2), encoding='utf-8')
     print(json.dumps(report, indent=2))
 
 if __name__ == '__main__': main()
