@@ -1,0 +1,77 @@
+name: ICON Global maps
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [model-icon]
+    paths:
+      - 'scripts/generate_icon_maps.py'
+      - 'requirements-model-maps.txt'
+      - '.github/workflows/icon-maps.yml'
+  schedule:
+    - cron: '30 9,21 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: icon-global-maps
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Checkout ICON branch
+        uses: actions/checkout@v4
+        with:
+          ref: model-icon
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Cache ICON global grid coordinate subset
+        uses: actions/cache@v4
+        with:
+          path: work/icon-grid/icon_coords_subset.npz
+          key: icon-gridcoords-r03b07-southamerica-v1
+      - name: Install native libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
+      - name: Install dependencies
+        run: pip install -r requirements-model-maps.txt
+      - name: Generate ICON Global maps
+        run: python scripts/generate_icon_maps.py
+      - name: Validate outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("site/maps/icon/global/generation-report.json")
+          if not p.exists(): raise SystemExit("ERRO: relatório ICON ausente")
+          r=json.loads(p.read_text(encoding="utf-8"))
+          print(json.dumps({"run":r.get("run"),"generatedCount":r.get("generatedCount"),
+                            "failureCount":r.get("failureCount")},indent=2))
+          if r.get("generatedCount",0)<1: raise SystemExit("ERRO: nenhum mapa ICON gerado")
+      - name: Publish maps to model-icon branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/maps/icon
+          if git diff --cached --quiet; then echo "Nenhuma alteração nos mapas ICON."; exit 0; fi
+          git commit -m "chore: atualizar mapas ICON Global"
+          for attempt in 1 2 3 4 5; do
+            git fetch origin model-icon
+            git rebase origin/model-icon
+            if git push origin HEAD:model-icon; then
+              echo "Mapas ICON publicados na branch model-icon."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "ERRO: publicação ICON falhou após 5 tentativas."
+          exit 1
