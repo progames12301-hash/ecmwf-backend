@@ -24,185 +24,94 @@
   ],
   "generated": [
     "site/maps/gefs/atmos.5/mean/2026101406/temp2m/f000.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/wind10m/f000.png",
     "site/maps/gefs/atmos.5/mean/2026101406/mslp/f000.png",
     "site/maps/gefs/atmos.5/mean/2026101406/gh500/f000.png",
     "site/maps/gefs/atmos.5/mean/2026101406/temp2m/f024.png",
     "site/maps/gefs/atmos.5/mean/2026101406/precip/f024.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/wind10m/f024.png",
     "site/maps/gefs/atmos.5/mean/2026101406/mslp/f024.png",
     "site/maps/gefs/atmos.5/mean/2026101406/gh500/f024.png",
     "site/maps/gefs/atmos.5/mean/2026101406/temp2m/f048.png",
     "site/maps/gefs/atmos.5/mean/2026101406/precip/f048.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/wind10m/f048.png",
     "site/maps/gefs/atmos.5/mean/2026101406/mslp/f048.png",
     "site/maps/gefs/atmos.5/mean/2026101406/gh500/f048.png",
     "site/maps/gefs/atmos.5/mean/2026101406/temp2m/f072.png",
     "site/maps/gefs/atmos.5/mean/2026101406/precip/f072.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/wind10m/f072.png",
     "site/maps/gefs/atmos.5/mean/2026101406/mslp/f072.png",
     "site/maps/gefs/atmos.5/mean/2026101406/gh500/f072.png",
     "site/maps/gefs/atmos.5/mean/2026101406/temp2m/f096.png",
     "site/maps/gefs/atmos.5/mean/2026101406/precip/f096.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/wind10m/f096.png",
     "site/maps/gefs/atmos.5/mean/2026101406/mslp/f096.png",
     "site/maps/gefs/atmos.5/mean/2026101406/gh500/f096.png",
     "site/maps/gefs/atmos.5/mean/2026101406/temp2m/f120.png",
     "site/maps/gefs/atmos.5/mean/2026101406/precip/f120.png",
+    "site/maps/gefs/atmos.5/mean/2026101406/wind10m/f120.png",
     "site/maps/gefs/atmos.5/mean/2026101406/mslp/f120.png",
     "site/maps/gefs/atmos.5/mean/2026101406/gh500/f120.png",
     "site/maps/gefs/atmos.5/spread/2026101406/temp2m/f000.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/wind10m/f000.png",
     "site/maps/gefs/atmos.5/spread/2026101406/mslp/f000.png",
     "site/maps/gefs/atmos.5/spread/2026101406/gh500/f000.png",
     "site/maps/gefs/atmos.5/spread/2026101406/temp2m/f024.png",
     "site/maps/gefs/atmos.5/spread/2026101406/precip/f024.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/wind10m/f024.png",
     "site/maps/gefs/atmos.5/spread/2026101406/mslp/f024.png",
     "site/maps/gefs/atmos.5/spread/2026101406/gh500/f024.png",
     "site/maps/gefs/atmos.5/spread/2026101406/temp2m/f048.png",
     "site/maps/gefs/atmos.5/spread/2026101406/precip/f048.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/wind10m/f048.png",
     "site/maps/gefs/atmos.5/spread/2026101406/mslp/f048.png",
     "site/maps/gefs/atmos.5/spread/2026101406/gh500/f048.png",
     "site/maps/gefs/atmos.5/spread/2026101406/temp2m/f072.png",
     "site/maps/gefs/atmos.5/spread/2026101406/precip/f072.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/wind10m/f072.png",
     "site/maps/gefs/atmos.5/spread/2026101406/mslp/f072.png",
     "site/maps/gefs/atmos.5/spread/2026101406/gh500/f072.png",
     "site/maps/gefs/atmos.5/spread/2026101406/temp2m/f096.png",
     "site/maps/gefs/atmos.5/spread/2026101406/precip/f096.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/wind10m/f096.png",
     "site/maps/gefs/atmos.5/spread/2026101406/mslp/f096.png",
     "site/maps/gefs/atmos.5/spread/2026101406/gh500/f096.png",
     "site/maps/gefs/atmos.5/spread/2026101406/temp2m/f120.png",
     "site/maps/gefs/atmos.5/spread/2026101406/precip/f120.png",
+    "site/maps/gefs/atmos.5/spread/2026101406/wind10m/f120.png",
     "site/maps/gefs/atmos.5/spread/2026101406/mslp/f120.png",
     "site/maps/gefs/atmos.5/spread/2026101406/gh500/f120.png",
     "site/maps/gefs/atmos.5/control/2026101406/temp2m/f000.png",
+    "site/maps/gefs/atmos.5/control/2026101406/wind10m/f000.png",
     "site/maps/gefs/atmos.5/control/2026101406/mslp/f000.png",
     "site/maps/gefs/atmos.5/control/2026101406/gh500/f000.png",
     "site/maps/gefs/atmos.5/control/2026101406/temp2m/f024.png",
     "site/maps/gefs/atmos.5/control/2026101406/precip/f024.png",
+    "site/maps/gefs/atmos.5/control/2026101406/wind10m/f024.png",
     "site/maps/gefs/atmos.5/control/2026101406/mslp/f024.png",
     "site/maps/gefs/atmos.5/control/2026101406/gh500/f024.png",
     "site/maps/gefs/atmos.5/control/2026101406/temp2m/f048.png",
     "site/maps/gefs/atmos.5/control/2026101406/precip/f048.png",
+    "site/maps/gefs/atmos.5/control/2026101406/wind10m/f048.png",
     "site/maps/gefs/atmos.5/control/2026101406/mslp/f048.png",
     "site/maps/gefs/atmos.5/control/2026101406/gh500/f048.png",
     "site/maps/gefs/atmos.5/control/2026101406/temp2m/f072.png",
     "site/maps/gefs/atmos.5/control/2026101406/precip/f072.png",
+    "site/maps/gefs/atmos.5/control/2026101406/wind10m/f072.png",
     "site/maps/gefs/atmos.5/control/2026101406/mslp/f072.png",
     "site/maps/gefs/atmos.5/control/2026101406/gh500/f072.png",
     "site/maps/gefs/atmos.5/control/2026101406/temp2m/f096.png",
     "site/maps/gefs/atmos.5/control/2026101406/precip/f096.png",
+    "site/maps/gefs/atmos.5/control/2026101406/wind10m/f096.png",
     "site/maps/gefs/atmos.5/control/2026101406/mslp/f096.png",
     "site/maps/gefs/atmos.5/control/2026101406/gh500/f096.png",
     "site/maps/gefs/atmos.5/control/2026101406/temp2m/f120.png",
     "site/maps/gefs/atmos.5/control/2026101406/precip/f120.png",
+    "site/maps/gefs/atmos.5/control/2026101406/wind10m/f120.png",
     "site/maps/gefs/atmos.5/control/2026101406/mslp/f120.png",
     "site/maps/gefs/atmos.5/control/2026101406/gh500/f120.png"
   ],
-  "failures": [
-    {
-      "member": "mean",
-      "hour": 0,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "mean",
-      "hour": 24,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "mean",
-      "hour": 48,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "mean",
-      "hour": 72,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "mean",
-      "hour": 96,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "mean",
-      "hour": 120,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "spread",
-      "hour": 0,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "spread",
-      "hour": 24,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "spread",
-      "hour": 48,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "spread",
-      "hour": 72,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "spread",
-      "hour": 96,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "spread",
-      "hour": 120,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "control",
-      "hour": 0,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "control",
-      "hour": 24,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "control",
-      "hour": 48,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "control",
-      "hour": 72,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "control",
-      "hour": 96,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    },
-    {
-      "member": "control",
-      "hour": 120,
-      "field": "wind10m",
-      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
-    }
-  ],
+  "failures": [],
   "skipped": [
     {
       "member": "mean",
@@ -226,17 +135,17 @@
   "members": {
     "mean": {
       "herbieMember": "mean",
-      "mapsGenerated": 23
+      "mapsGenerated": 29
     },
     "spread": {
       "herbieMember": "spr",
-      "mapsGenerated": 23
+      "mapsGenerated": 29
     },
     "control": {
       "herbieMember": "c00",
-      "mapsGenerated": 23
+      "mapsGenerated": 29
     }
   },
-  "generatedCount": 69,
-  "failureCount": 18
+  "generatedCount": 87,
+  "failureCount": 0
 }
