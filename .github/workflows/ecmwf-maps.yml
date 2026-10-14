@@ -50,6 +50,32 @@ jobs:
       - name: Generate ECMWF maps
         run: python scripts/generate_ecmwf_maps.py --output site
 
+      - name: Validate ECMWF field and map report
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          index_path = Path("site/maps/index.json")
+          if not index_path.exists():
+              raise SystemExit("ERRO: index.json não foi gerado; não há relatório de validação.")
+          index = json.loads(index_path.read_text(encoding="utf-8"))
+          report_path = Path("site") / index["generationReport"]
+          if not report_path.exists():
+              raise SystemExit(f"ERRO: relatório não encontrado: {report_path}")
+          report = json.loads(report_path.read_text(encoding="utf-8"))
+          print(json.dumps({
+              "run": report.get("run"),
+              "generatedMapsThisRun": report.get("generatedMapsThisRun"),
+              "existingMapsReused": report.get("existingMapsReused"),
+              "failureCount": report.get("failureCount"),
+              "failures": report.get("failures"),
+          }, indent=2, ensure_ascii=False))
+          if report.get("failureCount", 1) != 0:
+              raise SystemExit("ERRO: existem mapas ECMWF ausentes/falhos; a publicação será bloqueada.")
+          print("OK: todos os mapas foram gerados ou reaproveitados, sem falhas reportadas.")
+          PY
+
       - name: Publish generated maps
         run: |
           git config user.name "github-actions[bot]"
@@ -86,29 +112,3 @@ jobs:
 
           echo "ERRO: não foi possível publicar os mapas após 5 tentativas."
           exit 1
-
-      - name: Validate ECMWF field and map report
-        if: always()
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          index_path = Path("site/maps/index.json")
-          if not index_path.exists():
-              raise SystemExit("ERRO: index.json não foi gerado; não há relatório de validação.")
-          index = json.loads(index_path.read_text(encoding="utf-8"))
-          report_path = Path("site") / index["generationReport"]
-          if not report_path.exists():
-              raise SystemExit(f"ERRO: relatório não encontrado: {report_path}")
-          report = json.loads(report_path.read_text(encoding="utf-8"))
-          print(json.dumps({
-              "run": report.get("run"),
-              "generatedMapsThisRun": report.get("generatedMapsThisRun"),
-              "existingMapsReused": report.get("existingMapsReused"),
-              "failureCount": report.get("failureCount"),
-              "failures": report.get("failures"),
-          }, indent=2, ensure_ascii=False))
-          if report.get("failureCount", 1) != 0:
-              raise SystemExit("ERRO: existem mapas ECMWF ausentes/falhos; veja generation-report.json e field-inventory.json já publicados.")
-          print("OK: todos os mapas foram gerados ou reaproveitados, sem falhas reportadas.")
-          PY
