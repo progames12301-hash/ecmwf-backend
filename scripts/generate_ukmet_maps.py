@@ -23,6 +23,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
+from sideral_map_style import render_map as render_sideral_map
 
 BASE_URL = "https://single-runs-api.open-meteo.com/v1/forecast"
 MODEL_ID = "ukmo_global_deterministic_10km"
@@ -31,8 +32,8 @@ USER_AGENT = "SideralMeteorologia/2.0 (UKMO map runner)"
 EXTENT = (-90, -30, -60, 15)  # South America + adjacent oceans
 LATITUDES = np.round(np.arange(-60.0, 15.001, 1.0), 3)
 LONGITUDES = np.round(np.arange(-90.0, -29.999, 1.0), 3)
-FORECAST_HOURS = [0, 6, 12, 18, 24, 36, 48]
-API_FORECAST_HOURS = 49
+FORECAST_HOURS = list(range(0, 55)) + list(range(57, 145, 3)) + list(range(150, 169, 6))
+API_FORECAST_HOURS = 169  # horizonte completo UKMO Global (7 dias), com a cadência nativa
 BATCH_SIZE = int(os.environ.get("UKMET_BATCH_SIZE", "50"))
 MAX_WORKERS = int(os.environ.get("UKMET_API_WORKERS", "3"))
 OUT = Path("site/maps/ukmet")
@@ -55,7 +56,7 @@ FIELDS = {
     "pressure_msl": {"label": "Pressão ao nível do mar", "unit": "hPa", "cmap": "viridis"},
     "temperature_850hPa": {"label": "Temperatura em 850 hPa", "unit": "°C", "cmap": "coolwarm"},
     "geopotential_height_500hPa": {"label": "Altura geopotencial em 500 hPa", "unit": "m", "cmap": "viridis"},
-    "wind_speed_10m": {"label": "Velocidade do vento a 10 m", "unit": "kt", "cmap": "turbo"},
+    "wind_speed_10m": {"label": "Velocidade do vento a 10 m", "unit": "kn", "cmap": "viridis"},
 }
 
 
@@ -206,74 +207,6 @@ def collect_grid(run: dt.datetime):
     return values, time_axis
 
 
-def render_map(field_key: str, values: np.ndarray, wind_speed: np.ndarray, wind_direction: np.ndarray,
-               step: int, run: dt.datetime, valid_time: str, output: Path):
-    spec = FIELDS[field_key]
-    grid = values[:, :, step].astype(float)
-    finite = grid[np.isfinite(grid)]
-    if finite.size < 20:
-        raise RuntimeError(f"{field_key} F{step:03d}: apenas {finite.size} pontos válidos")
-    if field_key == "precipitation":
-        vmin = 0.0
-        vmax = max(1.0, float(np.nanpercentile(finite, 99)))
-    elif field_key == "wind_speed_10m":
-        vmin = 0.0
-        vmax = max(10.0, float(np.nanpercentile(finite, 98)))
-    else:
-        vmin, vmax = (float(x) for x in np.nanpercentile(finite, [2, 98]))
-        if not np.isfinite(vmin) or not np.isfinite(vmax) or vmax <= vmin:
-            center = float(np.nanmedian(finite))
-            vmin, vmax = center - 1.0, center + 1.0
-
-    lon_mesh, lat_mesh = np.meshgrid(LONGITUDES, LATITUDES)
-    fig = plt.figure(figsize=(12, 8), dpi=115)
-    ax = plt.axes(projection=ccrs.PlateCarree())
-    ax.set_extent(EXTENT, crs=ccrs.PlateCarree())
-    ax.set_facecolor("#f7f9fb")
-    ax.add_feature(cfeature.OCEAN, facecolor="#f7f9fb", zorder=0)
-    ax.add_feature(cfeature.LAND, facecolor="#f0eee6", edgecolor="#a0a0a0", linewidth=0.3, zorder=1)
-    mesh = ax.pcolormesh(
-        lon_mesh, lat_mesh, np.ma.masked_invalid(grid), transform=ccrs.PlateCarree(),
-        shading="auto", cmap=spec["cmap"], vmin=vmin, vmax=vmax, rasterized=True, zorder=2,
-    )
-    ax.coastlines("110m", linewidth=0.65, color="#333333", zorder=3)
-    ax.add_feature(cfeature.BORDERS, linewidth=0.4, edgecolor="#666666", zorder=3)
-    if field_key == "pressure_msl":
-        levels = np.arange(np.floor(vmin / 4) * 4, np.ceil(vmax / 4) * 4 + 1, 4)
-        if len(levels):
-            contours = ax.contour(lon_mesh, lat_mesh, np.ma.masked_invalid(grid), levels=levels,
-                                  colors="#222222", linewidths=0.45, alpha=0.65,
-                                  transform=ccrs.PlateCarree(), zorder=4)
-            ax.clabel(contours, inline=True, fontsize=7, fmt="%d")
-    if field_key == "wind_speed_10m":
-        speed = wind_speed[:, :, step].astype(float)
-        direction = np.deg2rad(wind_direction[:, :, step].astype(float))
-        u = -speed * np.sin(direction)
-        v = -speed * np.cos(direction)
-        sl = (slice(None, None, 5), slice(None, None, 5))
-        ax.quiver(lon_mesh[sl], lat_mesh[sl], u[sl], v[sl], transform=ccrs.PlateCarree(),
-                  color="#202020", alpha=0.7, pivot="middle", scale=220, width=0.0018, zorder=5)
-    gl = ax.gridlines(draw_labels=True, linewidth=0.25, color="#666666", alpha=0.35, linestyle=":")
-    gl.top_labels = False
-    gl.right_labels = False
-    ax.set_title(
-        f"SIDERAL • UKMO GLOBAL 10 km — {spec['label']}\n"
-        f"Rodada {run:%Y-%m-%d %HZ} • F{step:03d} • Válido {valid_time}",
-        fontsize=12, fontweight="bold", pad=14,
-    )
-    cb = fig.colorbar(mesh, ax=ax, orientation="horizontal", pad=0.045, fraction=0.045)
-    cb.set_label(spec["unit"])
-    fig.text(
-        0.995, 0.006,
-        "Fonte: Open-Meteo Single Runs • UKMO Global 10 km • amostragem API em grade de 1°",
-        ha="right", fontsize=7, color="#555",
-    )
-    output.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output, bbox_inches="tight", facecolor="white")
-    plt.close(fig)
-    if not output.exists() or output.stat().st_size < 1000:
-        raise RuntimeError(f"PNG inválido ou vazio: {output}")
-
 
 def main():
     if BATCH_SIZE < 2 or BATCH_SIZE > 80:
@@ -295,6 +228,7 @@ def main():
             "note": "Valores UKMO consultados em pontos regulares pela API; PNG não é um GRIB nativo de 10 km.",
         },
         "forecastHours": FORECAST_HOURS,
+        "nativeCadence": {"hourlyThrough": 54, "threeHourlyThrough": 144, "sixHourlyThrough": 168},
         "generated": [],
         "failures": [],
     }
@@ -314,10 +248,24 @@ def main():
                 if step >= len(time_axis):
                     report["failures"].append({"field": field_key, "step": step, "error": "validade fora da resposta API"})
                     continue
+                if field_key == "precipitation" and step == 0:
+                    report.setdefault("skipped", []).append({
+                        "field": field_key, "step": step,
+                        "reason": "F000 não representa precipitação acumulada desde o tempo inicial",
+                    })
+                    continue
                 valid_time = str(time_axis[step])
                 out = OUT / report["run"] / field_key / f"f{step:03d}.png"
                 try:
-                    render_map(field_key, values[field_key], wind_speed, wind_direction, step, run, valid_time, out)
+                    wind_dir = wind_direction[:, :, step] if field_key == "wind_speed_10m" else None
+                    unit = FIELDS[field_key]["unit"]
+                    title = f"{FIELDS[field_key]['label']}\nF{step:03d} Valid: {valid_time.replace('T', ' ')}Z"
+                    render_sideral_map(
+                        LONGITUDES, LATITUDES, values[field_key][:, :, step],
+                        field_key, title, valid_time, out,
+                        source="UK Met Office Global 10 km via Open-Meteo Single Runs",
+                        unit=unit, wind_direction=wind_dir,
+                    )
                     report["generated"].append(str(out))
                     print(f"OK {out}", flush=True)
                 except Exception as exc:
