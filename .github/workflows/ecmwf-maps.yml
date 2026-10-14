@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/generate_ecmwf_maps.py'
+      - 'scripts/sideral_map_style.py'
       - 'requirements-maps.txt'
       - '.github/workflows/ecmwf-maps.yml'
   schedule:
@@ -33,6 +34,11 @@ jobs:
           python-version: '3.12'
           cache: pip
 
+      - name: Cache Sideral map assets
+        uses: actions/cache@v4
+        with:
+          path: work/shared-map-assets
+          key: sideral-map-assets-v1-${{ runner.os }}
       - name: Install system libraries
         run: |
           sudo apt-get update
