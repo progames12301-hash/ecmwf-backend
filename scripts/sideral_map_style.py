@@ -296,6 +296,11 @@ def render_map(lon, lat, values, key, title, valid, output, source,
     data_family = _family(key, title)
     source_unit = str(unit or "").strip().lower()
     data = np.asarray(values, dtype=float).squeeze().copy()
+    # Derive wind components before spatial cropping, so direction/speed and barbs use the same native cells.
+    if data_family == "wind" and wind_direction is not None and wind_u is None and wind_v is None:
+        direction_native = np.deg2rad(np.asarray(wind_direction, dtype=float).squeeze())
+        wind_u = -data * np.sin(direction_native)
+        wind_v = -data * np.cos(direction_native)
     lon, lat, data, wind_u, wind_v, wind_direction, scattered = _crop_native(
         lon, lat, data, extent, wind_u, wind_v, wind_direction, unstructured
     )
@@ -337,14 +342,6 @@ def render_map(lon, lat, values, key, title, valid, output, source,
             factor = 3.6
         data *= factor
         out_unit = "km h⁻¹"
-        if wind_u is None and wind_v is None and wind_direction is not None:
-            raw_speed = np.asarray(values, dtype=float).squeeze()
-            # Match the exact regional native grid used for the scalar field.
-            if raw_speed.ndim == 2 and not scattered:
-                raw_speed = _crop_native(np.asarray(lon), np.asarray(lat), raw_speed, extent)[2]
-            direction = np.deg2rad(wind_direction)
-            wind_u = -raw_speed * np.sin(direction)
-            wind_v = -raw_speed * np.cos(direction)
 
     norm, ticks = _levels_and_norm(data_family, key, title)
     cmap = CMAPS.get(data_family, CMAPS["generic"])
@@ -476,12 +473,24 @@ def render_map(lon, lat, values, key, title, valid, output, source,
     return output
 
 
-def region_outputs(full_output):
-    """Return South America plus five native-grid regional output paths."""
-    full_output = Path(full_output)
-    outputs = [("america-do-sul", None, full_output)]
-    root = full_output.parents[3] if len(full_output.parents) >= 4 else full_output.parent
-    for key in REGIONS:
-        rel = full_output.relative_to(root) if full_output.is_relative_to(root) else Path(full_output.name)
-        outputs.append((key, REGIONS[key]["extent"], root / "regions" / key / rel))
-    return outputs
+def render_all_views(lon, lat, values, key, title, valid, output, source,
+                      region_root, region_relative, unit="", wind_u=None, wind_v=None,
+                      wind_direction=None, unstructured=False, run_time=None,
+                      forecast_hour=None, model_label=None):
+    """Write one continental bulletin and five regional products from the same native-grid field."""
+    output = Path(output)
+    region_root = Path(region_root)
+    rel = Path(region_relative)
+    views = [(None, EXTENT_SOUTH_AMERICA, output)]
+    for region_key, spec in REGIONS.items():
+        views.append((spec["label"], spec["extent"], region_root / region_key / rel))
+    written = []
+    for region_name, view_extent, path in views:
+        render_map(
+            lon, lat, values, key, title, valid, path, source,
+            unit=unit, wind_u=wind_u, wind_v=wind_v, wind_direction=wind_direction,
+            unstructured=unstructured, extent=view_extent, region_name=region_name,
+            run_time=run_time, forecast_hour=forecast_hour, model_label=model_label,
+        )
+        written.append(path)
+    return written
