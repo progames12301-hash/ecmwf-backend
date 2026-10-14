@@ -6,6 +6,7 @@ on:
     branches: [model-gefs]
     paths:
       - 'scripts/generate_gefs_maps.py'
+      - 'scripts/sideral_map_style.py'
       - 'requirements-model-maps.txt'
       - '.github/workflows/gefs-maps.yml'
   schedule:
@@ -33,6 +34,11 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+      - name: Cache Sideral map assets
+        uses: actions/cache@v4
+        with:
+          path: work/shared-map-assets
+          key: sideral-map-assets-v1-${{ runner.os }}
       - name: Install native libraries
         run: |
           sudo apt-get update
@@ -51,8 +57,8 @@ jobs:
           r=json.loads(p.read_text(encoding="utf-8"))
           print(json.dumps({"run":r.get("run"),"generatedCount":r.get("generatedCount"),
                             "failureCount":r.get("failureCount"),"members":r.get("members")},indent=2))
-          expected_hours = len(list(range(0,145,3))+list(range(150,241,6)))
-          expected_maps = expected_hours * 3 * 5 - 3  # mean/spread/control; precip F000 é inexistente
+          expected_hours = len(list(range(0,385,6)))
+          expected_maps = (expected_hours * 3 * 14 - 3) * 6  # 14 campos; 3 F000 de precipitação; 5 recortes + América do Sul
           if r.get("generatedCount",0) != expected_maps:
               raise SystemExit(f"ERRO: GEFS publicou {r.get('generatedCount')} PNG; esperado {expected_maps}")
           if r.get("failureCount",0) != 0:
