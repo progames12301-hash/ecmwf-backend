@@ -1,0 +1,78 @@
+name: UKMET Global maps
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [model-ukmet]
+    paths:
+      - 'scripts/generate_ukmet_maps.py'
+      - 'requirements-model-maps.txt'
+      - '.github/workflows/ukmet-maps.yml'
+  schedule:
+    - cron: '55 9,21 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ukmet-global-maps
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Checkout UKMET branch
+        uses: actions/checkout@v4
+        with:
+          ref: model-ukmet
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install native libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
+      - name: Install dependencies
+        run: pip install -r requirements-model-maps.txt
+      - name: Generate UKMET maps if DataHub credentials exist
+        env:
+          METOFFICE_API_KEY: \${{ secrets.METOFFICE_API_KEY }}
+          METOFFICE_GRIB_URLS: \${{ secrets.METOFFICE_GRIB_URLS }}
+          UKMET_MAX_MAPS: "250"
+        run: python scripts/generate_ukmet_maps.py
+      - name: Validate UKMET output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("site/maps/ukmet/generation-report.json")
+          if not p.exists(): raise SystemExit("ERRO: relatório UKMET ausente")
+          r=json.loads(p.read_text(encoding="utf-8"))
+          print(json.dumps({"status":r.get("status"),"generatedCount":r.get("generatedCount"),
+                            "failureCount":r.get("failureCount"),"reason":r.get("reason")},indent=2,ensure_ascii=False))
+          if r.get("status")=="failed": raise SystemExit("ERRO: houve credenciais, mas nenhum mapa UKMET válido foi gerado")
+          if r.get("status")=="skipped_missing_credentials": print("UKMET aguardando secrets do DataHub; nenhum mapa falso foi publicado.")
+          PY
+      - name: Publish maps to model-ukmet branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/maps/ukmet
+          if git diff --cached --quiet; then echo "Nenhuma alteração nos mapas UKMET."; exit 0; fi
+          git commit -m "chore: atualizar mapas UKMET"
+          for attempt in 1 2 3 4 5; do
+            git fetch origin model-ukmet
+            git rebase origin/model-ukmet
+            if git push origin HEAD:model-ukmet; then
+              echo "Estado/mapas UKMET publicados na branch model-ukmet."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "ERRO: publicação UKMET falhou após 5 tentativas."
+          exit 1
