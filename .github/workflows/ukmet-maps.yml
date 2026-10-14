@@ -1,4 +1,4 @@
-name: UKMO Global 10 km maps
+name: UKMO Global native-grid bulletins
 
 on:
   workflow_dispatch:
