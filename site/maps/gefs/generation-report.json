@@ -97,20 +97,130 @@
     {
       "member": "mean",
       "hour": 0,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "mean",
+      "hour": 24,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "mean",
+      "hour": 48,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "mean",
+      "hour": 72,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "mean",
+      "hour": 96,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "mean",
+      "hour": 120,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "spread",
+      "hour": 0,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "spread",
+      "hour": 24,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "spread",
+      "hour": 48,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "spread",
+      "hour": 72,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "spread",
+      "hour": 96,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "spread",
+      "hour": 120,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "control",
+      "hour": 0,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "control",
+      "hour": 24,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "control",
+      "hour": 48,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "control",
+      "hour": 72,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "control",
+      "hour": 96,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    },
+    {
+      "member": "control",
+      "hour": 120,
+      "field": "wind10m",
+      "error": "AttributeError: 'list' object has no attribute 'data_vars'"
+    }
+  ],
+  "skipped": [
+    {
+      "member": "mean",
+      "hour": 0,
       "field": "precip",
-      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/data/gefs/20261014/subset_9fefb1fe__geavg.t06z.pgrb2a.0p50.f000'"
+      "reason": "F000 não tem precipitação acumulada desde o tempo inicial"
     },
     {
       "member": "spread",
       "hour": 0,
       "field": "precip",
-      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/data/gefs/20261014/subset_9fefb1fe__gespr.t06z.pgrb2a.0p50.f000'"
+      "reason": "F000 não tem precipitação acumulada desde o tempo inicial"
     },
     {
       "member": "control",
       "hour": 0,
       "field": "precip",
-      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/data/gefs/20261014/subset_9fefb1fe__gec00.t06z.pgrb2a.0p50.f000'"
+      "reason": "F000 não tem precipitação acumulada desde o tempo inicial"
     }
   ],
   "members": {
@@ -128,5 +238,5 @@
     }
   },
   "generatedCount": 69,
-  "failureCount": 3
+  "failureCount": 18
 }
