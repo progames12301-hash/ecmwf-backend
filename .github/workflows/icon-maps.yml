@@ -6,6 +6,7 @@ on:
     branches: [model-icon]
     paths:
       - 'scripts/generate_icon_maps.py'
+      - 'scripts/sideral_map_style.py'
       - 'requirements-model-maps.txt'
       - '.github/workflows/icon-maps.yml'
   schedule:
@@ -38,6 +39,11 @@ jobs:
         with:
           path: work/icon-grid/icon_coords_subset.npz
           key: icon-gridcoords-r03b07-southamerica-v1
+      - name: Cache Sideral map assets
+        uses: actions/cache@v4
+        with:
+          path: work/shared-map-assets
+          key: sideral-map-assets-v1-${{ runner.os }}
       - name: Install native libraries
         run: |
           sudo apt-get update
@@ -58,7 +64,7 @@ jobs:
                             "failureCount":r.get("failureCount")},indent=2))
           steps = r.get("forecastHours", [])
           expected_fields = 8  # temp2m, dew2m, precip, CAPE, MSLP, clouds, TCWV, wind10m
-          expected_maps = len(steps) * expected_fields
+          expected_maps = len(steps) * expected_fields * 6
           if r.get("generatedCount",0) != expected_maps:
               raise SystemExit(f"ERRO: ICON publicou {r.get('generatedCount')} PNG; esperado {expected_maps} ({len(steps)} passos x {expected_fields} campos)")
           if r.get("failureCount",0) != 0:
