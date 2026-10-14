@@ -41,8 +41,8 @@ jobs:
         run: pip install -r requirements-model-maps.txt
       - name: Generate UKMET maps if DataHub credentials exist
         env:
-          METOFFICE_API_KEY: \${{ secrets.METOFFICE_API_KEY }}
-          METOFFICE_GRIB_URLS: \${{ secrets.METOFFICE_GRIB_URLS }}
+          METOFFICE_API_KEY: ${{ secrets.METOFFICE_API_KEY }}
+          METOFFICE_GRIB_URLS: ${{ secrets.METOFFICE_GRIB_URLS }}
           UKMET_MAX_MAPS: "250"
         run: python scripts/generate_ukmet_maps.py
       - name: Validate UKMET output
