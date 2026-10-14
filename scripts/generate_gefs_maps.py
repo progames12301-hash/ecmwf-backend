@@ -14,7 +14,7 @@ from herbie import Herbie
 from sideral_map_style import render_all_views
 
 EXTENT=(-90,-20,-60,15)
-HOURS=list(range(0,385,6))  # cadência nativa GEFS: 6 h até F384
+HOURS=list(range(0,241,3))+list(range(246,385,6))  # cadência GEFS: 3 h até F240, depois 6 h até F384
 MEMBERS={"mean":"mean","spread":"spr","control":"c00"}
 FIELDS={
  "temp2m":("TMP:2 m","Temperatura a 2 m","°C","coolwarm",-10,40,"temp"),
