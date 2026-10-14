@@ -54,7 +54,32 @@ jobs:
             exit 0
           fi
           git commit -m "chore: atualizar mapas ECMWF"
-          git push
+
+          # A rodada pode levar vários minutos/horas; nesse intervalo, commits
+          # do código ou outra alteração em main podem tornar o push não-fast-forward.
+          # Rebaseia o commit das imagens sobre o main mais recente e tenta enviar
+          # novamente, preservando os arquivos gerados neste runner.
+          for attempt in 1 2 3 4 5; do
+            echo "Publicação ECMWF: tentativa $attempt/5"
+            git fetch origin main
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              echo "ERRO: conflito ao integrar main durante publicação das imagens."
+              echo "Os mapas e os relatórios continuam disponíveis no workspace deste job."
+              exit 1
+            fi
+
+            if git push origin HEAD:main; then
+              echo "Mapas ECMWF publicados com sucesso."
+              exit 0
+            fi
+
+            echo "main mudou durante o push; buscando a versão atual e tentando novamente."
+            sleep 2
+          done
+
+          echo "ERRO: não foi possível publicar os mapas após 5 tentativas."
+          exit 1
 
       - name: Validate ECMWF field and map report
         if: always()
