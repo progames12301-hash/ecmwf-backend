@@ -1,167 +1,355 @@
 #!/usr/bin/env python3
-"""UKMET GRIB2 map runner. Uses files/URLs supplied by the account's authorized Met Office DataHub subscription."""
+"""UKMO Global 10 km maps using the same public Open-Meteo Single Runs source as Sideral Skew-T.
+
+The Open-Meteo API returns point forecasts rather than native GRIB grids. This runner samples the
+UKMO model on a regular 1-degree grid over South America, and records that sampling explicitly
+in its report rather than claiming the PNGs are native 10-km grids.
+"""
 from __future__ import annotations
-import bz2, json, os, re, shutil, urllib.request, zipfile
-from datetime import datetime, timezone
+
+import concurrent.futures
+import datetime as dt
+import json
+import os
+import time
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+
 import numpy as np
-import xarray as xr
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 
-EXTENT=(-90,-30,-60,15)
-OUT=Path("site/maps/ukmet")
-CACHE=Path("work/ukmet")
-MAX_MAPS=int(os.environ.get("UKMET_MAX_MAPS","250"))
+BASE_URL = "https://single-runs-api.open-meteo.com/v1/forecast"
+MODEL_ID = "ukmo_global_deterministic_10km"
+MODEL_LABEL = "UK Met Office Global 10 km"
+USER_AGENT = "SideralMeteorologia/2.0 (UKMO map runner)"
+EXTENT = (-90, -30, -60, 15)  # South America + adjacent oceans
+LATITUDES = np.round(np.arange(-60.0, 15.001, 1.0), 3)
+LONGITUDES = np.round(np.arange(-90.0, -30.001, 1.0), 3)
+FORECAST_HOURS = [0, 6, 12, 18, 24, 36, 48]
+API_FORECAST_HOURS = 49
+BATCH_SIZE = int(os.environ.get("UKMET_BATCH_SIZE", "50"))
+MAX_WORKERS = int(os.environ.get("UKMET_API_WORKERS", "3"))
+OUT = Path("site/maps/ukmet")
+RUNS_TO_TRY = 8
 
-def safe_slug(value):
- s=re.sub(r"[^a-zA-Z0-9_-]+","_",str(value)).strip("_").lower()
- return (s or "field")[:70]
+API_VARIABLES = [
+    "temperature_2m",
+    "dew_point_2m",
+    "precipitation",
+    "pressure_msl",
+    "temperature_850hPa",
+    "geopotential_height_500hPa",
+    "wind_speed_10m",
+    "wind_direction_10m",
+]
+FIELDS = {
+    "temperature_2m": {"label": "Temperatura a 2 m", "unit": "°C", "cmap": "coolwarm"},
+    "dew_point_2m": {"label": "Ponto de orvalho a 2 m", "unit": "°C", "cmap": "BrBG"},
+    "precipitation": {"label": "Precipitação horária", "unit": "mm", "cmap": "YlGnBu"},
+    "pressure_msl": {"label": "Pressão ao nível do mar", "unit": "hPa", "cmap": "viridis"},
+    "temperature_850hPa": {"label": "Temperatura em 850 hPa", "unit": "°C", "cmap": "coolwarm"},
+    "geopotential_height_500hPa": {"label": "Altura geopotencial em 500 hPa", "unit": "m", "cmap": "viridis"},
+    "wind_speed_10m": {"label": "Velocidade do vento a 10 m", "unit": "kt", "cmap": "turbo"},
+}
 
-def download_resource(url,api_key,dst):
- if urlparse(url).scheme!="https": raise ValueError(f"A URL do UKMET deve usar HTTPS: {url}")
- req=urllib.request.Request(url,headers={"apikey":api_key,"User-Agent":"SideralMeteorologia-UKMET-runner/1.0"})
- with urllib.request.urlopen(req,timeout=240) as r:
-  body=r.read(); content_type=r.headers.get("Content-Type","")
- if "json" in content_type.lower() or body[:1] in (b"{",b"["):
-  try: data=json.loads(body.decode("utf-8"))
-  except Exception: data=None
-  found=[]
-  def walk(obj):
-   if isinstance(obj,dict):
-    for k,v in obj.items():
-     if isinstance(v,str) and v.startswith("https://") and any(ext in v.lower() for ext in (".grib",".grb",".zip","download")):
-      found.append(v)
-     else: walk(v)
-   elif isinstance(obj,list):
-    for v in obj: walk(v)
-  if data is not None: walk(data)
-  if not found: raise ValueError(f"O endpoint retornou JSON mas não apresentou link de arquivo GRIB/ZIP. Content-Type={content_type}")
-  downloaded=[]
-  for i,link in enumerate(dict.fromkeys(found)):
-   downloaded.extend(download_resource(link,api_key,dst/f"resource_{i}"))
-  return downloaded
- dst.parent.mkdir(parents=True,exist_ok=True)
- if zipfile.is_zipfile(__import__("io").BytesIO(body)):
-  dst.mkdir(parents=True,exist_ok=True); result=[]
-  import io
-  with zipfile.ZipFile(io.BytesIO(body)) as z:
-   for member in z.namelist():
-    if member.lower().endswith((".grib2",".grb2",".grib",".grb")):
-     target=dst/safe_slug(Path(member).stem)
-     target=target.with_suffix(".grib2")
-     target.write_bytes(z.read(member)); result.append(target)
-  if not result: raise ValueError("ZIP do UKMET sem arquivos GRIB2 reconhecidos")
-  return result
- if body[:3]==b"BZh": body=bz2.decompress(body)
- if not body.startswith(b"GRIB"):
-  raise ValueError(f"Resposta do DataHub não é GRIB2 nem ZIP (Content-Type={content_type}); confira a URL configurada")
- out=dst
- if out.suffix not in (".grib",".grb",".grib2",".grb2"): out=out.with_suffix(".grib2")
- out.parent.mkdir(parents=True,exist_ok=True); out.write_bytes(body)
- return [out]
 
-def normalize_grid(ds,da):
- vals=np.asarray(da.squeeze(drop=True).values,dtype=float)
- if vals.ndim!=2: return None
- lat=np.asarray(ds["latitude"].values); lon=np.asarray(ds["longitude"].values)
- if lat.ndim==1 and lon.ndim==1 and vals.shape==(lat.size,lon.size):
-  lon=((lon+180)%360)-180; ix=np.argsort(lon); lon=lon[ix]; vals=vals[:,ix]
-  lm=(lat>=EXTENT[2]-2)&(lat<=EXTENT[3]+2); xm=(lon>=EXTENT[0]-2)&(lon<=EXTENT[1]+2)
-  return lon[xm],lat[lm],vals[lm,:][:,xm]
- if lat.ndim==2 and lon.ndim==2 and vals.shape==lat.shape:
-  lon=((lon+180)%360)-180
-  mask=(lon>=EXTENT[0]-2)&(lon<=EXTENT[1]+2)&(lat>=EXTENT[2]-2)&(lat<=EXTENT[3]+2)
-  return lon,lat,np.where(mask,vals,np.nan)
- return None
+def api_json(params: dict, retries: int = 5):
+    url = BASE_URL + "?" + urlencode(params)
+    last_error = None
+    for attempt in range(retries):
+        try:
+            request = Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
+            with urlopen(request, timeout=180) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+            if isinstance(payload, dict) and payload.get("error"):
+                raise RuntimeError(str(payload.get("reason", "Open-Meteo returned an API error")))
+            return payload
+        except HTTPError as exc:
+            detail = ""
+            try:
+                body = exc.read().decode("utf-8", errors="replace")
+                detail = body[:500]
+            except Exception:
+                pass
+            last_error = f"HTTP {exc.code} {detail}"
+            if exc.code not in (408, 429, 500, 502, 503, 504) or attempt + 1 == retries:
+                break
+        except (URLError, TimeoutError, OSError, json.JSONDecodeError, RuntimeError) as exc:
+            last_error = f"{type(exc).__name__}: {exc}"
+            if attempt + 1 == retries:
+                break
+        pause = min(30, 2 ** attempt)
+        print(f"[Open-Meteo] tentativa {attempt + 1}/{retries}: {last_error}; nova tentativa em {pause}s", flush=True)
+        time.sleep(pause)
+    raise RuntimeError(f"Open-Meteo Single Runs indisponível após {retries} tentativas: {last_error}")
 
-def render(ds,da,step_hours,run_label,field_name,out):
- grid=normalize_grid(ds,da)
- if grid is None: raise ValueError(f"Grade incompatível para {field_name}: dims={da.dims}, coords={list(ds.coords)}")
- lon,lat,vals=grid
- unit=str(da.attrs.get("units",""))
- short=str(da.attrs.get("GRIB_shortName",da.name or field_name))
- if short.lower() in ("2t","t2m","t","2d","d2m") and np.nanmedian(vals)>150: vals=vals-273.15; unit="°C"
- if short.lower() in ("msl","prmsl") and np.nanmedian(vals)>2000: vals=vals/100; unit="hPa"
- label=str(da.attrs.get("long_name",da.attrs.get("GRIB_name",field_name)))
- vmax=np.nanpercentile(vals,98) if np.isfinite(vals).any() else 1
- vmin=np.nanpercentile(vals,2) if np.isfinite(vals).any() else 0
- cmap="turbo" if any(t in (short+" "+label).lower() for t in ("tp","precip","rain")) else "coolwarm" if "t" in short.lower() else "viridis"
- fig=plt.figure(figsize=(12,8),dpi=115); ax=plt.axes(projection=ccrs.PlateCarree())
- ax.set_extent(EXTENT,crs=ccrs.PlateCarree()); ax.set_facecolor("#f8fafc")
- ax.add_feature(cfeature.OCEAN,facecolor="#f8fafc",zorder=0)
- ax.add_feature(cfeature.LAND,facecolor="#f2f0e8",edgecolor="#999999",linewidth=.35,zorder=1)
- im=ax.pcolormesh(lon,lat,vals,transform=ccrs.PlateCarree(),shading="auto",cmap=cmap,vmin=vmin,vmax=vmax,rasterized=True,zorder=2)
- ax.coastlines("110m",linewidth=.65,color="#333333",zorder=3); ax.add_feature(cfeature.BORDERS,linewidth=.4,edgecolor="#666666",zorder=3)
- gl=ax.gridlines(draw_labels=True,linewidth=.25,color="#666666",alpha=.35,linestyle=":"); gl.top_labels=False; gl.right_labels=False
- fig.suptitle(f"UKMET • {label}\\n{run_label} • F{step_hours:03d}",fontsize=13,fontweight="bold",y=.97)
- cb=fig.colorbar(im,ax=ax,orientation="horizontal",pad=.045,fraction=.045); cb.set_label(unit)
- fig.text(.995,.006,"Fonte: Met Office Weather DataHub (credencial do assinante) • Sideral Meteorologia",ha="right",fontsize=7,color="#555")
- out.parent.mkdir(parents=True,exist_ok=True); fig.savefig(out,bbox_inches="tight",facecolor="white"); plt.close(fig)
- if not out.exists() or out.stat().st_size<1000: raise RuntimeError(f"PNG inválido: {out}")
+
+def candidate_runs(now: dt.datetime):
+    current_hour = (now.hour // 6) * 6
+    latest = now.replace(hour=current_hour, minute=0, second=0, microsecond=0)
+    for back in range(RUNS_TO_TRY):
+        yield latest - dt.timedelta(hours=6 * back)
+
+
+def make_params(run: dt.datetime, points: list[tuple[float, float]]):
+    return {
+        "latitude": ",".join(f"{lat:.3f}" for lat, _ in points),
+        "longitude": ",".join(f"{lon:.3f}" for _, lon in points),
+        "hourly": ",".join(API_VARIABLES),
+        "models": MODEL_ID,
+        "run": run.strftime("%Y-%m-%dT%H:%M"),
+        "forecast_hours": str(API_FORECAST_HOURS),
+        "wind_speed_unit": "kn",
+        "temperature_unit": "celsius",
+        "pressure_unit": "hPa",
+        "precipitation_unit": "mm",
+        "timeformat": "iso8601",
+        "timezone": "UTC",
+        "cell_selection": "nearest",
+    }
+
+
+def payload_locations(payload, expected_count: int):
+    if isinstance(payload, dict):
+        locations = [payload]
+    elif isinstance(payload, list):
+        locations = payload
+    else:
+        raise RuntimeError(f"Resposta Open-Meteo inesperada: {type(payload).__name__}")
+    if len(locations) != expected_count:
+        raise RuntimeError(f"Open-Meteo retornou {len(locations)} pontos; esperados {expected_count}")
+    return locations
+
+
+def find_available_run():
+    now = dt.datetime.now(dt.timezone.utc)
+    probe = [(float(LATITUDES[len(LATITUDES) // 2]), float(LONGITUDES[len(LONGITUDES) // 2]))]
+    errors = []
+    for run in candidate_runs(now):
+        try:
+            payload = api_json(make_params(run, probe), retries=2)
+            loc = payload_locations(payload, 1)[0]
+            hourly = loc.get("hourly") or {}
+            times = hourly.get("time") or []
+            if not times or not any(hourly.get(key) for key in ("temperature_2m", "pressure_msl", "precipitation")):
+                raise RuntimeError("resposta sem séries horárias úteis")
+            print(f"[UKMO] rodada confirmada pela API: {run:%Y-%m-%d %HZ}", flush=True)
+            return run
+        except Exception as exc:
+            note = f"{run:%Y-%m-%d %HZ}: {exc}"
+            errors.append(note)
+            print(f"[UKMO] rodada ainda indisponível: {note}", flush=True)
+    raise RuntimeError("Nenhuma rodada UKMO recente ficou disponível na Single Runs API: " + " | ".join(errors))
+
+
+def request_batch(args):
+    batch_number, run, points = args
+    payload = api_json(make_params(run, points))
+    locations = payload_locations(payload, len(points))
+    records = []
+    for point, location in zip(points, locations):
+        hourly = location.get("hourly") or {}
+        if not hourly.get("time"):
+            raise RuntimeError(f"Ponto {point} sem eixo temporal na resposta")
+        record = {"point": point, "time": hourly["time"], "values": {}}
+        for variable in API_VARIABLES:
+            raw = hourly.get(variable)
+            if not isinstance(raw, list):
+                record["values"][variable] = []
+            else:
+                record["values"][variable] = [
+                    float(value) if value is not None and np.isfinite(float(value)) else np.nan
+                    for value in raw
+                ]
+        records.append(record)
+    print(f"[Open-Meteo] lote {batch_number}: {len(records)} pontos", flush=True)
+    return records
+
+
+def collect_grid(run: dt.datetime):
+    points = [(float(lat), float(lon)) for lat in LATITUDES for lon in LONGITUDES]
+    batches = [points[i:i + BATCH_SIZE] for i in range(0, len(points), BATCH_SIZE)]
+    values = {
+        key: np.full((len(LATITUDES), len(LONGITUDES), API_FORECAST_HOURS), np.nan, dtype=np.float32)
+        for key in API_VARIABLES
+    }
+    time_axis = None
+    jobs = [(i + 1, run, batch) for i, batch in enumerate(batches)]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+        futures = {pool.submit(request_batch, job): job[0] for job in jobs}
+        done = 0
+        for future in concurrent.futures.as_completed(futures):
+            records = future.result()
+            done += 1
+            for record in records:
+                lat, lon = record["point"]
+                yi = int(round(lat - LATITUDES[0]))
+                xi = int(round(lon - LONGITUDES[0]))
+                if time_axis is None:
+                    time_axis = record["time"]
+                elif record["time"] != time_axis:
+                    raise RuntimeError("Eixos temporais divergentes entre pontos UKMO")
+                for key, series in record["values"].items():
+                    count = min(len(series), API_FORECAST_HOURS)
+                    if count:
+                        values[key][yi, xi, :count] = np.asarray(series[:count], dtype=np.float32)
+            if done % 10 == 0 or done == len(batches):
+                print(f"[Open-Meteo] lotes concluídos: {done}/{len(batches)}", flush=True)
+    if not time_axis:
+        raise RuntimeError("A API não retornou eixo temporal para a grade UKMO")
+    return values, time_axis
+
+
+def render_map(field_key: str, values: np.ndarray, wind_speed: np.ndarray, wind_direction: np.ndarray,
+               step: int, run: dt.datetime, valid_time: str, output: Path):
+    spec = FIELDS[field_key]
+    grid = values[:, :, step].astype(float)
+    finite = grid[np.isfinite(grid)]
+    if finite.size < 20:
+        raise RuntimeError(f"{field_key} F{step:03d}: apenas {finite.size} pontos válidos")
+    if field_key == "precipitation":
+        vmin = 0.0
+        vmax = max(1.0, float(np.nanpercentile(finite, 99)))
+    elif field_key == "wind_speed_10m":
+        vmin = 0.0
+        vmax = max(10.0, float(np.nanpercentile(finite, 98)))
+    else:
+        vmin, vmax = (float(x) for x in np.nanpercentile(finite, [2, 98]))
+        if not np.isfinite(vmin) or not np.isfinite(vmax) or vmax <= vmin:
+            center = float(np.nanmedian(finite))
+            vmin, vmax = center - 1.0, center + 1.0
+
+    lon_mesh, lat_mesh = np.meshgrid(LONGITUDES, LATITUDES)
+    fig = plt.figure(figsize=(12, 8), dpi=115)
+    ax = plt.axes(projection=ccrs.PlateCarree())
+    ax.set_extent(EXTENT, crs=ccrs.PlateCarree())
+    ax.set_facecolor("#f7f9fb")
+    ax.add_feature(cfeature.OCEAN, facecolor="#f7f9fb", zorder=0)
+    ax.add_feature(cfeature.LAND, facecolor="#f0eee6", edgecolor="#a0a0a0", linewidth=0.3, zorder=1)
+    mesh = ax.pcolormesh(
+        lon_mesh, lat_mesh, np.ma.masked_invalid(grid), transform=ccrs.PlateCarree(),
+        shading="auto", cmap=spec["cmap"], vmin=vmin, vmax=vmax, rasterized=True, zorder=2,
+    )
+    ax.coastlines("110m", linewidth=0.65, color="#333333", zorder=3)
+    ax.add_feature(cfeature.BORDERS, linewidth=0.4, edgecolor="#666666", zorder=3)
+    if field_key == "pressure_msl":
+        levels = np.arange(np.floor(vmin / 4) * 4, np.ceil(vmax / 4) * 4 + 1, 4)
+        if len(levels):
+            contours = ax.contour(lon_mesh, lat_mesh, np.ma.masked_invalid(grid), levels=levels,
+                                  colors="#222222", linewidths=0.45, alpha=0.65,
+                                  transform=ccrs.PlateCarree(), zorder=4)
+            ax.clabel(contours, inline=True, fontsize=7, fmt="%d")
+    if field_key == "wind_speed_10m":
+        speed = wind_speed[:, :, step].astype(float)
+        direction = np.deg2rad(wind_direction[:, :, step].astype(float))
+        u = -speed * np.sin(direction)
+        v = -speed * np.cos(direction)
+        sl = (slice(None, None, 5), slice(None, None, 5))
+        ax.quiver(lon_mesh[sl], lat_mesh[sl], u[sl], v[sl], transform=ccrs.PlateCarree(),
+                  color="#202020", alpha=0.7, pivot="middle", scale=220, width=0.0018, zorder=5)
+    gl = ax.gridlines(draw_labels=True, linewidth=0.25, color="#666666", alpha=0.35, linestyle=":")
+    gl.top_labels = False
+    gl.right_labels = False
+    ax.set_title(
+        f"SIDERAL • UKMO GLOBAL 10 km — {spec['label']}\n"
+        f"Rodada {run:%Y-%m-%d %HZ} • F{step:03d} • Válido {valid_time}",
+        fontsize=12, fontweight="bold", pad=14,
+    )
+    cb = fig.colorbar(mesh, ax=ax, orientation="horizontal", pad=0.045, fraction=0.045)
+    cb.set_label(spec["unit"])
+    fig.text(
+        0.995, 0.006,
+        "Fonte: Open-Meteo Single Runs • UKMO Global 10 km • amostragem API em grade de 1°",
+        ha="right", fontsize=7, color="#555",
+    )
+    output.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    if not output.exists() or output.stat().st_size < 1000:
+        raise RuntimeError(f"PNG inválido ou vazio: {output}")
+
 
 def main():
- api_key=os.environ.get("METOFFICE_API_KEY","").strip()
- raw_urls=os.environ.get("METOFFICE_GRIB_URLS","").strip()
- tag=datetime.now(timezone.utc).strftime("%Y%m%d%H")
- OUT.mkdir(parents=True,exist_ok=True)
- report={"model":"UKMET","createdUTC":datetime.now(timezone.utc).isoformat(),"source":"Met Office Weather DataHub",
-         "status":"pending","extent":list(EXTENT),"generated":[],"failures":[]}
- if not api_key or not raw_urls:
-  report.update(status="skipped_missing_credentials",
-   reason="Configure os secrets METOFFICE_API_KEY e METOFFICE_GRIB_URLS com a chave DataHub e URL(s) direta(s) de arquivos/ZIP GRIB2 do produto global UKMET contratado.")
-  (OUT/"generation-report.json").write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
-  print("AVISO: UKMET não baixado. Faltam METOFFICE_API_KEY e/ou METOFFICE_GRIB_URLS; nenhum mapa fictício foi criado.")
-  return
- import cfgrib
- CACHE.mkdir(parents=True,exist_ok=True)
- urls=[u.strip() for u in raw_urls.splitlines() if u.strip()]
- files=[]
- for i,url in enumerate(urls):
-  try:
-   files.extend(download_resource(url,api_key,CACHE/f"download_{i}.grib2"))
-  except Exception as exc:
-   report["failures"].append({"urlHost":urlparse(url).netloc,"error":f"{type(exc).__name__}: {exc}"})
-   print(f"FALHA download UKMET {urlparse(url).netloc}: {exc}")
- map_count=0
- for file in files:
-  try: datasets=cfgrib.open_datasets(str(file),backend_kwargs={"indexpath":""})
-  except Exception as exc:
-   report["failures"].append({"file":file.name,"error":f"cfgrib: {type(exc).__name__}: {exc}"}); continue
-  for gi,ds in enumerate(datasets):
-   try:
-    for name,da in ds.data_vars.items():
-     if map_count>=MAX_MAPS: break
-     steps=range(da.sizes["step"]) if "step" in da.dims else [None]
-     for ix in steps:
-      if map_count>=MAX_MAPS: break
-      selected=da.isel(step=ix) if ix is not None else da
-      raw=selected.coords.get("step",None)
-      step=0
-      if raw is not None:
-       value=np.asarray(raw.values).reshape(-1)[0]
-       try: step=int(value/np.timedelta64(1,"h")) if isinstance(value,np.timedelta64) else int(value)
-       except Exception: step=0
-      level=selected.attrs.get("GRIB_level",selected.attrs.get("GRIB_typeOfLevel",""))
-      slug=safe_slug(f"{name}_{level}_{gi}")
-      out=OUT/tag/slug/f"f{step:03d}.png"
-      try:
-       render(ds,selected,step,tag,name,out)
-       report["generated"].append(str(out)); map_count+=1; print(f"OK {out}")
-      except Exception as exc:
-       report["failures"].append({"file":file.name,"field":name,"step":step,"error":f"{type(exc).__name__}: {exc}"})
-   finally:
-    try: ds.close()
-    except Exception: pass
-  if map_count>=MAX_MAPS: break
- report["generatedCount"]=map_count; report["failureCount"]=len(report["failures"])
- report["status"]="complete" if map_count>0 else "failed"
- (OUT/"generation-report.json").write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
- print(json.dumps({k:report.get(k) for k in ("status","generatedCount","failureCount","reason")},indent=2,ensure_ascii=False))
- if map_count==0: raise SystemExit("Nenhum mapa UKMET gerado; verifique a assinatura, URLs e arquivos GRIB2")
+    if BATCH_SIZE < 2 or BATCH_SIZE > 80:
+        raise SystemExit("UKMET_BATCH_SIZE deve ficar entre 2 e 80.")
+    if MAX_WORKERS < 1 or MAX_WORKERS > 5:
+        raise SystemExit("UKMET_API_WORKERS deve ficar entre 1 e 5.")
+    OUT.mkdir(parents=True, exist_ok=True)
+    created = dt.datetime.now(dt.timezone.utc)
+    report = {
+        "model": MODEL_LABEL,
+        "modelId": MODEL_ID,
+        "source": "Open-Meteo Single Runs API (the same source/model ID used by Sideral Skew-T)",
+        "createdUTC": created.isoformat(),
+        "status": "pending",
+        "extent": list(EXTENT),
+        "gridSampling": {
+            "latitudeStepDegrees": 1.0,
+            "longitudeStepDegrees": 1.0,
+            "note": "Valores UKMO consultados em pontos regulares pela API; PNG não é um GRIB nativo de 10 km.",
+        },
+        "forecastHours": FORECAST_HOURS,
+        "generated": [],
+        "failures": [],
+    }
+    try:
+        run = find_available_run()
+        values, time_axis = collect_grid(run)
+        report["run"] = run.strftime("%Y%m%d%H")
+        report["timeAxisStartUTC"] = time_axis[0]
+        report["gridPoints"] = int(len(LATITUDES) * len(LONGITUDES))
+        report["validPointsByField"] = {
+            key: int(np.isfinite(arr[:, :, 0]).sum()) for key, arr in values.items()
+        }
+        wind_speed = values["wind_speed_10m"]
+        wind_direction = values["wind_direction_10m"]
+        for field_key in FIELDS:
+            for step in FORECAST_HOURS:
+                if step >= len(time_axis):
+                    report["failures"].append({"field": field_key, "step": step, "error": "validade fora da resposta API"})
+                    continue
+                valid_time = str(time_axis[step])
+                out = OUT / report["run"] / field_key / f"f{step:03d}.png"
+                try:
+                    render_map(field_key, values[field_key], wind_speed, wind_direction, step, run, valid_time, out)
+                    report["generated"].append(str(out))
+                    print(f"OK {out}", flush=True)
+                except Exception as exc:
+                    report["failures"].append({
+                        "field": field_key, "step": step,
+                        "error": f"{type(exc).__name__}: {exc}",
+                    })
+                    print(f"FALHA {field_key} F{step:03d}: {exc}", flush=True)
+        report["generatedCount"] = len(report["generated"])
+        report["failureCount"] = len(report["failures"])
+        if report["generatedCount"] == 0:
+            report["status"] = "failed"
+        elif report["failureCount"]:
+            report["status"] = "complete_with_errors"
+        else:
+            report["status"] = "complete"
+    except Exception as exc:
+        report["status"] = "failed"
+        report["fatalError"] = f"{type(exc).__name__}: {exc}"
+        report["generatedCount"] = len(report["generated"])
+        report["failureCount"] = len(report["failures"]) + 1
+    (OUT / "generation-report.json").write_text(
+        json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+    print(json.dumps({
+        key: report.get(key) for key in (
+            "status", "run", "gridPoints", "generatedCount", "failureCount", "fatalError"
+        )
+    }, indent=2, ensure_ascii=False), flush=True)
+    if report["status"] == "failed":
+        raise SystemExit("UKMO map generation failed; inspect site/maps/ukmet/generation-report.json")
 
-if __name__=="__main__": main()
+
+if __name__ == "__main__":
+    main()
