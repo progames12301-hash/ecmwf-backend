@@ -74,7 +74,7 @@ def main():
   count=0
   for hour in HOURS:
    try:
-    h=Herbie(run,model="gefs",product="atmos.5",member=member_arg,fxx=hour,priority=["aws"])
+    h=Herbie(run.replace(tzinfo=None),model="gefs",product="atmos.5",member=member_arg,fxx=hour,priority=["aws"])
     for key,(search,*_) in FIELDS.items():
      try:
       ds=h.xarray(search)
