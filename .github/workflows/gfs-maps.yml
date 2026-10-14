@@ -1,0 +1,77 @@
+name: GFS model maps
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [model-gfs]
+    paths:
+      - 'scripts/generate_gfs_maps.py'
+      - 'requirements-model-maps.txt'
+      - '.github/workflows/gfs-maps.yml'
+  schedule:
+    - cron: '45 8,20 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gfs-model-maps
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Checkout model branch
+        uses: actions/checkout@v4
+        with:
+          ref: model-gfs
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install native libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
+      - name: Install dependencies
+        run: pip install -r requirements-model-maps.txt
+      - name: Generate GFS map variants
+        run: python scripts/generate_gfs_maps.py
+      - name: Validate outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("site/maps/gfs/generation-report.json")
+          if not p.exists():
+              raise SystemExit("ERRO: relatório GFS ausente")
+          r = json.loads(p.read_text(encoding="utf-8"))
+          print(json.dumps({"run": r.get("run"), "generatedCount": r.get("generatedCount"),
+                            "failureCount": r.get("failureCount"), "variants": r.get("variants")}, indent=2))
+          if r.get("generatedCount", 0) < 1:
+              raise SystemExit("ERRO: nenhum mapa GFS gerado")
+      - name: Publish maps to model-gfs branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/maps/gfs
+          if git diff --cached --quiet; then
+            echo "Nenhuma alteração nos mapas GFS."
+            exit 0
+          fi
+          git commit -m "chore: atualizar mapas GFS"
+          for attempt in 1 2 3 4 5; do
+            git fetch origin model-gfs
+            git rebase origin/model-gfs
+            if git push origin HEAD:model-gfs; then
+              echo "Mapas GFS publicados na branch model-gfs."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "ERRO: publicação GFS falhou após 5 tentativas."
+          exit 1
