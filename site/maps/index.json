@@ -1,8 +1,8 @@
 {
   "model": "ECMWF IFS HRES",
   "resolution": "0.25\u00b0",
-  "run": "2026-10-05T00:00:00+00:00",
-  "run_id": "2026100500",
+  "run": "2026-10-13T12:00:00+00:00",
+  "run_id": "2026101312",
   "steps": [
     0,
     3,
@@ -70,5 +70,151 @@
     234,
     240
   ],
-  "updated": "2026-10-05T17:56:47.143078+00:00"
+  "products": {
+    "precip": {
+      "label": "Precipita\u00e7\u00e3o / taxa",
+      "file": "precip",
+      "group": "surface"
+    },
+    "temp2m": {
+      "label": "Temperatura 2 m",
+      "file": "temp2m",
+      "group": "surface"
+    },
+    "dew2m": {
+      "label": "Ponto de orvalho 2 m",
+      "file": "dew2m",
+      "group": "surface"
+    },
+    "wind10m": {
+      "label": "Vento 10 m",
+      "file": "wind10m",
+      "group": "surface"
+    },
+    "gust10m": {
+      "label": "Rajada m\u00e1xima 10 m",
+      "file": "gust10m",
+      "group": "surface"
+    },
+    "mslp": {
+      "label": "Press\u00e3o ao n\u00edvel do mar",
+      "file": "mslp",
+      "group": "surface"
+    },
+    "cloud": {
+      "label": "Cobertura de nuvens",
+      "file": "cloud",
+      "group": "surface"
+    },
+    "tcwv": {
+      "label": "\u00c1gua precipit\u00e1vel (TCWV)",
+      "file": "tcwv",
+      "group": "surface"
+    },
+    "cape": {
+      "label": "MUCAPE (parcela mais inst\u00e1vel)",
+      "file": "cape",
+      "group": "surface"
+    },
+    "t850": {
+      "label": "Temperatura 850 hPa",
+      "file": "t850",
+      "group": "pressure"
+    },
+    "wind850": {
+      "label": "Vento 850 hPa",
+      "file": "wind850",
+      "group": "pressure"
+    },
+    "gh500": {
+      "label": "Geopotencial 500 hPa",
+      "file": "gh500",
+      "group": "pressure"
+    },
+    "wind500": {
+      "label": "Vento 500 hPa",
+      "file": "wind500",
+      "group": "pressure"
+    },
+    "wind250": {
+      "label": "Vento 250 hPa",
+      "file": "wind250",
+      "group": "pressure"
+    }
+  },
+  "updated": "2026-10-14T02:07:24.278913+00:00",
+  "fieldInventory": "maps/2026101312/field-inventory.json",
+  "generationReport": "maps/2026101312/generation-report.json",
+  "productAvailability": {
+    "precip": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "temp2m": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "dew2m": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "wind10m": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "gust10m": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "mslp": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "cloud": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "tcwv": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "cape": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "t850": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "wind850": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "gh500": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "wind500": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "wind250": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    }
+  }
 }
