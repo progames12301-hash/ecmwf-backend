@@ -39,8 +39,17 @@ FIELDS={
  "mslp":{"folder":"pmsl","suffix":"PMSL","label":"Pressão ao nível do mar","unit":"hPa","cmap":"viridis","vmin":960,"vmax":1040,"kind":"pressure"},
  "cloud":{"folder":"clct","suffix":"CLCT","label":"Cobertura total de nuvens","unit":"%","cmap":"Greys","vmin":0,"vmax":100,"kind":"cloud"},
  "tcwv":{"folder":"tqv","suffix":"TQV","label":"Água precipitável total","unit":"kg m⁻²","cmap":"GnBu","vmin":0,"vmax":70,"kind":"tcwv"},
+ "gust10m":{"folder":"vmax_10m","suffix":"VMAX_10M","label":"Rajada máxima a 10 m","unit":"m/s","cmap":"turbo","vmin":0,"vmax":40,"kind":"wind"},
 }
 WIND={"u":{"folder":"u_10m","suffix":"U_10M"},"v":{"folder":"v_10m","suffix":"V_10M"}}
+PRESSURE_FIELDS={
+ "t850":{"folder":"t","suffix":"T","level":850,"label":"Temperatura em 850 hPa","unit":"K"},
+ "gh500":{"folder":"fi","suffix":"FI","level":500,"label":"Altura geopotencial em 500 hPa","unit":"m²/s²"},
+ "wind850":{"level":850,"label":"Vento em 850 hPa","unit":"m/s","u_folder":"u","u_suffix":"U","v_folder":"v","v_suffix":"V"},
+ "wind500":{"level":500,"label":"Vento em 500 hPa","unit":"m/s","u_folder":"u","u_suffix":"U","v_folder":"v","v_suffix":"V"},
+ "wind250":{"level":250,"label":"Vento em 250 hPa","unit":"m/s","u_folder":"u","u_suffix":"U","v_folder":"v","v_suffix":"V"},
+}
+
 
 def latest_run():
  t=datetime.now(timezone.utc)-timedelta(hours=6)
@@ -55,13 +64,18 @@ def links_from_index(url):
  _INDEX_CACHE[url]=names
  return names
 
-def fetch_grib(run,step,folder,suffix):
+def fetch_grib(run,step,folder,suffix,level=None):
  cycle=f"{run.hour:02d}"
  directory=f"{BASE}/{cycle}/{folder}/"
- filename=f"icon_global_icosahedral_single-level_{run:%Y%m%d%H}_{step:03d}_{suffix}.grib2.bz2"
+ if level is None:
+  filename=f"icon_global_icosahedral_single-level_{run:%Y%m%d%H}_{step:03d}_{suffix}.grib2.bz2"
+  local_name=f"{suffix}.grib2"
+ else:
+  filename=f"icon_global_icosahedral_pressure-level_{run:%Y%m%d%H}_{step:03d}_{level}_{suffix}.grib2.bz2"
+  local_name=f"{suffix}_{level}.grib2"
  local_dir=CACHE/f"{run:%Y%m%d%H}"/f"{step:03d}"
  local_dir.mkdir(parents=True,exist_ok=True)
- out=local_dir/(suffix+".grib2")
+ out=local_dir/local_name
  if out.exists() and out.stat().st_size>1000: return out
  names=links_from_index(directory)
  target=next((n for n in names if n.endswith(filename)),None)
@@ -195,6 +209,35 @@ def main():
   except Exception as exc:
    report["failures"].append({"hour":step,"field":"wind10m","error":f"{type(exc).__name__}: {exc}"})
    print(f"FALHA ICON F{step:03d} wind10m: {exc}")
+  for key,cfg in PRESSURE_FIELDS.items():
+   try:
+    level=cfg["level"]
+    if key.startswith("wind"):
+     up=fetch_grib(run,step,cfg["u_folder"],cfg["u_suffix"],level=level)
+     vp=fetch_grib(run,step,cfg["v_folder"],cfg["v_suffix"],level=level)
+     lon,lat,uvals,units=extract(up); lon2,lat2,vvals,_=extract(vp)
+     if lon.shape!=lon2.shape or not np.allclose(lon,lon2) or not np.allclose(lat,lat2) or uvals.shape!=vvals.shape:
+      raise ValueError(f"Grades U/V do ICON não coincidem em {level} hPa")
+     values=np.hypot(uvals,vvals); wind_u=uvals; wind_v=vvals
+     unit=units or cfg["unit"]
+    else:
+     path=fetch_grib(run,step,cfg["folder"],cfg["suffix"],level=level)
+     lon,lat,values,units=extract(path); wind_u=wind_v=None; unit=units or cfg["unit"]
+    valid=run+timedelta(hours=step)
+    title=cfg["label"]
+    out=OUT/tag/key/f"f{step:03d}.png"
+    written=render_all_views(
+     lon,lat,values,key,title,valid,out,
+     source="DWD ICON Global Open Data • native grid",
+     region_root=OUT/"regions",region_relative=out.relative_to(OUT),
+     unit=unit,wind_u=wind_u,wind_v=wind_v,unstructured=True,
+     run_time=run,forecast_hour=step,model_label="DWD ICON Global",
+    )
+    report["generated"].extend(str(p) for p in written)
+    print(f"OK {out} + {len(written)-1} recortes regionais",flush=True)
+   except Exception as exc:
+    report["failures"].append({"hour":step,"field":key,"error":f"{type(exc).__name__}: {exc}"})
+    print(f"FALHA ICON F{step:03d} {key}: {exc}",flush=True)
  OUT.mkdir(parents=True,exist_ok=True)
  report["generatedCount"]=len(report["generated"]); report["failureCount"]=len(report["failures"]); report["regionalViewsPerSourceMap"]=5; report["gridResolutionPreserved"]=True
  (OUT/"generation-report.json").write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
