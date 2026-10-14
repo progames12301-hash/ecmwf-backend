@@ -1,0 +1,48 @@
+{
+  "model": "ICON-GLOBAL",
+  "run": "2026101406",
+  "source": "https://opendata.dwd.de/weather/nwp/icon/grib",
+  "extent": [
+    -90,
+    -30,
+    -60,
+    15
+  ],
+  "forecastHours": [
+    0,
+    24,
+    48,
+    72,
+    120
+  ],
+  "generated": [
+    "site/maps/icon/global/2026101406/temp2m/f000.png",
+    "site/maps/icon/global/2026101406/dew2m/f000.png",
+    "site/maps/icon/global/2026101406/precip/f000.png",
+    "site/maps/icon/global/2026101406/cape/f000.png",
+    "site/maps/icon/global/2026101406/wind10m/f000.png",
+    "site/maps/icon/global/2026101406/temp2m/f024.png",
+    "site/maps/icon/global/2026101406/dew2m/f024.png",
+    "site/maps/icon/global/2026101406/precip/f024.png",
+    "site/maps/icon/global/2026101406/cape/f024.png",
+    "site/maps/icon/global/2026101406/wind10m/f024.png",
+    "site/maps/icon/global/2026101406/temp2m/f048.png",
+    "site/maps/icon/global/2026101406/dew2m/f048.png",
+    "site/maps/icon/global/2026101406/precip/f048.png",
+    "site/maps/icon/global/2026101406/cape/f048.png",
+    "site/maps/icon/global/2026101406/wind10m/f048.png",
+    "site/maps/icon/global/2026101406/temp2m/f072.png",
+    "site/maps/icon/global/2026101406/dew2m/f072.png",
+    "site/maps/icon/global/2026101406/precip/f072.png",
+    "site/maps/icon/global/2026101406/cape/f072.png",
+    "site/maps/icon/global/2026101406/wind10m/f072.png",
+    "site/maps/icon/global/2026101406/temp2m/f120.png",
+    "site/maps/icon/global/2026101406/dew2m/f120.png",
+    "site/maps/icon/global/2026101406/precip/f120.png",
+    "site/maps/icon/global/2026101406/cape/f120.png",
+    "site/maps/icon/global/2026101406/wind10m/f120.png"
+  ],
+  "failures": [],
+  "generatedCount": 25,
+  "failureCount": 0
+}
