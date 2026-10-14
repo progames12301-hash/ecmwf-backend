@@ -35,6 +35,9 @@ FIELDS={
  "dew2m":{"folder":"td_2m","suffix":"TD_2M","label":"Ponto de orvalho a 2 m","unit":"°C","cmap":"BrBG","vmin":-20,"vmax":30,"kind":"temp"},
  "precip":{"folder":"tot_prec","suffix":"TOT_PREC","label":"Precipitação acumulada","unit":"mm","cmap":"turbo","vmin":0,"vmax":80,"kind":"precip"},
  "cape":{"folder":"cape_con","suffix":"CAPE_CON","label":"CAPE convectiva","unit":"J/kg","cmap":"magma","vmin":0,"vmax":4000,"kind":"cape"},
+ "mslp":{"folder":"pmsl","suffix":"PMSL","label":"Pressão ao nível do mar","unit":"hPa","cmap":"viridis","vmin":960,"vmax":1040,"kind":"pressure"},
+ "cloud":{"folder":"clct","suffix":"CLCT","label":"Cobertura total de nuvens","unit":"%","cmap":"Greys","vmin":0,"vmax":100,"kind":"cloud"},
+ "tcwv":{"folder":"tqv","suffix":"TQV","label":"Água precipitável total","unit":"kg m⁻²","cmap":"GnBu","vmin":0,"vmax":70,"kind":"tcwv"},
 }
 WIND={"u":{"folder":"u_10m","suffix":"U_10M"},"v":{"folder":"v_10m","suffix":"V_10M"}}
 
