@@ -37,7 +37,7 @@ def latest_run():
 def links_from_index(url):
  req=urllib.request.Request(url,headers={"User-Agent":"SideralMeteorologia-map-runner/1.0"})
  with urllib.request.urlopen(req,timeout=60) as r: html=r.read().decode("utf-8","replace")
- return re.findall(r'href=["\\']([^"\\']+\\.grib2\\.bz2)["\\']',html,re.I)
+ return re.findall(r"""href=["']([^"']+\.grib2\.bz2)["']""", html, re.I)
 
 def fetch_grib(run,step,folder,suffix):
  cycle=f"{run.hour:02d}"
