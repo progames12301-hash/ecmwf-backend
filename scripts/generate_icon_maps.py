@@ -17,7 +17,11 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 
 EXTENT=(-90,-30,-60,15)
-STEPS=list(range(0,79,3))+list(range(84,181,6))  # cadência DWD ICON Global até F180
+def steps_for_run(run):
+ # DWD ICON Global: F000-F078 horário; depois a cada 3 h.
+ # As rodadas 00/12Z chegam a F180; 06/18Z chegam a F120.
+ end = 181 if run.hour in (0, 12) else 121
+ return list(range(0, 79)) + list(range(81, end, 3))
 BASE="https://opendata.dwd.de/weather/nwp/icon/grib"
 CACHE=Path("work/icon-grib")
 GRID_CACHE=Path("work/icon-grid")
@@ -157,8 +161,9 @@ def render_wind(u,v,run,step,out):
  )
 
 def main():
- run=latest_run(); tag=run.strftime("%Y%m%d%H")
- report={"model":"ICON-GLOBAL","run":tag,"source":BASE,"extent":list(EXTENT),"forecastHours":STEPS,"generated":[],"failures":[]}
+ run=latest_run(); tag=run.strftime("%Y%m%d%H"); steps=steps_for_run(run)
+ report={"model":"ICON-GLOBAL","run":tag,"source":BASE,"extent":list(EXTENT),"forecastHours":steps,
+         "temporalCadence":{"hourlyThrough":78,"extendedEveryHours":3,"forecastLimit":max(steps)},"generated":[],"failures":[]}
  try:
   ensure_coordinates()
  except Exception as exc:
@@ -167,7 +172,7 @@ def main():
   OUT.mkdir(parents=True,exist_ok=True)
   (OUT/"generation-report.json").write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
   raise SystemExit(f"Falha ao preparar grid ICON Global: {exc}")
- for step in STEPS:
+ for step in steps:
   for key,cfg in FIELDS.items():
    try:
     path=fetch_grib(run,step,cfg["folder"],cfg["suffix"]); lon,lat,values,units=extract(path)
