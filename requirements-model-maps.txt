@@ -6,3 +6,4 @@ eccodes>=2.36
 matplotlib>=3.8
 cartopy>=0.23
 scipy>=1.11
+netCDF4>=1.6
