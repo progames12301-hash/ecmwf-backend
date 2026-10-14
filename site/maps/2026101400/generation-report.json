@@ -1,13 +1,4569 @@
 {
   "model": "ECMWF IFS HRES",
   "resolution": "0.25\u00b0",
+  "renderStyleVersion": "sideral-bulletin-v2-20261014",
   "run": "2026-10-14T00:00:00+00:00",
   "run_id": "2026101400",
-  "generatedAt": "2026-10-14T17:23:42.037839+00:00",
+  "generatedAt": "2026-10-14T19:49:42.944128+00:00",
   "generatedMapsThisRun": 0,
-  "existingMapsReused": 910,
-  "failureCount": 0,
-  "failures": [],
+  "generatedFullMapsThisRun": 0,
+  "generatedRegionalMapsThisRun": 0,
+  "existingMapsReused": 0,
+  "regionalViewsPerSourceMap": 5,
+  "nativeGridResolutionPreserved": true,
+  "failureCount": 910,
+  "failures": [
+    {
+      "product": "precip",
+      "step": 0,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 3,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 6,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 9,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 12,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 15,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 18,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 21,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 24,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 27,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 30,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 33,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 36,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 39,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 42,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 45,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 48,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 51,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 54,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 57,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 60,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 63,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 66,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 69,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 72,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 75,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 78,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 81,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 84,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 87,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 90,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 93,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 96,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 99,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 102,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 105,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 108,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 111,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 114,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 117,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 120,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 123,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 126,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 129,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 132,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 135,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 138,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 141,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 144,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 150,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 156,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 162,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 168,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 174,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 180,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 186,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 192,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 198,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 204,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 210,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 216,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 222,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 228,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 234,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "precip",
+      "step": 240,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 0,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 3,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 6,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 9,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 12,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 15,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 18,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 21,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 24,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 27,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 30,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 33,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 36,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 39,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 42,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 45,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 48,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 51,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 54,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 57,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 60,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 63,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 66,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 69,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 72,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 75,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 78,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 81,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 84,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 87,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 90,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 93,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 96,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 99,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 102,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 105,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 108,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 111,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 114,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 117,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 120,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 123,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 126,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 129,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 132,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 135,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 138,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 141,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 144,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 150,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 156,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 162,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 168,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 174,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 180,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 186,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 192,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 198,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 204,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 210,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 216,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 222,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 228,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 234,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "temp2m",
+      "step": 240,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 0,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 3,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 6,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 9,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 12,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 15,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 18,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 21,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 24,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 27,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 30,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 33,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 36,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 39,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 42,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 45,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 48,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 51,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 54,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 57,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 60,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 63,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 66,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 69,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 72,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 75,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 78,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 81,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 84,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 87,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 90,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 93,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 96,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 99,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 102,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 105,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 108,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 111,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 114,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 117,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 120,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 123,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 126,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 129,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 132,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 135,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 138,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 141,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 144,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 150,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 156,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 162,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 168,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 174,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 180,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 186,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 192,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 198,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 204,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 210,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 216,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 222,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 228,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 234,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "dew2m",
+      "step": 240,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 0,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 3,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 6,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 9,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 12,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 15,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 18,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 21,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 24,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 27,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 30,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 33,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 36,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 39,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 42,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 45,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 48,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 51,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 54,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 57,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 60,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 63,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 66,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 69,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 72,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 75,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 78,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 81,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 84,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 87,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 90,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 93,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 96,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 99,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 102,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 105,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 108,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 111,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 114,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 117,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 120,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 123,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 126,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 129,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 132,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 135,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 138,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 141,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 144,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 150,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 156,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 162,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 168,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 174,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 180,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 186,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 192,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 198,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 204,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 210,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 216,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 222,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 228,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 234,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind10m",
+      "step": 240,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 0,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 3,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 6,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 9,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 12,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 15,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 18,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 21,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 24,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 27,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 30,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 33,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 36,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 39,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 42,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 45,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 48,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 51,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 54,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 57,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 60,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 63,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 66,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 69,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 72,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 75,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 78,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 81,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 84,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 87,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 90,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 93,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 96,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 99,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 102,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 105,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 108,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 111,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 114,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 117,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 120,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 123,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 126,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 129,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 132,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 135,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 138,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 141,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 144,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 150,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 156,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 162,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 168,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 174,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 180,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 186,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 192,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 198,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 204,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 210,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 216,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 222,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 228,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 234,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gust10m",
+      "step": 240,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 0,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 3,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 6,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 9,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 12,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 15,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 18,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 21,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 24,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 27,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 30,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 33,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 36,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 39,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 42,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 45,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 48,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 51,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 54,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 57,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 60,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 63,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 66,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 69,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 72,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 75,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 78,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 81,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 84,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 87,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 90,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 93,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 96,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 99,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 102,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 105,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 108,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 111,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 114,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 117,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 120,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 123,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 126,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 129,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 132,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 135,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 138,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 141,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 144,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 150,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 156,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 162,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 168,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 174,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 180,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 186,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 192,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 198,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 204,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 210,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 216,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 222,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 228,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 234,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "mslp",
+      "step": 240,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 0,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 3,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 6,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 9,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 12,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 15,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 18,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 21,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 24,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 27,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 30,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 33,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 36,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 39,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 42,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 45,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 48,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 51,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 54,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 57,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 60,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 63,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 66,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 69,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 72,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 75,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 78,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 81,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 84,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 87,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 90,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 93,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 96,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 99,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 102,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 105,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 108,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 111,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 114,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 117,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 120,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 123,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 126,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 129,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 132,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 135,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 138,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 141,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 144,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 150,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 156,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 162,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 168,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 174,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 180,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 186,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 192,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 198,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 204,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 210,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 216,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 222,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 228,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 234,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cloud",
+      "step": 240,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 0,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 3,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 6,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 9,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 12,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 15,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 18,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 21,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 24,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 27,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 30,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 33,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 36,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 39,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 42,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 45,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 48,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 51,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 54,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 57,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 60,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 63,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 66,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 69,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 72,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 75,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 78,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 81,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 84,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 87,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 90,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 93,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 96,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 99,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 102,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 105,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 108,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 111,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 114,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 117,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 120,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 123,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 126,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 129,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 132,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 135,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 138,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 141,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 144,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 150,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 156,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 162,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 168,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 174,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 180,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 186,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 192,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 198,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 204,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 210,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 216,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 222,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 228,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 234,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "tcwv",
+      "step": 240,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 0,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 3,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 6,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 9,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 12,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 15,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 18,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 21,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 24,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 27,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 30,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 33,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 36,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 39,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 42,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 45,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 48,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 51,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 54,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 57,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 60,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 63,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 66,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 69,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 72,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 75,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 78,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 81,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 84,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 87,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 90,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 93,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 96,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 99,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 102,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 105,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 108,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 111,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 114,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 117,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 120,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 123,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 126,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 129,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 132,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 135,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 138,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 141,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 144,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 150,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 156,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 162,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 168,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 174,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 180,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 186,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 192,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 198,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 204,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 210,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 216,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 222,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 228,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 234,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "cape",
+      "step": 240,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 0,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 3,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 6,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 9,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 12,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 15,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 18,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 21,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 24,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 27,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 30,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 33,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 36,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 39,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 42,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 45,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 48,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 51,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 54,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 57,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 60,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 63,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 66,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 69,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 72,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 75,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 78,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 81,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 84,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 87,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 90,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 93,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 96,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 99,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 102,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 105,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 108,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 111,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 114,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 117,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 120,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 123,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 126,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 129,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 132,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 135,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 138,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 141,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 144,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 150,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 156,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 162,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 168,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 174,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 180,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 186,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 192,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 198,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 204,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 210,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 216,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 222,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 228,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 234,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "t850",
+      "step": 240,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 0,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 3,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 6,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 9,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 12,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 15,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 18,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 21,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 24,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 27,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 30,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 33,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 36,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 39,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 42,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 45,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 48,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 51,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 54,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 57,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 60,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 63,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 66,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 69,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 72,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 75,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 78,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 81,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 84,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 87,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 90,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 93,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 96,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 99,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 102,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 105,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 108,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 111,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 114,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 117,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 120,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 123,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 126,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 129,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 132,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 135,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 138,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 141,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 144,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 150,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 156,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 162,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 168,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 174,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 180,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 186,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 192,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 198,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 204,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 210,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 216,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 222,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 228,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 234,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind850",
+      "step": 240,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 0,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 3,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 6,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 9,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 12,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 15,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 18,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 21,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 24,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 27,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 30,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 33,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 36,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 39,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 42,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 45,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 48,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 51,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 54,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 57,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 60,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 63,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 66,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 69,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 72,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 75,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 78,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 81,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 84,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 87,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 90,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 93,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 96,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 99,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 102,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 105,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 108,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 111,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 114,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 117,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 120,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 123,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 126,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 129,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 132,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 135,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 138,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 141,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 144,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 150,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 156,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 162,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 168,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 174,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 180,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 186,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 192,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 198,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 204,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 210,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 216,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 222,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 228,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 234,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "gh500",
+      "step": 240,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 0,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 3,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 6,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 9,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 12,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 15,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 18,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 21,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 24,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 27,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 30,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 33,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 36,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 39,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 42,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 45,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 48,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 51,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 54,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 57,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 60,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 63,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 66,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 69,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 72,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 75,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 78,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 81,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 84,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 87,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 90,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 93,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 96,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 99,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 102,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 105,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 108,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 111,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 114,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 117,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 120,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 123,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 126,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 129,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 132,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 135,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 138,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 141,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 144,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 150,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 156,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 162,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 168,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 174,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 180,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 186,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 192,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 198,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 204,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 210,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 216,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 222,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 228,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 234,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind500",
+      "step": 240,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 0,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 3,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 6,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 9,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 12,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 15,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 18,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 21,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 24,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 27,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 30,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 33,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 36,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 39,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 42,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 45,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 48,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 51,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 54,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 57,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 60,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 63,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 66,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 69,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 72,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 75,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 78,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 81,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 84,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 87,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 90,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 93,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 96,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 99,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 102,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 105,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 108,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 111,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 114,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 117,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 120,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 123,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 126,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 129,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 132,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 135,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 138,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 141,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 144,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 150,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 156,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 162,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 168,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 174,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 180,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 186,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 192,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 198,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 204,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 210,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 216,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 222,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 228,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 234,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    },
+    {
+      "product": "wind250",
+      "step": 240,
+      "error": "AttributeError: 'Axes' object has no attribute 'set_extent'"
+    }
+  ],
   "inventoryFile": "field-inventory.json",
   "productAvailability": {
     "precip": {

@@ -142,7 +142,60 @@
       "group": "pressure"
     }
   },
-  "updated": "2026-10-14T17:23:42.132078+00:00",
+  "updated": "2026-10-14T19:49:43.054499+00:00",
+  "regionalViewsPerSourceMap": 5,
+  "regionalProducts": {
+    "nordeste": {
+      "label": "Nordeste",
+      "extent": [
+        -49.5,
+        -32.0,
+        -18.5,
+        1.5
+      ],
+      "pathTemplate": "maps/regions/nordeste/2026101400/<product>/f<step>.png"
+    },
+    "sudeste": {
+      "label": "Sudeste",
+      "extent": [
+        -54.5,
+        -39.0,
+        -26.5,
+        -14.0
+      ],
+      "pathTemplate": "maps/regions/sudeste/2026101400/<product>/f<step>.png"
+    },
+    "sul": {
+      "label": "Sul",
+      "extent": [
+        -58.5,
+        -47.0,
+        -34.5,
+        -22.0
+      ],
+      "pathTemplate": "maps/regions/sul/2026101400/<product>/f<step>.png"
+    },
+    "norte": {
+      "label": "Norte",
+      "extent": [
+        -75.5,
+        -43.0,
+        -13.5,
+        6.0
+      ],
+      "pathTemplate": "maps/regions/norte/2026101400/<product>/f<step>.png"
+    },
+    "centro-oeste": {
+      "label": "Centro-Oeste",
+      "extent": [
+        -62.5,
+        -46.0,
+        -25.5,
+        -7.0
+      ],
+      "pathTemplate": "maps/regions/centro-oeste/2026101400/<product>/f<step>.png"
+    }
+  },
   "fieldInventory": "maps/2026101400/field-inventory.json",
   "generationReport": "maps/2026101400/generation-report.json",
   "productAvailability": {
@@ -216,5 +269,6 @@
       "availableStepCount": 65,
       "missingStepCount": 0
     }
-  }
+  },
+  "renderStyleVersion": "sideral-bulletin-v2-20261014"
 }
