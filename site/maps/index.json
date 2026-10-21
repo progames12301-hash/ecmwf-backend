@@ -1,8 +1,8 @@
 {
   "model": "ECMWF IFS HRES",
   "resolution": "0.25\u00b0",
-  "run": "2026-10-20T12:00:00+00:00",
-  "run_id": "2026102012",
+  "run": "2026-10-21T00:00:00+00:00",
+  "run_id": "2026102100",
   "steps": [
     0,
     3,
@@ -142,7 +142,7 @@
       "group": "pressure"
     }
   },
-  "updated": "2026-10-21T01:16:43.661750+00:00",
+  "updated": "2026-10-21T15:54:00.961684+00:00",
   "regionalViewsPerSourceMap": 5,
   "regionalProducts": {
     "nordeste": {
@@ -153,7 +153,7 @@
         -18.5,
         1.5
       ],
-      "pathTemplate": "maps/regions/nordeste/2026102012/<product>/f<step>.png"
+      "pathTemplate": "maps/regions/nordeste/2026102100/<product>/f<step>.png"
     },
     "sudeste": {
       "label": "Sudeste",
@@ -163,7 +163,7 @@
         -26.5,
         -14.0
       ],
-      "pathTemplate": "maps/regions/sudeste/2026102012/<product>/f<step>.png"
+      "pathTemplate": "maps/regions/sudeste/2026102100/<product>/f<step>.png"
     },
     "sul": {
       "label": "Sul",
@@ -173,7 +173,7 @@
         -34.5,
         -22.0
       ],
-      "pathTemplate": "maps/regions/sul/2026102012/<product>/f<step>.png"
+      "pathTemplate": "maps/regions/sul/2026102100/<product>/f<step>.png"
     },
     "norte": {
       "label": "Norte",
@@ -183,7 +183,7 @@
         -13.5,
         6.0
       ],
-      "pathTemplate": "maps/regions/norte/2026102012/<product>/f<step>.png"
+      "pathTemplate": "maps/regions/norte/2026102100/<product>/f<step>.png"
     },
     "centro-oeste": {
       "label": "Centro-Oeste",
@@ -193,11 +193,11 @@
         -25.5,
         -7.0
       ],
-      "pathTemplate": "maps/regions/centro-oeste/2026102012/<product>/f<step>.png"
+      "pathTemplate": "maps/regions/centro-oeste/2026102100/<product>/f<step>.png"
     }
   },
-  "fieldInventory": "maps/2026102012/field-inventory.json",
-  "generationReport": "maps/2026102012/generation-report.json",
+  "fieldInventory": "maps/2026102100/field-inventory.json",
+  "generationReport": "maps/2026102100/generation-report.json",
   "productAvailability": {
     "precip": {
       "status": "available",
