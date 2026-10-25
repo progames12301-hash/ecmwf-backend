@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from herbie import Herbie
-from sideral_map_style import render_all_views, REGIONS
+from sideral_map_style import render_all_views, REGIONS, REGIONAL_FORECAST_HOURS
 
 EXTENT=(-90,-20,-60,15)
 HOURS=list(range(0,241,3))+list(range(246,385,6))  # cadência GEFS: 3 h até F240, depois 6 h até F384
@@ -96,6 +96,7 @@ def main():
          "ensembleProducts":{"mean":"ensemble mean","spread":"ensemble spread","control":"control"},
          "forecastHours":HOURS,"extent":list(EXTENT),"generated":[],"failures":[],"skipped":[],"members":{},
          "fieldCount":len(FIELDS),"viewCount":len(REGIONS)+1,"regionalViewsPerSourceMap":len(REGIONS),
+         "regionalForecastHours":list(REGIONAL_FORECAST_HOURS),
          "jsonSidecars":True,"jsonSchema":"sideral-native-grid-v1",
          "regions":{k:{"label":v["label"],"extent":list(v["extent"])} for k,v in REGIONS.items()}}
  for member,member_arg in MEMBERS.items():
