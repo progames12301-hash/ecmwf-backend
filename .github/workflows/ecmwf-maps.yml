@@ -73,7 +73,14 @@ jobs:
           }, indent=2, ensure_ascii=False))
           if report.get("failureCount", 1) != 0:
               raise SystemExit("ERRO: existem mapas ECMWF ausentes/falhos; a publicação será bloqueada.")
-          print("OK: todos os mapas foram gerados ou reaproveitados, sem falhas reportadas.")
+          from pathlib import Path
+          run_dir = Path("site/maps") / str(report.get("run_id", ""))
+          sample_png = next(run_dir.rglob("*.png"), None) if run_dir.exists() else None
+          if sample_png is None or not sample_png.with_suffix(".json.gz").is_file():
+              raise SystemExit("ERRO: ECMWF não gerou sidecar JSON georreferenciado para os mapas")
+          if not index.get("jsonSidecars") or index.get("jsonSchema") != "sideral-native-grid-v1":
+              raise SystemExit("ERRO: manifesto ECMWF não registra o contrato JSON regional")
+          print("OK: ECMWF gerou imagens e JSON georreferenciado; sem falhas reportadas.")
           PY
 
       - name: Publish generated maps
