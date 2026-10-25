@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-from sideral_map_style import render_all_views, REGIONS
+from sideral_map_style import render_all_views, REGIONS, REGIONAL_FORECAST_HOURS
 
 EXTENT=(-90,-20,-60,15)
 def steps_for_run(run):
@@ -191,7 +191,8 @@ def main():
  report={"model":"ICON-GLOBAL","run":tag,"source":BASE,"extent":list(EXTENT),"forecastHours":steps,
          "temporalCadence":{"hourlyThrough":78,"extendedEveryHours":3,"forecastLimit":max(steps)},"generated":[],"failures":[],
          "fieldCount":len(FIELDS)+1+len(PRESSURE_FIELDS),"viewCount":len(REGIONS)+1,
-         "regionalViewsPerSourceMap":len(REGIONS),"jsonSidecars":True,"jsonSchema":"sideral-native-grid-v1",
+         "regionalViewsPerSourceMap":len(REGIONS),"regionalForecastHours":list(REGIONAL_FORECAST_HOURS),
+         "jsonSidecars":True,"jsonSchema":"sideral-native-grid-v1",
          "regions":{k:{"label":v["label"],"extent":list(v["extent"])} for k,v in REGIONS.items()} }
  try:
   ensure_coordinates()
