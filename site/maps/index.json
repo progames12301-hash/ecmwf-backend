@@ -1,8 +1,8 @@
 {
   "model": "ECMWF IFS HRES",
   "resolution": "0.25\u00b0",
-  "run": "2026-10-24T12:00:00+00:00",
-  "run_id": "2026102412",
+  "run": "2026-10-25T00:00:00+00:00",
+  "run_id": "2026102500",
   "steps": [
     0,
     3,
@@ -116,9 +116,44 @@
       "file": "cape",
       "group": "surface"
     },
+    "rh2m": {
+      "label": "Umidade relativa 2 m",
+      "file": "rh2m",
+      "group": "surface"
+    },
     "t850": {
       "label": "Temperatura 850 hPa",
       "file": "t850",
+      "group": "pressure"
+    },
+    "t700": {
+      "label": "Temperatura 700 hPa",
+      "file": "t700",
+      "group": "pressure"
+    },
+    "t500": {
+      "label": "Temperatura 500 hPa",
+      "file": "t500",
+      "group": "pressure"
+    },
+    "t300": {
+      "label": "Temperatura 300 hPa",
+      "file": "t300",
+      "group": "pressure"
+    },
+    "rh850": {
+      "label": "Umidade relativa 850 hPa",
+      "file": "rh850",
+      "group": "pressure"
+    },
+    "rh700": {
+      "label": "Umidade relativa 700 hPa",
+      "file": "rh700",
+      "group": "pressure"
+    },
+    "wind925": {
+      "label": "Vento 925 hPa",
+      "file": "wind925",
       "group": "pressure"
     },
     "wind850": {
@@ -126,14 +161,34 @@
       "file": "wind850",
       "group": "pressure"
     },
+    "wind700": {
+      "label": "Vento 700 hPa",
+      "file": "wind700",
+      "group": "pressure"
+    },
     "gh500": {
       "label": "Geopotencial 500 hPa",
       "file": "gh500",
       "group": "pressure"
     },
+    "gh700": {
+      "label": "Geopotencial 700 hPa",
+      "file": "gh700",
+      "group": "pressure"
+    },
+    "gh300": {
+      "label": "Geopotencial 300 hPa",
+      "file": "gh300",
+      "group": "pressure"
+    },
     "wind500": {
       "label": "Vento 500 hPa",
       "file": "wind500",
+      "group": "pressure"
+    },
+    "wind300": {
+      "label": "Vento 300 hPa",
+      "file": "wind300",
       "group": "pressure"
     },
     "wind250": {
@@ -142,62 +197,400 @@
       "group": "pressure"
     }
   },
-  "updated": "2026-10-25T00:22:38.464573+00:00",
-  "regionalViewsPerSourceMap": 5,
+  "updated": "2026-10-25T16:28:16.524541+00:00",
+  "regionalViewsPerSourceMap": 11,
+  "regionalForecastHours": [
+    0,
+    12,
+    24,
+    36,
+    48,
+    60,
+    72,
+    84,
+    96,
+    108,
+    120,
+    144,
+    168,
+    180,
+    192,
+    216,
+    240,
+    288,
+    336,
+    384
+  ],
+  "viewCount": 12,
+  "jsonSidecars": true,
+  "jsonSchema": "sideral-native-grid-v1",
   "regionalProducts": {
     "nordeste": {
-      "label": "Nordeste",
+      "label": "Nordeste do Brasil",
       "extent": [
         -49.5,
         -32.0,
         -18.5,
         1.5
       ],
-      "pathTemplate": "maps/regions/nordeste/2026102412/<product>/f<step>.png"
+      "pathTemplate": "maps/regions/nordeste/2026102500/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/nordeste/2026102500/<product>/f<step>.json.gz",
+      "regionalForecastHours": [
+        0,
+        12,
+        24,
+        36,
+        48,
+        60,
+        72,
+        84,
+        96,
+        108,
+        120,
+        144,
+        168,
+        180,
+        192,
+        216,
+        240,
+        288,
+        336,
+        384
+      ]
     },
     "sudeste": {
-      "label": "Sudeste",
+      "label": "Sudeste do Brasil",
       "extent": [
         -54.5,
         -39.0,
         -26.5,
         -14.0
       ],
-      "pathTemplate": "maps/regions/sudeste/2026102412/<product>/f<step>.png"
+      "pathTemplate": "maps/regions/sudeste/2026102500/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/sudeste/2026102500/<product>/f<step>.json.gz",
+      "regionalForecastHours": [
+        0,
+        12,
+        24,
+        36,
+        48,
+        60,
+        72,
+        84,
+        96,
+        108,
+        120,
+        144,
+        168,
+        180,
+        192,
+        216,
+        240,
+        288,
+        336,
+        384
+      ]
     },
     "sul": {
-      "label": "Sul",
+      "label": "Sul do Brasil",
       "extent": [
         -58.5,
         -47.0,
         -34.5,
         -22.0
       ],
-      "pathTemplate": "maps/regions/sul/2026102412/<product>/f<step>.png"
+      "pathTemplate": "maps/regions/sul/2026102500/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/sul/2026102500/<product>/f<step>.json.gz",
+      "regionalForecastHours": [
+        0,
+        12,
+        24,
+        36,
+        48,
+        60,
+        72,
+        84,
+        96,
+        108,
+        120,
+        144,
+        168,
+        180,
+        192,
+        216,
+        240,
+        288,
+        336,
+        384
+      ]
     },
     "norte": {
-      "label": "Norte",
+      "label": "Norte do Brasil",
       "extent": [
         -75.5,
         -43.0,
         -13.5,
         6.0
       ],
-      "pathTemplate": "maps/regions/norte/2026102412/<product>/f<step>.png"
+      "pathTemplate": "maps/regions/norte/2026102500/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/norte/2026102500/<product>/f<step>.json.gz",
+      "regionalForecastHours": [
+        0,
+        12,
+        24,
+        36,
+        48,
+        60,
+        72,
+        84,
+        96,
+        108,
+        120,
+        144,
+        168,
+        180,
+        192,
+        216,
+        240,
+        288,
+        336,
+        384
+      ]
     },
     "centro-oeste": {
-      "label": "Centro-Oeste",
+      "label": "Centro-Oeste do Brasil",
       "extent": [
         -62.5,
         -46.0,
         -25.5,
         -7.0
       ],
-      "pathTemplate": "maps/regions/centro-oeste/2026102412/<product>/f<step>.png"
+      "pathTemplate": "maps/regions/centro-oeste/2026102500/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/centro-oeste/2026102500/<product>/f<step>.json.gz",
+      "regionalForecastHours": [
+        0,
+        12,
+        24,
+        36,
+        48,
+        60,
+        72,
+        84,
+        96,
+        108,
+        120,
+        144,
+        168,
+        180,
+        192,
+        216,
+        240,
+        288,
+        336,
+        384
+      ]
+    },
+    "argentina": {
+      "label": "Argentina",
+      "extent": [
+        -76.5,
+        -53.0,
+        -56.0,
+        -21.0
+      ],
+      "pathTemplate": "maps/regions/argentina/2026102500/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/argentina/2026102500/<product>/f<step>.json.gz",
+      "regionalForecastHours": [
+        0,
+        12,
+        24,
+        36,
+        48,
+        60,
+        72,
+        84,
+        96,
+        108,
+        120,
+        144,
+        168,
+        180,
+        192,
+        216,
+        240,
+        288,
+        336,
+        384
+      ]
+    },
+    "argentina-norte": {
+      "label": "Norte da Argentina",
+      "extent": [
+        -69.5,
+        -53.0,
+        -31.0,
+        -21.0
+      ],
+      "pathTemplate": "maps/regions/argentina-norte/2026102500/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/argentina-norte/2026102500/<product>/f<step>.json.gz",
+      "regionalForecastHours": [
+        0,
+        12,
+        24,
+        36,
+        48,
+        60,
+        72,
+        84,
+        96,
+        108,
+        120,
+        144,
+        168,
+        180,
+        192,
+        216,
+        240,
+        288,
+        336,
+        384
+      ]
+    },
+    "argentina-litoral": {
+      "label": "Litoral da Argentina",
+      "extent": [
+        -62.5,
+        -53.0,
+        -34.5,
+        -25.0
+      ],
+      "pathTemplate": "maps/regions/argentina-litoral/2026102500/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/argentina-litoral/2026102500/<product>/f<step>.json.gz",
+      "regionalForecastHours": [
+        0,
+        12,
+        24,
+        36,
+        48,
+        60,
+        72,
+        84,
+        96,
+        108,
+        120,
+        144,
+        168,
+        180,
+        192,
+        216,
+        240,
+        288,
+        336,
+        384
+      ]
+    },
+    "argentina-centro": {
+      "label": "Centro da Argentina",
+      "extent": [
+        -68.5,
+        -58.0,
+        -39.5,
+        -29.0
+      ],
+      "pathTemplate": "maps/regions/argentina-centro/2026102500/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/argentina-centro/2026102500/<product>/f<step>.json.gz",
+      "regionalForecastHours": [
+        0,
+        12,
+        24,
+        36,
+        48,
+        60,
+        72,
+        84,
+        96,
+        108,
+        120,
+        144,
+        168,
+        180,
+        192,
+        216,
+        240,
+        288,
+        336,
+        384
+      ]
+    },
+    "argentina-cuyo": {
+      "label": "Cuyo",
+      "extent": [
+        -71.5,
+        -64.0,
+        -37.5,
+        -28.0
+      ],
+      "pathTemplate": "maps/regions/argentina-cuyo/2026102500/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/argentina-cuyo/2026102500/<product>/f<step>.json.gz",
+      "regionalForecastHours": [
+        0,
+        12,
+        24,
+        36,
+        48,
+        60,
+        72,
+        84,
+        96,
+        108,
+        120,
+        144,
+        168,
+        180,
+        192,
+        216,
+        240,
+        288,
+        336,
+        384
+      ]
+    },
+    "argentina-patagonia": {
+      "label": "Patag\u00f4nia Argentina",
+      "extent": [
+        -75.5,
+        -63.0,
+        -55.5,
+        -36.0
+      ],
+      "pathTemplate": "maps/regions/argentina-patagonia/2026102500/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/argentina-patagonia/2026102500/<product>/f<step>.json.gz",
+      "regionalForecastHours": [
+        0,
+        12,
+        24,
+        36,
+        48,
+        60,
+        72,
+        84,
+        96,
+        108,
+        120,
+        144,
+        168,
+        180,
+        192,
+        216,
+        240,
+        288,
+        336,
+        384
+      ]
     }
   },
-  "fieldInventory": "maps/2026102412/field-inventory.json",
-  "generationReport": "maps/2026102412/generation-report.json",
+  "fieldInventory": "maps/2026102500/field-inventory.json",
+  "generationReport": "maps/2026102500/generation-report.json",
   "productAvailability": {
     "precip": {
       "status": "available",
@@ -244,7 +637,42 @@
       "availableStepCount": 65,
       "missingStepCount": 0
     },
+    "rh2m": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
     "t850": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "t700": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "t500": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "t300": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "rh850": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "rh700": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "wind925": {
       "status": "available",
       "availableStepCount": 65,
       "missingStepCount": 0
@@ -254,12 +682,32 @@
       "availableStepCount": 65,
       "missingStepCount": 0
     },
+    "wind700": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
     "gh500": {
       "status": "available",
       "availableStepCount": 65,
       "missingStepCount": 0
     },
+    "gh700": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "gh300": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
     "wind500": {
+      "status": "available",
+      "availableStepCount": 65,
+      "missingStepCount": 0
+    },
+    "wind300": {
       "status": "available",
       "availableStepCount": 65,
       "missingStepCount": 0
@@ -270,5 +718,5 @@
       "missingStepCount": 0
     }
   },
-  "renderStyleVersion": "sideral-bulletin-v2-20261014"
+  "renderStyleVersion": "sideral-bulletin-v3-20261025-json-regional"
 }

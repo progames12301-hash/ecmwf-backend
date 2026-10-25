@@ -1,6 +1,6 @@
 {
-  "version": "sideral-bulletin-v2-20261014",
-  "updated": "2026-10-25T00:22:38.465251+00:00",
+  "version": "sideral-bulletin-v3-20261025-json-regional",
+  "updated": "2026-10-25T16:28:16.525419+00:00",
   "model": "ECMWF IFS HRES 0.25\u00b0",
   "nativeGridResolutionPreserved": true
 }
