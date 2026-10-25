@@ -62,10 +62,13 @@ jobs:
           regional_steps = set(r.get("regionalForecastHours", [])) & set(r.get("forecastHours", []))
           region_count = int(r.get("regionalViewsPerSourceMap", 11))
           expected_source_maps = expected_hours * 3 * field_count - len(r.get("skipped", []))
+          skipped_views = sum(
+              1 + (region_count if int(item.get("hour", -1)) in regional_steps else 0)
+              for item in r.get("skipped", [])
+          )
           expected_maps = (expected_hours * 3 * field_count
                            + len(regional_steps) * 3 * field_count * region_count
-                           - sum(1 + (region_count if int(item.get("hour", -1)) in regional_steps else 0)
-                                 for item in r.get("skipped", []))
+                           - skipped_views)
           print(f"Mapas esperados após ausências declaradas do GRIB: {expected_maps}")
           if r.get("generatedCount",0) != expected_maps:
               raise SystemExit(f"ERRO: GEFS publicou {r.get('generatedCount')} PNG; esperado {expected_maps}")
