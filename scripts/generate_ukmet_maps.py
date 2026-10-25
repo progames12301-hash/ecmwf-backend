@@ -20,7 +20,7 @@ from pathlib import Path
 
 import numpy as np
 import xarray as xr
-from sideral_map_style import render_all_views, REGIONS
+from sideral_map_style import render_all_views, REGIONS, REGIONAL_FORECAST_HOURS
 
 S3_BUCKET = "met-office-atmospheric-model-data"
 S3_REGION = "eu-west-2"
@@ -408,6 +408,7 @@ def main():
         "fieldCount": len(FIELDS),
         "viewCount": len(REGIONS) + 1,
         "regionalViewsPerSourceMap": len(REGIONS),
+        "regionalForecastHours": list(REGIONAL_FORECAST_HOURS),
         "jsonSidecars": True,
         "jsonSchema": "sideral-native-grid-v1",
         "regions": {key: {"label": value["label"], "extent": list(value["extent"])} for key, value in REGIONS.items()},
