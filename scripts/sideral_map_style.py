@@ -209,7 +209,7 @@ def _levels_and_norm(family: str, key: str, title: str):
     fixed = {
         "temperature": (-10.0, 40.0, np.arange(-10, 41, 5)),
         "humidity": (0.0, 100.0, np.arange(0, 101, 10)),
-        "wind": (0.0, 120.0 if any(x in str(key).lower() for x in ("850", "500", "250")) else 80.0, None),
+        "wind": (0.0, 180.0 if "300" in str(key).lower() else (150.0 if "250" in str(key).lower() else (120.0 if any(x in str(key).lower() for x in ("925", "850", "700", "500")) else 80.0)), None),
         "pressure": (960.0, 1040.0, np.arange(960, 1041, 4)),
         "height": (4800.0, 6000.0, np.arange(4800, 6001, 60)),
         "cloud": (0.0, 100.0, np.arange(0, 101, 10)),
@@ -218,13 +218,20 @@ def _levels_and_norm(family: str, key: str, title: str):
         "generic": (0.0, 1.0, None),
     }
     lo, hi, ticks = fixed.get(family, fixed["generic"])
-    if family == "temperature" and "850" in str(key).lower():
+    key_lower = str(key).lower()
+    if family == "temperature" and any(level in key_lower for level in ("925", "850")):
         lo, hi, ticks = (-30.0, 30.0, np.arange(-30, 31, 5))
-    elif family == "temperature" and "500" in str(key).lower():
+    elif family == "temperature" and "700" in key_lower:
+        lo, hi, ticks = (-45.0, 25.0, np.arange(-40, 26, 5))
+    elif family == "temperature" and "500" in key_lower:
         lo, hi, ticks = (-70.0, 0.0, np.arange(-70, 1, 10))
-    elif family == "temperature" and "250" in str(key).lower():
-        lo, hi, ticks = (-80.0, -20.0, np.arange(-80, -19, 10))
-    if family == "height" and "250" in str(key).lower():
+    elif family == "temperature" and any(level in key_lower for level in ("300", "250")):
+        lo, hi, ticks = (-85.0, -15.0, np.arange(-80, -14, 10))
+    if family == "height" and "300" in key_lower:
+        lo, hi, ticks = (8500.0, 10500.0, np.arange(8500, 10501, 250))
+    elif family == "height" and "700" in key_lower:
+        lo, hi, ticks = (2500.0, 3500.0, np.arange(2500, 3501, 100))
+    elif family == "height" and "250" in key_lower:
         lo, hi, ticks = (9000.0, 12000.0, np.arange(9000, 12001, 200))
     return Normalize(lo, hi, clip=True), ticks
 
