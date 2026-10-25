@@ -27,6 +27,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            .github/workflows
+            scripts
+            requirements-maps.txt
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -87,7 +93,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add site
+          git add --sparse site
           if git diff --cached --quiet; then
             echo "Nenhuma alteração nas imagens/HTML."
             exit 0
@@ -100,7 +106,7 @@ jobs:
           # novamente, preservando os arquivos gerados neste runner.
           for attempt in 1 2 3 4 5; do
             echo "Publicação ECMWF: tentativa $attempt/5"
-            git fetch origin main
+            git fetch --deepen=10 origin main
             if ! git rebase origin/main; then
               git rebase --abort || true
               echo "ERRO: conflito ao integrar main durante publicação das imagens."
