@@ -20,7 +20,7 @@ from pathlib import Path
 
 import numpy as np
 import xarray as xr
-from sideral_map_style import render_all_views
+from sideral_map_style import render_all_views, REGIONS
 
 S3_BUCKET = "met-office-atmospheric-model-data"
 S3_REGION = "eu-west-2"
@@ -99,6 +99,36 @@ FIELDS = {
         "label": "Vento em 250 hPa", "unit": "m s⁻¹", "level": 250,
         "u_parameters": ["eastward_wind_on_pressure_levels"],
         "v_parameters": ["northward_wind_on_pressure_levels"],
+    },
+    "temperature_700hPa": {
+        "label": "Temperatura em 700 hPa", "unit": "K", "level": 700,
+        "parameters": ["air_temperature_on_pressure_levels"],
+    },
+    "temperature_500hPa": {
+        "label": "Temperatura em 500 hPa", "unit": "K", "level": 500,
+        "parameters": ["air_temperature_on_pressure_levels"],
+    },
+    "relative_humidity_850hPa": {
+        "label": "Umidade relativa em 850 hPa", "unit": "%", "level": 850,
+        "parameters": ["relative_humidity_on_pressure_levels"],
+    },
+    "wind_speed_700hPa": {
+        "label": "Vento em 700 hPa", "unit": "m s⁻¹", "level": 700,
+        "u_parameters": ["eastward_wind_on_pressure_levels"],
+        "v_parameters": ["northward_wind_on_pressure_levels"],
+    },
+    "wind_speed_300hPa": {
+        "label": "Vento em 300 hPa", "unit": "m s⁻¹", "level": 300,
+        "u_parameters": ["eastward_wind_on_pressure_levels"],
+        "v_parameters": ["northward_wind_on_pressure_levels"],
+    },
+    "geopotential_height_700hPa": {
+        "label": "Altura geopotencial em 700 hPa", "unit": "m", "level": 700,
+        "parameters": ["geopotential_height_on_pressure_levels"],
+    },
+    "geopotential_height_300hPa": {
+        "label": "Altura geopotencial em 300 hPa", "unit": "m", "level": 300,
+        "parameters": ["geopotential_height_on_pressure_levels"],
     },
 }
 REQUIRED_FIELDS = ("temperature_2m", "dew_point_2m", "wind_speed_10m", "pressure_msl", "precipitation", "cape_surface")
@@ -384,7 +414,7 @@ def main():
                 if key == "precipitation" and step == 0:
                     report["skipped"].append({"field": key, "step": step, "reason": "Sem acumulação de precipitação no F000"})
                     continue
-                if key in ("wind_speed_850hPa", "wind_speed_500hPa", "wind_speed_250hPa"):
+                if "u_parameters" in spec and "v_parameters" in spec:
                     result = _read_wind_level(catalogue, step, key)
                     if result is None:
                         report["skipped"].append({"field": key, "step": step, "reason": "Parâmetro nativo não publicado nesta validade"})
