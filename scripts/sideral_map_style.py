@@ -72,6 +72,10 @@ CMAPS = {
         "#ffffff", "#f0f0f0", "#d8f0c1", "#a4d96c", "#43b66b",
         "#fff04a", "#ffb52b", "#f05a24", "#d7191c", "#a50f79", "#5b167a",
     ], N=256),
+    "humidity": LinearSegmentedColormap.from_list("sideral_humidity", [
+        "#ffffff", "#d8f4ff", "#81d5eb", "#36a7cf", "#2d81b9",
+        "#45b96d", "#b4d84a", "#f3e34b", "#fa9b33", "#d52a2a",
+    ], N=256),
     "generic": LinearSegmentedColormap.from_list("sideral_generic", [
         "#ffffff", "#d8eeff", "#80c8e9", "#3985c7", "#49b89a",
         "#b9d950", "#f8df4a", "#ef983b", "#cf3535",
@@ -166,6 +170,8 @@ def _as_datetime(value):
 def _family(key: str, title: str = "") -> str:
     k = str(key).lower()
     t = str(title).lower()
+    if any(x in k for x in ("relative_humidity", "humidity", "rh2m", "rh850", "rh700", "rh_")):
+        return "humidity"
     if any(x in k for x in ("precip", "apcp", "rainfall", "tot_prec")) or k in {"tp", "precip_rate"}:
         return "precip"
     if "cape" in k:
@@ -176,11 +182,11 @@ def _family(key: str, title: str = "") -> str:
         return "tcwv"
     if any(x in k for x in ("pressure", "mslp", "prmsl")):
         return "pressure"
-    if any(x in k for x in ("height", "geopotential", "gh500", "hgt")):
+    if any(x in k for x in ("height", "geopotential", "gh500", "gh700", "gh300", "gh850", "hgt")):
         return "height"
     if any(x in k for x in ("wind", "gust")) or k.startswith(("u850", "v850", "u500", "v500", "u250", "v250")):
         return "wind"
-    if any(x in k for x in ("temp", "dew", "2t", "2d", "t850")):
+    if any(x in k for x in ("temp", "dew", "2t", "2d", "t850", "t925", "t700", "t500", "t300")):
         return "temperature"
     if "taxa" in t or "rate" in t:
         return "precip"
@@ -202,6 +208,7 @@ def _levels_and_norm(family: str, key: str, title: str):
         return Normalize(0.0, vmax, clip=True), ticks
     fixed = {
         "temperature": (-10.0, 40.0, np.arange(-10, 41, 5)),
+        "humidity": (0.0, 100.0, np.arange(0, 101, 10)),
         "wind": (0.0, 120.0 if any(x in str(key).lower() for x in ("850", "500", "250")) else 80.0, None),
         "pressure": (960.0, 1040.0, np.arange(960, 1041, 4)),
         "height": (4800.0, 6000.0, np.arange(4800, 6001, 60)),
@@ -340,6 +347,11 @@ def render_map(lon, lat, values, key, title, valid, output, source,
         if np.isfinite(data).any() and float(np.nanpercentile(data, 95)) <= 1.01:
             data *= 100.0
         data = np.clip(data, 0, 100)
+        out_unit = "%"
+    elif data_family == "humidity":
+        if np.isfinite(data).any() and float(np.nanpercentile(data, 95)) <= 1.01:
+            data *= 100.0
+        data = np.clip(data, 0.0, 100.0)
         out_unit = "%"
     elif data_family == "precip":
         data = np.maximum(data, 0)
