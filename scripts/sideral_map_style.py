@@ -1,8 +1,10 @@
 """Sideral bulletin renderer: native-grid PNGs, white-based palettes, political divisions and regional crops."""
 from __future__ import annotations
 
+import gzip
 import io
 import json
+import math
 import os
 import time
 import urllib.request
@@ -21,11 +23,19 @@ import cartopy.feature as cfeature
 
 EXTENT_SOUTH_AMERICA = (-90.0, -20.0, -60.0, 15.0)
 REGIONS = {
-    "nordeste": {"label": "Nordeste", "extent": (-49.5, -32.0, -18.5, 1.5)},
-    "sudeste": {"label": "Sudeste", "extent": (-54.5, -39.0, -26.5, -14.0)},
-    "sul": {"label": "Sul", "extent": (-58.5, -47.0, -34.5, -22.0)},
-    "norte": {"label": "Norte", "extent": (-75.5, -43.0, -13.5, 6.0)},
-    "centro-oeste": {"label": "Centro-Oeste", "extent": (-62.5, -46.0, -25.5, -7.0)},
+    # Brasil: cinco macrorregiões
+    "nordeste": {"label": "Nordeste do Brasil", "extent": (-49.5, -32.0, -18.5, 1.5)},
+    "sudeste": {"label": "Sudeste do Brasil", "extent": (-54.5, -39.0, -26.5, -14.0)},
+    "sul": {"label": "Sul do Brasil", "extent": (-58.5, -47.0, -34.5, -22.0)},
+    "norte": {"label": "Norte do Brasil", "extent": (-75.5, -43.0, -13.5, 6.0)},
+    "centro-oeste": {"label": "Centro-Oeste do Brasil", "extent": (-62.5, -46.0, -25.5, -7.0)},
+    # Argentina: país inteiro e macrorregiões meteorológicas de trabalho
+    "argentina": {"label": "Argentina", "extent": (-76.5, -53.0, -56.0, -21.0)},
+    "argentina-norte": {"label": "Norte da Argentina", "extent": (-69.5, -53.0, -31.0, -21.0)},
+    "argentina-litoral": {"label": "Litoral da Argentina", "extent": (-62.5, -53.0, -34.5, -25.0)},
+    "argentina-centro": {"label": "Centro da Argentina", "extent": (-68.5, -58.0, -39.5, -29.0)},
+    "argentina-cuyo": {"label": "Cuyo", "extent": (-71.5, -64.0, -37.5, -28.0)},
+    "argentina-patagonia": {"label": "Patagônia Argentina", "extent": (-75.5, -63.0, -55.5, -36.0)},
 }
 
 # Palettes intentionally start at white, including CAPE and cloud cover.
@@ -480,15 +490,153 @@ def render_map(lon, lat, values, key, title, valid, output, source,
     return output
 
 
+def _json_safe(value):
+    """Convert NumPy arrays/lists into strict JSON values; NaN/Inf become null."""
+    if isinstance(value, np.ndarray):
+        return _json_safe(value.tolist())
+    if isinstance(value, list):
+        return [_json_safe(item) for item in value]
+    if isinstance(value, tuple):
+        return [_json_safe(item) for item in value]
+    if isinstance(value, np.generic):
+        return _json_safe(value.item())
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            return None
+        return round(value, 3)
+    if isinstance(value, (int, str, bool)) or value is None:
+        return value
+    try:
+        number = float(value)
+        return round(number, 3) if math.isfinite(number) else None
+    except (TypeError, ValueError):
+        return str(value)
+
+
+def _crop_for_json(lon, lat, values, extent, wind_u=None, wind_v=None, unstructured=False):
+    """Crop numerical data to the exact regional bounds while retaining the native grid."""
+    lon = np.asarray(lon, dtype=float)
+    lat = np.asarray(lat, dtype=float)
+    data = np.asarray(values, dtype=float).squeeze().copy()
+    u = None if wind_u is None else np.asarray(wind_u, dtype=float).squeeze().copy()
+    v = None if wind_v is None else np.asarray(wind_v, dtype=float).squeeze().copy()
+    xmin, xmax, ymin, ymax = extent
+
+    point_grid = unstructured or (
+        data.ndim == 1 and lon.ndim == lat.ndim == 1
+        and lon.size == lat.size == data.size
+    )
+    if point_grid:
+        if lon.ndim != 1 or lat.ndim != 1 or data.ndim != 1 or not (lon.size == lat.size == data.size):
+            raise ValueError(f"JSON point grid incompatível: lon={lon.shape}, lat={lat.shape}, data={data.shape}")
+        keep = (lon >= xmin) & (lon <= xmax) & (lat >= ymin) & (lat <= ymax)
+        if int(keep.sum()) < 10:
+            raise ValueError(f"Menos de 10 pontos nativos na região {extent}: {int(keep.sum())}")
+        return (lon[keep], lat[keep], data[keep],
+                u[keep] if u is not None and u.shape == data.shape else None,
+                v[keep] if v is not None and v.shape == data.shape else None,
+                "unstructured")
+
+    if lon.ndim == lat.ndim == 1 and data.ndim == 2 and data.shape == (lat.size, lon.size):
+        ix = np.flatnonzero((lon >= xmin) & (lon <= xmax))
+        iy = np.flatnonzero((lat >= ymin) & (lat <= ymax))
+        if not len(ix) or not len(iy):
+            raise ValueError(f"Grade nativa sem pontos em {extent}")
+        sl = np.ix_(iy, ix)
+        data = data[sl]
+        if u is not None and u.shape == (lat.size, lon.size):
+            u = u[sl]
+        else:
+            u = None
+        if v is not None and v.shape == (lat.size, lon.size):
+            v = v[sl]
+        else:
+            v = None
+        return lon[ix], lat[iy], data, u, v, "regular-latlon"
+
+    if lon.ndim == lat.ndim == 2 and data.shape == lon.shape == lat.shape:
+        inside = ((lon >= xmin) & (lon <= xmax) & (lat >= ymin) & (lat <= ymax))
+        iy = np.flatnonzero(inside.any(axis=1))
+        ix = np.flatnonzero(inside.any(axis=0))
+        if not len(ix) or not len(iy):
+            raise ValueError(f"Grade curvilínea nativa sem pontos em {extent}")
+        sl = np.ix_(iy, ix)
+        lon2, lat2, data2 = lon[sl], lat[sl], data[sl]
+        mask = inside[sl]
+        data2 = np.where(mask, data2, np.nan)
+        if u is not None and u.shape == lon.shape:
+            u = np.where(mask, u[sl], np.nan)
+        else:
+            u = None
+        if v is not None and v.shape == lon.shape:
+            v = np.where(mask, v[sl], np.nan)
+        else:
+            v = None
+        return lon2, lat2, data2, u, v, "curvilinear"
+
+    raise ValueError(f"Grade nativa não suportada para JSON: lon={lon.shape}, lat={lat.shape}, values={data.shape}")
+
+
+def _write_grid_json(path, lon, lat, values, key, title, valid, source, unit,
+                     region_name, extent, run_time=None, forecast_hour=None,
+                     model_label=None, wind_u=None, wind_v=None, unstructured=False):
+    """Write a gzip-compressed, georeferenced native-grid JSON sidecar for the PNG."""
+    import gzip
+    from datetime import datetime, timezone
+
+    lon2, lat2, data, u2, v2, layout = _crop_for_json(
+        lon, lat, values, extent, wind_u=wind_u, wind_v=wind_v,
+        unstructured=unstructured,
+    )
+    step = int(forecast_hour) if forecast_hour is not None else None
+    def iso(value):
+        return value.isoformat() if hasattr(value, "isoformat") else (str(value) if value is not None else None)
+
+    payload = {
+        "schema": "sideral-native-grid-v1",
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
+        "model": model_label or source,
+        "source": source,
+        "variable": key,
+        "label": title,
+        "runTime": iso(run_time),
+        "validTime": iso(valid),
+        "forecastHour": step,
+        "region": region_name or "América do Sul",
+        "extent": list(extent),
+        "unit": unit or None,
+        "grid": {
+            "layout": layout,
+            "shape": list(data.shape),
+            "longitude": _json_safe(lon2),
+            "latitude": _json_safe(lat2),
+            "values": _json_safe(data),
+        },
+    }
+    if u2 is not None and v2 is not None:
+        payload["windComponents"] = {
+            "u": _json_safe(u2),
+            "v": _json_safe(v2),
+            "unit": "m s⁻¹" if "km" in str(unit).lower() or "h⁻¹" in str(unit).lower() else (unit or None),
+        }
+    output = Path(path).with_suffix(".json.gz")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with gzip.open(output, "wt", encoding="utf-8", compresslevel=6) as stream:
+        json.dump(payload, stream, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+    if not output.exists() or output.stat().st_size < 50:
+        raise RuntimeError(f"JSON regional inválido: {output}")
+    return output
+
+
 def render_all_views(lon, lat, values, key, title, valid, output, source,
                       region_root, region_relative, unit="", wind_u=None, wind_v=None,
                       wind_direction=None, unstructured=False, run_time=None,
                       forecast_hour=None, model_label=None):
-    """Write one continental bulletin and five regional products from the same native-grid field."""
+    """Publish native-grid PNG + gzip JSON for South America, Brazil's regions and Argentina."""
     output = Path(output)
     region_root = Path(region_root)
     rel = Path(region_relative)
-    views = [(None, EXTENT_SOUTH_AMERICA, output)]
+    views = [("América do Sul", EXTENT_SOUTH_AMERICA, output)]
     for region_key, spec in REGIONS.items():
         views.append((spec["label"], spec["extent"], region_root / region_key / rel))
     written = []
@@ -498,6 +646,11 @@ def render_all_views(lon, lat, values, key, title, valid, output, source,
             unit=unit, wind_u=wind_u, wind_v=wind_v, wind_direction=wind_direction,
             unstructured=unstructured, extent=view_extent, region_name=region_name,
             run_time=run_time, forecast_hour=forecast_hour, model_label=model_label,
+        )
+        _write_grid_json(
+            path, lon, lat, values, key, title, valid, source, unit,
+            region_name, view_extent, run_time=run_time, forecast_hour=forecast_hour,
+            model_label=model_label, wind_u=wind_u, wind_v=wind_v, unstructured=unstructured,
         )
         written.append(path)
     return written
