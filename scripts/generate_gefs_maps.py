@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from herbie import Herbie
-from sideral_map_style import render_all_views
+from sideral_map_style import render_all_views, REGIONS
 
 EXTENT=(-90,-20,-60,15)
 HOURS=list(range(0,241,3))+list(range(246,385,6))  # cadência GEFS: 3 h até F240, depois 6 h até F384
@@ -31,8 +31,16 @@ FIELDS={
  "gh500":("HGT:500 mb","Altura geopotencial em 500 hPa","m","viridis",4800,6000,"height"),
  "wind500":("UGRD:500 mb","Vento em 500 hPa","km h⁻¹","viridis",0,120,"wind"),
  "wind250":("UGRD:250 mb","Vento em 250 hPa","km h⁻¹","viridis",0,120,"wind"),
+ "rh2m":("RH:2 m","Umidade relativa a 2 m","%","YlGnBu",0,100,"humidity"),
+ "dew850":("DPT:850 mb","Ponto de orvalho em 850 hPa","°C","BrBG",-40,25,"temp"),
+ "rh850":("RH:850 mb","Umidade relativa em 850 hPa","%","YlGnBu",0,100,"humidity"),
+ "t700":("TMP:700 mb","Temperatura em 700 hPa","°C","coolwarm",-40,25,"temp"),
+ "wind700":("UGRD:700 mb","Vento em 700 hPa","km h⁻¹","viridis",0,120,"wind"),
+ "gh700":("HGT:700 mb","Altura geopotencial em 700 hPa","m","viridis",2000,3500,"height"),
+ "wind300":("UGRD:300 mb","Vento em 300 hPa","km h⁻¹","viridis",0,180,"wind"),
+ "gh300":("HGT:300 mb","Altura geopotencial em 300 hPa","m","viridis",8500,10000,"height"),
 }
-WIND_LEVELS={"wind10m":"10 m","wind850":"850 mb","wind500":"500 mb","wind250":"250 mb"}
+WIND_LEVELS={"wind10m":"10 m","wind850":"850 mb","wind500":"500 mb","wind250":"250 mb","wind700":"700 mb","wind300":"300 mb"}
 
 OUT=Path("site/maps/gefs")
 
@@ -127,7 +135,7 @@ def main():
   report["members"][member]={"herbieMember":member_arg,"mapsGeneratedIncludingRegions":count}
  OUT.mkdir(parents=True,exist_ok=True)
  report["generatedCount"]=len(report["generated"]); report["failureCount"]=len(report["failures"])
- report["regionalViewsPerSourceMap"]=5; report["gridResolutionPreserved"]=True
+ report["regionalViewsPerSourceMap"]=len(REGIONS); report["gridResolutionPreserved"]=True
  (OUT/"generation-report.json").write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
  print(json.dumps({k:report[k] for k in ("run","generatedCount","failureCount","members")},indent=2),flush=True)
  if report["generatedCount"]==0: raise SystemExit("Nenhum mapa GEFS foi gerado; consulte o relatório")
