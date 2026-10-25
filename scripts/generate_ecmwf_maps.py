@@ -13,7 +13,7 @@ import cartopy.feature as cfeature
 from scipy.ndimage import maximum_filter, minimum_filter
 from ecmwf.opendata import Client
 from eccodes import codes_get, codes_grib_new_from_file, codes_release
-from sideral_map_style import render_all_views, REGIONS
+from sideral_map_style import render_all_views, REGIONS, REGIONAL_FORECAST_HOURS
 
 EXTENT = (-90, -20, -60, 15)
 STYLE_VERSION = 'sideral-bulletin-v3-20261025-json-regional'
@@ -621,6 +621,8 @@ def main():
 
         failures = []
         generated_count = 0
+        generated_full_count = 0
+        generated_regional_count = 0
         reused_count = 0
         inventory_ok = (
             not inventory['surface'].get('readError')
@@ -638,7 +640,7 @@ def main():
                 region_paths = [
                     maps_root / 'regions' / region_key / run_id / product / f'f{step:03d}.png'
                     for region_key in REGIONS
-                ]
+                ] if step in REGIONAL_FORECAST_HOURS else []
                 # Never reuse PNGs from an older bulletin renderer. Missing or stale style marker forces native-grid rerender.
                 if style_cache_valid and out.exists() and out.with_suffix('.json.gz').exists() and all(path.exists() and path.with_suffix('.json.gz').exists() for path in region_paths):
                     reused_count += 1 + len(region_paths)
@@ -653,6 +655,8 @@ def main():
                 try:
                     written = make_map(surface, pressure, run, step, out)
                     generated_count += len(written)
+                    generated_full_count += 1
+                    generated_regional_count += max(0, len(written) - 1)
                 except Exception as exc:
                     failures.append({
                         'product': product, 'step': step,
@@ -669,10 +673,12 @@ def main():
             'run_id': run_id,
             'generatedAt': datetime.now(timezone.utc).isoformat(),
             'generatedMapsThisRun': generated_count,
-            'generatedFullMapsThisRun': generated_count // (len(REGIONS) + 1),
-            'generatedRegionalMapsThisRun': generated_count - (generated_count // (len(REGIONS) + 1)),
+            'generatedFullMapsThisRun': generated_full_count,
+            'generatedRegionalMapsThisRun': generated_regional_count,
             'existingMapsReused': reused_count,
             'regionalViewsPerSourceMap': len(REGIONS),
+            'regionalForecastHours': list(REGIONAL_FORECAST_HOURS),
+            'viewCount': len(REGIONS) + 1,
             'jsonSidecars': True,
             'jsonSchema': 'sideral-native-grid-v1',
             'nativeGridResolutionPreserved': True,
@@ -690,6 +696,8 @@ def main():
         'run': run.isoformat(), 'run_id': run_id, 'steps': STEPS,
         'products': PRODUCTS, 'updated': datetime.now(timezone.utc).isoformat(),
         'regionalViewsPerSourceMap': len(REGIONS),
+        'regionalForecastHours': list(REGIONAL_FORECAST_HOURS),
+        'viewCount': len(REGIONS) + 1,
         'jsonSidecars': True,
         'jsonSchema': 'sideral-native-grid-v1',
         'regionalProducts': {
@@ -697,6 +705,8 @@ def main():
                 'label': details['label'],
                 'extent': details['extent'],
                 'pathTemplate': f'maps/regions/{region}/{run_id}/<product>/f<step>.png',
+                'jsonPathTemplate': f'maps/regions/{region}/{run_id}/<product>/f<step>.json.gz',
+                'regionalForecastHours': list(REGIONAL_FORECAST_HOURS),
             }
             for region, details in REGIONS.items()
         },
