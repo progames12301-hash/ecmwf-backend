@@ -405,6 +405,12 @@ def main():
         "failures": [],
         "skipped": [],
         "fieldMapCounts": {},
+        "fieldCount": len(FIELDS),
+        "viewCount": len(REGIONS) + 1,
+        "regionalViewsPerSourceMap": len(REGIONS),
+        "jsonSidecars": True,
+        "jsonSchema": "sideral-native-grid-v1",
+        "regions": {key: {"label": value["label"], "extent": list(value["extent"])} for key, value in REGIONS.items()},
     }
     for step in steps:
         valid = run + dt.timedelta(hours=step)
@@ -460,7 +466,7 @@ def main():
 
     report["generatedCount"] = len(report["generated"])
     report["failureCount"] = len(report["failures"])
-    report["regionalViewsPerSourceMap"] = 5
+    report["regionalViewsPerSourceMap"] = len(REGIONS)
     report["gridResolutionPreserved"] = True
     (OUT / "generation-report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     print(json.dumps({
