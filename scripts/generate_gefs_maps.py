@@ -94,7 +94,10 @@ def main():
  run=latest_run(); run_tag=run.strftime("%Y%m%d%H")
  report={"model":"GEFS","run":run_tag,"source":"NOAA/NCEP GEFS via Herbie/AWS","product":"atmos.5",
          "ensembleProducts":{"mean":"ensemble mean","spread":"ensemble spread","control":"control"},
-         "forecastHours":HOURS,"extent":list(EXTENT),"generated":[],"failures":[],"skipped":[],"members":{}}
+         "forecastHours":HOURS,"extent":list(EXTENT),"generated":[],"failures":[],"skipped":[],"members":{},
+         "fieldCount":len(FIELDS),"viewCount":len(REGIONS)+1,"regionalViewsPerSourceMap":len(REGIONS),
+         "jsonSidecars":True,"jsonSchema":"sideral-native-grid-v1",
+         "regions":{k:{"label":v["label"],"extent":list(v["extent"])} for k,v in REGIONS.items()}}
  for member,member_arg in MEMBERS.items():
   count=0
   for hour in HOURS:
