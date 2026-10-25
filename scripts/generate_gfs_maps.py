@@ -118,7 +118,11 @@ def main():
     run_tag = run.strftime("%Y%m%d%H")
     report = {"model": "GFS", "run": run_tag, "source": "NOAA/NCEP via Herbie (AWS/NOMADS)",
               "extent": list(EXTENT), "forecastHours": HOURS, "variants": {},
-              "generated": [], "failures": [], "skipped": []}
+              "generated": [], "failures": [], "skipped": [],
+              "fieldCount": len(FIELDS), "viewCount": len(REGIONS) + 1,
+              "regionalViewsPerSourceMap": len(REGIONS), "jsonSidecars": True,
+              "jsonSchema": "sideral-native-grid-v1",
+              "regions": {k: {"label": v["label"], "extent": list(v["extent"])} for k, v in REGIONS.items()} }
     for variant, product in VARIANTS.items():
         variant_count = 0
         for hour in HOURS:
@@ -159,7 +163,7 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     report["generatedCount"] = len(report["generated"])
     report["failureCount"] = len(report["failures"])
-    report["regionalViewsPerSourceMap"] = 5
+    report["regionalViewsPerSourceMap"] = len(REGIONS)
     report["gridResolutionPreserved"] = True
     (OUT / "generation-report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     print(json.dumps({k: report[k] for k in ("run", "generatedCount", "failureCount", "variants")}, indent=2))
