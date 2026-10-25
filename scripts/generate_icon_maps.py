@@ -189,7 +189,10 @@ def render_wind(u,v,run,step,out):
 def main():
  run=latest_run(); tag=run.strftime("%Y%m%d%H"); steps=steps_for_run(run)
  report={"model":"ICON-GLOBAL","run":tag,"source":BASE,"extent":list(EXTENT),"forecastHours":steps,
-         "temporalCadence":{"hourlyThrough":78,"extendedEveryHours":3,"forecastLimit":max(steps)},"generated":[],"failures":[]}
+         "temporalCadence":{"hourlyThrough":78,"extendedEveryHours":3,"forecastLimit":max(steps)},"generated":[],"failures":[],
+         "fieldCount":len(FIELDS)+1+len(PRESSURE_FIELDS),"viewCount":len(REGIONS)+1,
+         "regionalViewsPerSourceMap":len(REGIONS),"jsonSidecars":True,"jsonSchema":"sideral-native-grid-v1",
+         "regions":{k:{"label":v["label"],"extent":list(v["extent"])} for k,v in REGIONS.items()} }
  try:
   ensure_coordinates()
  except Exception as exc:
