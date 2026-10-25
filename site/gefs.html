@@ -107,6 +107,23 @@
             <label class="field-label" for="uiVariant" id="uiVariantLabel">Configuração</label>
             <select class="select" id="uiVariant"></select>
           </div>
+          <div class="model-variant" id="uiRegionBlock">
+            <label class="field-label" for="uiRegion">Região</label>
+            <select class="select" id="uiRegion">
+              <option value="south-america">América do Sul — continental</option>
+              <option value="norte">Norte do Brasil</option>
+              <option value="nordeste">Nordeste do Brasil</option>
+              <option value="centro-oeste">Centro-Oeste do Brasil</option>
+              <option value="sudeste">Sudeste do Brasil</option>
+              <option value="sul">Sul do Brasil</option>
+              <option value="argentina">Argentina — país inteiro</option>
+              <option value="argentina-norte">Norte da Argentina</option>
+              <option value="argentina-litoral">Litoral da Argentina</option>
+              <option value="argentina-centro">Centro da Argentina</option>
+              <option value="argentina-cuyo">Cuyo</option>
+              <option value="argentina-patagonia">Patagônia Argentina</option>
+            </select>
+          </div>
           <p class="help-line" id="uiModelInfo">Modelo: NOAA GEFS Ensemble<br>Resolução: Ensemble global • grade do produto</p>
           <p class="help-line" id="uiErrorMessage" role="status" aria-live="polite"></p>
         </section>
@@ -115,12 +132,12 @@
         <div class="map-pair">
           <article class="map-card">
             <header class="map-card-head"><strong id="uiTitleA">Mapa 1</strong></header>
-            <div class="map-export-row"><div class="map-actions"><button type="button" id="uiDownloadA">PNG</button></div></div>
+            <div class="map-export-row"><div class="map-actions"><button type="button" id="uiDownloadA">PNG</button><button type="button" id="uiDownloadJsonA">JSON</button></div></div>
             <div class="image-wrap"><img class="bulletin" id="uiImageA" alt="NOAA GEFS — mapa 1" hidden><div class="image-state" id="uiStateA">Aguardando dados publicados…</div></div>
           </article>
           <article class="map-card">
             <header class="map-card-head"><strong id="uiTitleB">Mapa 2</strong></header>
-            <div class="map-export-row"><div class="map-actions"><button type="button" id="uiDownloadB">PNG</button></div></div>
+            <div class="map-export-row"><div class="map-actions"><button type="button" id="uiDownloadB">PNG</button><button type="button" id="uiDownloadJsonB">JSON</button></div></div>
             <div class="image-wrap"><img class="bulletin" id="uiImageB" alt="NOAA GEFS — mapa 2" hidden><div class="image-state" id="uiStateB">Aguardando dados publicados…</div></div>
           </article>
         </div>
@@ -138,13 +155,19 @@ const LABELS = {
   precip:'Precipitação', precipitation:'Precipitação acumulada', temp2m:'Temperatura a 2 m',
   dew2m:'Ponto de orvalho a 2 m', wind10m:'Vento a 10 m', gust10m:'Rajada máxima a 10 m',
   mslp:'Pressão ao nível do mar', cloud:'Cobertura de nuvens', tcwv:'Água precipitável (TCWV)',
-  cape:'CAPE', t850:'Temperatura a 850 hPa', wind850:'Vento a 850 hPa', gh500:'Geopotencial em 500 hPa',
+  precip:'Precipitação', precipitation:'Precipitação acumulada', rh2m:'Umidade relativa a 2 m',
+  dew850:'Ponto de orvalho em 850 hPa', rh850:'Umidade relativa em 850 hPa',
+  t850:'Temperatura a 850 hPa', t700:'Temperatura a 700 hPa', t500:'Temperatura a 500 hPa',
+  t300:'Temperatura a 300 hPa', rh700:'Umidade relativa em 700 hPa',
+  wind925:'Vento em 925 hPa', wind850:'Vento a 850 hPa', wind700:'Vento em 700 hPa',
+  wind500:'Vento em 500 hPa', wind300:'Vento em 300 hPa', wind250:'Vento em 250 hPa',
+  gh300:'Geopotencial em 300 hPa', gh700:'Geopotencial em 700 hPa', gh500:'Geopotencial em 500 hPa',
   wind500:'Vento em 500 hPa', wind250:'Vento em 250 hPa', temperature_2m:'Temperatura a 2 m',
   dew_point_2m:'Ponto de orvalho a 2 m', wind_speed_10m:'Vento a 10 m',
   wind_gust_10m:'Rajada a 10 m', pressure_msl:'Pressão ao nível do mar', cape_surface:'CAPE à superfície'
 };
 const $ = id => document.getElementById(id);
-const state = {manifest:null, assets:new Map(), products:[], variants:[], variant:CFG.defaultVariant, a:CFG.defaultA, b:CFG.defaultB, hours:[], hour:0, timer:null, token:0};
+const state = {manifest:null, assets:new Map(), products:[], variants:[], variant:CFG.defaultVariant, region:'south-america', a:CFG.defaultA, b:CFG.defaultB, hours:[], hour:0, timer:null, token:0};
 function pad(n){return String(n).padStart(3,'0');}
 function parseRun(raw){
   if(raw instanceof Date)return raw;
@@ -238,12 +261,20 @@ function fillProductSelects(){
   $('uiVariableA').disabled=false;$('uiVariableB').disabled=false;
 }
 function availableHours(product){
+  let hours=[];
   if(CFG.family==='ecmwf'){
     const availability=state.manifest.productAvailability||{};
     if(availability[product] && availability[product].status==='unavailable')return [];
-    return (state.manifest.steps||[]).map(Number).filter(Number.isFinite);
+    const productSteps=availability[product]?.availableSteps;
+    hours=(Array.isArray(productSteps)&&productSteps.length?productSteps:state.manifest.steps||[]).map(Number).filter(Number.isFinite);
+  }else{
+    hours=Array.from(state.assets.get(String(state.variant||'')+'|'+product)||[]).sort((a,b)=>a-b);
   }
-  return Array.from(state.assets.get(String(state.variant||'')+'|'+product)||[]).sort((a,b)=>a-b);
+  if(state.region!=='south-america'){
+    const regional=new Set((state.manifest.regionalForecastHours||[]).map(Number));
+    return hours.filter(h=>regional.has(h));
+  }
+  return hours;
 }
 function recomputeHours(previousHour){
   const a=new Set(availableHours(state.a)),b=new Set(availableHours(state.b));
@@ -263,17 +294,25 @@ function recomputeHours(previousHour){
   return true;
 }
 function assetPath(product,hour){
-  const m=state.manifest,lead='f'+pad(hour)+'.png';
-  if(CFG.family==='ecmwf')return 'maps/'+m.run_id+'/'+product+'/'+lead;
-  if(CFG.family==='gfs')return 'maps/gfs/'+state.variant+'/'+m.run+'/'+product+'/'+lead;
-  if(CFG.family==='icon')return 'maps/icon/global/'+m.run+'/'+product+'/'+lead;
-  if(CFG.family==='ukmet')return 'maps/ukmet/'+m.run+'/'+product+'/'+lead;
-  if(CFG.family==='gefs')return 'maps/gefs/atmos.5/'+state.variant+'/'+m.run+'/'+product+'/'+lead;
+  const m=state.manifest,lead='f'+pad(hour)+'.png',regional=state.region!=='south-america';
+  if(CFG.family==='ecmwf')return regional?'maps/regions/'+state.region+'/'+m.run_id+'/'+product+'/'+lead:'maps/'+m.run_id+'/'+product+'/'+lead;
+  if(CFG.family==='gfs')return regional?'maps/gfs/regions/'+state.region+'/'+state.variant+'/'+m.run+'/'+product+'/'+lead:'maps/gfs/'+state.variant+'/'+m.run+'/'+product+'/'+lead;
+  if(CFG.family==='icon')return regional?'maps/icon/global/regions/'+state.region+'/'+m.run+'/'+product+'/'+lead:'maps/icon/global/'+m.run+'/'+product+'/'+lead;
+  if(CFG.family==='ukmet')return regional?'maps/ukmet/regions/'+state.region+'/'+m.run+'/'+product+'/'+lead:'maps/ukmet/'+m.run+'/'+product+'/'+lead;
+  if(CFG.family==='gefs')return regional?'maps/gefs/regions/'+state.region+'/atmos.5/'+state.variant+'/'+m.run+'/'+product+'/'+lead:'maps/gefs/atmos.5/'+state.variant+'/'+m.run+'/'+product+'/'+lead;
   return '';
+}
+function cacheBust(){
+  const m=state.manifest||{};
+  return encodeURIComponent(m.updated||m.generatedAt||m.run||Date.now());
 }
 function assetUrl(product,hour){
   const path=assetPath(product,hour);
-  return path?CFG.dataRoot+path+'?v='+encodeURIComponent(state.manifest.updated||state.manifest.generatedAt||state.manifest.run||Date.now()):'';
+  return path?CFG.dataRoot+path+'?v='+cacheBust():'';
+}
+function jsonAssetUrl(product,hour){
+  const path=assetPath(product,hour);
+  return path?CFG.dataRoot+path.replace(/\.png$/i,'.json.gz')+'?v='+cacheBust():'';
 }
 function setSideMessage(side,message,hideImage){
   const image=$('uiImage'+side),overlay=$('uiState'+side);
@@ -375,12 +414,26 @@ async function downloadSide(side){
   try{
     const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);
     const blob=await response.blob(),objectUrl=URL.createObjectURL(blob),link=document.createElement('a');
-    link.href=objectUrl;link.download=CFG.key+'-'+product+'-F'+pad(state.hour)+'.png';
+    link.href=objectUrl;link.download=CFG.key+'-'+state.region+'-'+product+'-F'+pad(state.hour)+'.png';
     document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(objectUrl),10000);
     $('uiFrameStatus').textContent='Download PNG solicitado';
   }catch(error){
     window.open(url,'_blank','noopener,noreferrer');
     $('uiFrameStatus').textContent='Abrindo PNG em outra aba';
+  }
+}
+async function downloadJsonSide(side){
+  const product=side==='A'?state.a:state.b,url=jsonAssetUrl(product,state.hour);
+  if(!url){$('uiFrameStatus').textContent='JSON não disponível';return;}
+  try{
+    const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);
+    const blob=await response.blob(),objectUrl=URL.createObjectURL(blob),link=document.createElement('a');
+    link.href=objectUrl;link.download=CFG.key+'-'+state.region+'-'+product+'-F'+pad(state.hour)+'.json.gz';
+    document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(objectUrl),10000);
+    $('uiFrameStatus').textContent='Download JSON solicitado';
+  }catch(error){
+    window.open(url,'_blank','noopener,noreferrer');
+    $('uiFrameStatus').textContent='Abrindo JSON em outra aba';
   }
 }
 $('uiVariableA').addEventListener('change',()=>{const previous=state.hour;state.a=$('uiVariableA').value;recomputeHours(previous);render();});
@@ -402,6 +455,9 @@ $('uiFullscreen').addEventListener('click',async()=>{
 });
 $('uiDownloadA').addEventListener('click',()=>downloadSide('A'));
 $('uiDownloadB').addEventListener('click',()=>downloadSide('B'));
+$('uiDownloadJsonA').addEventListener('click',()=>downloadJsonSide('A'));
+$('uiDownloadJsonB').addEventListener('click',()=>downloadJsonSide('B'));
+$('uiRegion').addEventListener('change',()=>{const previous=state.hour;stopAnimation();state.region=$('uiRegion').value;recomputeHours(previous);render();});
 window.addEventListener('pagehide',stopAnimation);
 loadManifest();
 window.setInterval(async()=>{
