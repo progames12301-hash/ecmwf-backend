@@ -28,7 +28,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: model-icon
-          fetch-depth: 0
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            .github/workflows
+            scripts
+            requirements-model-maps.txt
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -79,11 +84,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add site/maps/icon
+          git add --sparse site/maps/icon
           if git diff --cached --quiet; then echo "Nenhuma alteração nos mapas ICON."; exit 0; fi
           git commit -m "chore: atualizar mapas ICON Global"
           for attempt in 1 2 3 4 5; do
-            git fetch origin model-icon
+            git fetch --deepen=10 origin model-icon
             git rebase origin/model-icon
             if git push origin HEAD:model-icon; then
               echo "Mapas ICON publicados na branch model-icon."
