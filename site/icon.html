@@ -155,7 +155,7 @@ const LABELS = {
   precip:'Precipitação', precipitation:'Precipitação acumulada', temp2m:'Temperatura a 2 m',
   dew2m:'Ponto de orvalho a 2 m', wind10m:'Vento a 10 m', gust10m:'Rajada máxima a 10 m',
   mslp:'Pressão ao nível do mar', cloud:'Cobertura de nuvens', tcwv:'Água precipitável (TCWV)',
-  precip:'Precipitação', precipitation:'Precipitação acumulada', rh2m:'Umidade relativa a 2 m',
+  rh2m:'Umidade relativa a 2 m',
   dew850:'Ponto de orvalho em 850 hPa', rh850:'Umidade relativa em 850 hPa',
   t850:'Temperatura a 850 hPa', t700:'Temperatura a 700 hPa', t500:'Temperatura a 500 hPa',
   t300:'Temperatura a 300 hPa', rh700:'Umidade relativa em 700 hPa',
@@ -164,7 +164,14 @@ const LABELS = {
   gh300:'Geopotencial em 300 hPa', gh700:'Geopotencial em 700 hPa', gh500:'Geopotencial em 500 hPa',
   wind500:'Vento em 500 hPa', wind250:'Vento em 250 hPa', temperature_2m:'Temperatura a 2 m',
   dew_point_2m:'Ponto de orvalho a 2 m', wind_speed_10m:'Vento a 10 m',
-  wind_gust_10m:'Rajada a 10 m', pressure_msl:'Pressão ao nível do mar', cape_surface:'CAPE à superfície'
+  wind_gust_10m:'Rajada a 10 m', pressure_msl:'Pressão ao nível do mar', cape_surface:'CAPE à superfície',
+  temperature_700hPa:'Temperatura a 700 hPa', temperature_500hPa:'Temperatura a 500 hPa',
+  temperature_300hPa:'Temperatura a 300 hPa', relative_humidity_850hPa:'Umidade relativa a 850 hPa',
+  relative_humidity_700hPa:'Umidade relativa a 700 hPa', wind_speed_925hPa:'Vento a 925 hPa',
+  wind_speed_700hPa:'Vento a 700 hPa', wind_speed_300hPa:'Vento a 300 hPa',
+  geopotential_height_700hPa:'Altura geopotencial a 700 hPa',
+  geopotential_height_500hPa:'Altura geopotencial a 500 hPa',
+  geopotential_height_300hPa:'Altura geopotencial a 300 hPa'
 };
 const $ = id => document.getElementById(id);
 const state = {manifest:null, assets:new Map(), products:[], variants:[], variant:CFG.defaultVariant, region:'south-america', a:CFG.defaultA, b:CFG.defaultB, hours:[], hour:0, timer:null, token:0};
