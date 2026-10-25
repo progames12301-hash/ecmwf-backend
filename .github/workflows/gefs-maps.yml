@@ -60,7 +60,8 @@ jobs:
           expected_hours = len(r.get("forecastHours", []))
           field_count = int(r.get("fieldCount", 22))
           expected_source_maps = expected_hours * 3 * field_count - len(r.get("skipped", []))
-          expected_maps = expected_source_maps * 6  # continente + cinco recortes; ignora apenas campos explicitamente ausentes
+          view_count = int(r.get("viewCount", 12))  # continente + cinco regiões brasileiras + Argentina e macroregiões
+          expected_maps = expected_source_maps * view_count
           print(f"Mapas esperados após ausências declaradas do GRIB: {expected_maps}")
           if r.get("generatedCount",0) != expected_maps:
               raise SystemExit(f"ERRO: GEFS publicou {r.get('generatedCount')} PNG; esperado {expected_maps}")
