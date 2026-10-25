@@ -569,7 +569,9 @@ def make_map(surface_path, pressure_path, run, step, out):
                 unit = '%'
             elif product.startswith('gh'):
                 val = field(ds, 'gh', step)
-                unit = 'm'
+                # ECMWF GRIB shortName=gh is geopotential, expressed as m² s⁻².
+                # render_map converts this to geopotential height in metres for the PNG.
+                unit = 'm² s⁻²'
             else:
                 wind_u, wind_v = field(ds, 'u', step), field(ds, 'v', step)
                 val = np.hypot(wind_u, wind_v) * 3.6
