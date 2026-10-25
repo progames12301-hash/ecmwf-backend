@@ -1,103 +1,422 @@
 <!doctype html>
-<html lang="pt-BR"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>GEFS Ensemble | Sideral Meteorologia</title><style>
-:root{--bg:#070707;--panel:#111;--line:#2b2b2b;--text:#f2f2f2;--muted:#999;--accent:#0b86bd}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px Arial,Helvetica,sans-serif;overflow-x:hidden}
-header{min-height:54px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:8px 14px;gap:14px;background:#0a0a0a;position:sticky;top:0;z-index:10;flex-wrap:wrap}
-.logo{font-weight:800;letter-spacing:.06em;white-space:nowrap}
-.model-nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.model-nav a{color:#d8eaf4;text-decoration:none;border:1px solid #303840;background:#15191e;padding:7px 9px;border-radius:4px;font-size:11px;font-weight:700;white-space:nowrap}.model-nav a:hover,.model-nav a[aria-current=page]{background:#0b86bd;border-color:#0b86bd;color:#fff}
-.run{margin-left:auto;color:#bbb;font-size:12px}.status{color:#72d38b;font-size:12px;white-space:nowrap}
-.layout{display:grid;grid-template-columns:275px minmax(0,1fr);min-height:calc(100vh - 54px)}.sidebar{border-right:1px solid var(--line);background:#0b0b0b;padding:14px;overflow:auto}
-.title{font-weight:800;margin:0 0 9px}.select{width:100%;background:#151515;border:1px solid #333;color:#eee;padding:9px;margin-bottom:15px;border-radius:3px}
-.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;max-height:280px;overflow:auto;padding-right:2px}
-.steps button{border:1px solid #303030;background:#151515;color:#ddd;padding:8px 2px;cursor:pointer;font-weight:700;font-size:11px;border-radius:2px}.steps button:hover,.steps button.active{background:#0b86bd;border-color:#0b86bd;color:#fff}
-.controls{margin-top:12px;display:flex;gap:6px}.controls button{flex:1;background:#151515;border:1px solid #333;color:#ddd;padding:9px;cursor:pointer;border-radius:2px}
-.meta{margin-top:16px;color:var(--muted);font-size:12px;line-height:1.6}.notice{display:none;margin-top:12px;padding:10px;border:1px solid #6d4a22;background:#24180a;color:#f3c68a;line-height:1.5;font-size:12px;border-radius:3px}
-.main{padding:14px;display:flex;justify-content:center;align-items:flex-start;min-width:0}.frame{width:min(1400px,100%);background:#fff;border:1px solid #333;box-shadow:0 10px 35px #000;min-height:240px;position:relative}
-.frame img{display:block;width:100%;height:auto;min-height:180px;object-fit:contain;background:#fff}.frame .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#444;background:#fff;text-align:center;padding:24px;font-weight:700;line-height:1.5}
-.caption{padding:9px 12px;background:#0d0d0d;color:#aaa;font-size:11px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-@media(max-width:820px){.layout{grid-template-columns:1fr}.sidebar{border-right:0;border-bottom:1px solid var(--line)}.steps{grid-template-columns:repeat(6,minmax(0,1fr));max-height:200px}.main{padding:6px}header{gap:8px}.run{margin-left:0}.model-nav{order:4;width:100%;overflow-x:auto;flex-wrap:nowrap}.status{margin-left:auto}}
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#171a20">
+<title>NOAA GEFS | Sideral Meteorologia</title>
+<style>
+
+
+    :root{color-scheme:dark;--bg:#171a20;--panel:#22262e;--panel2:#2b3039;--border:rgba(255,255,255,.09);--text:#edf1f7;--muted:#9ba7b7;--red:#ed3448}
+    *{box-sizing:border-box}[hidden]{display:none!important}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--text);font-family:"DM Sans",Arial,sans-serif}button,select,input{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .site-header{height:78px;padding:0;top:auto;left:auto;width:100%;background:#20242c;border-bottom:1px solid var(--border);position:relative;z-index:10}.header-inner{height:100%;width:min(100% - 48px,1480px);margin:auto;display:flex;align-items:center;gap:28px}.brand{display:flex;align-items:center;flex:0 0 auto}.brand img{display:block;width:150px;height:auto;max-height:54px;object-fit:contain}.header-nav{display:flex;align-items:center;gap:clamp(16px,2.5vw,38px);flex:1;justify-content:center}.header-nav a{color:#e8edf5;text-decoration:none;font-size:13px;font-weight:650}.header-nav a:hover{color:#ff7a87}.header-actions{display:flex;gap:8px}.head-button{padding:9px 13px;border:1px solid var(--border);border-radius:5px;color:#edf1f7;text-decoration:none;background:transparent;font-size:11px;font-weight:700}.head-button:hover{background:#343b47}
+    .app{height:calc(100vh - 78px);display:flex;flex-direction:column;min-height:500px}.metbr-toolbar{height:49px;flex:0 0 auto;display:grid;grid-template-columns:300px minmax(0,1fr) auto;align-items:stretch;background:#262b34;border-bottom:1px solid #11151b}.metbr-tool-group{display:flex;gap:7px;align-items:center;min-width:0;padding:6px 10px}.metbr-tool-group+.metbr-tool-group{border-left:1px solid var(--border)}.icon-btn{display:inline-grid;place-items:center;width:32px;height:32px;border:1px solid transparent;border-radius:5px;background:transparent;color:#d1d9e4;flex:0 0 auto}.icon-btn:hover,.icon-btn[aria-pressed="true"]{background:rgba(237,52,72,.14);border-color:rgba(237,52,72,.35);color:#fff}.icon-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.timeline{gap:12px}.timeline input{width:100%;min-width:50px;accent-color:var(--red)}.readout{white-space:nowrap;min-width:54px;text-align:right;font-weight:800;font-size:12px}.model-cycle{font-size:10px;color:#aeb9c8;white-space:nowrap}.speed{width:75px;accent-color:var(--red)}
+    .metbr-layout{display:grid;grid-template-columns:300px minmax(0,1fr);flex:1;min-height:0}.metbr-sidebar{min-width:0;overflow:auto;background:var(--panel);border-right:1px solid rgba(0,0,0,.25)}.side-head{padding:17px 18px 15px;background:var(--panel2);border-bottom:1px solid var(--border)}.side-head h1{margin:0;font-size:16px;line-height:1.3;font-weight:800;letter-spacing:-.02em}.cycle-line{margin-top:7px;color:#9ba7b7;font-size:11px}.side-section{padding:15px 13px;border-bottom:1px solid var(--border)}.side-label{display:flex;justify-content:space-between;margin:0 5px 10px;color:#9ba6b6;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.field-label{display:block;color:#cbd3df;font-size:11px;font-weight:700;margin:11px 4px 6px}.select{width:100%;min-height:37px;background:#191d24;color:#edf1f7;border:1px solid rgba(255,255,255,.13);border-radius:5px;padding:7px 9px;font-size:12px;outline:none}.select:focus{border-color:rgba(237,52,72,.65)}.help-line{font-size:10px;color:#8f9bab;line-height:1.45;margin:10px 4px 0}
+    .map-panel{min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#171b21}.map-pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1px;flex:1;min-height:0;background:#101318}.map-card{display:flex;flex-direction:column;min-width:0;min-height:0;background:#fff;color:#20242a}.map-card-head{height:38px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;background:#22262e;color:#edf1f7;border-bottom:1px solid #11151b}.map-card-head strong{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.map-actions{display:flex;gap:4px;flex:0 0 auto}.map-export-row{flex:0 0 auto;display:flex;justify-content:flex-end;align-items:center;min-height:31px;padding:3px 8px;background:#191d24;border-bottom:1px solid #11151b}.map-export-row .map-actions{justify-content:flex-end;flex-wrap:wrap}.map-actions button{border:1px solid rgba(255,255,255,.12);background:#2b3039;color:#dbe2eb;border-radius:4px;font-size:9px;padding:5px 6px;white-space:nowrap}.map-actions button:hover{background:rgba(237,52,72,.2)}.map-actions button:disabled{opacity:.45;cursor:wait}.image-wrap{position:relative;display:flex;align-items:center;justify-content:center;flex:1;min-height:0;background:#fff;overflow:hidden}.bulletin{display:block;width:100%;height:100%;object-fit:contain;background:#fff}.bulletin.alternate{position:absolute;inset:0}.image-state{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#fff;color:#727b86;font-size:12px}.image-state[hidden]{display:none}.status-bar{height:25px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 12px;background:#20242c;border-top:1px solid var(--border);color:#aeb9c8;font-size:10px}.status-bar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .metbr-layout.sidebar-collapsed{grid-template-columns:minmax(0,1fr)}.metbr-layout.sidebar-collapsed .metbr-sidebar{display:none}.metbr-mobile-side{display:none}
+    @media(max-width:1000px){.metbr-toolbar{grid-template-columns:230px minmax(0,1fr) auto}.metbr-layout{grid-template-columns:230px minmax(0,1fr)}.header-inner{gap:15px}.header-nav{gap:14px}.header-nav a{font-size:11px}.brand img{width:128px}.speed{width:48px}}
+    @media(max-width:720px){.site-header{height:66px}.header-inner{width:calc(100% - 24px);gap:8px}.brand img{width:112px}.header-nav{display:none}.header-actions{margin-left:auto}.app{height:calc(100vh - 66px)}.metbr-toolbar{height:44px;grid-template-columns:auto minmax(0,1fr) auto}.metbr-tool-group{padding:4px;gap:3px}.metbr-tool-group .optional{display:none}.icon-btn{width:28px;height:29px}.timeline{gap:5px}.readout{min-width:42px;font-size:10px}.speed{display:none}.model-cycle{display:none}.metbr-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}.metbr-sidebar{display:none;max-height:42vh;border-right:0;border-bottom:1px solid var(--border)}.metbr-sidebar.is-open{display:block}.side-head{padding:12px 14px}.side-section{padding:10px 11px}.map-pair{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr);overflow:auto}.map-card-head{height:31px;padding:5px 8px}.map-card-head strong{font-size:10px}.map-export-row{min-height:29px;padding:3px 6px}.map-actions button{font-size:9px;padding:4px 6px}.status-bar{height:22px;font-size:9px}.status-right{display:none}}
+  
+    /* A interface METBR mantém o layout de dois produtos; o motor refletividaded
+       fica fora da tela, mas com dimensões reais para o Leaflet e o renderizador. */
+    #metbrUI .image-wrap{overflow:auto;align-items:flex-start}
+    #metbrUI .image-wrap canvas{display:block;width:100%;height:auto;min-width:100%;max-width:none;max-height:none;flex:0 0 auto;object-fit:contain;background:#fff}
+    #metbrUI .image-state {z-index:2;padding:18px;text-align:center;line-height:1.5}
+    #metbrUI .map-actions button {min-width:41px}
+    #metbrUI .map-actions button:disabled {opacity:.45;cursor:wait}
+    #engineShell {position:absolute!important;left:-20000px!important;top:0!important;width:1000px!important;height:700px!important;overflow:hidden!important;pointer-events:none!important;z-index:-1!important;opacity:.001!important}
+    #engineShell .sidebar {position:absolute!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important}
+    #engineShell .control-panel {position:absolute!important;left:0!important;top:0!important;width:1px!important;height:1px!important;max-width:none!important;overflow:hidden!important;margin:0!important;padding:0!important;border:0!important}
+    #engineShell .main-content {position:absolute!important;left:0!important;top:0!important;width:1000px!important;height:700px!important;margin:0!important;overflow:hidden!important}
+    #engineShell .main-content > header {position:absolute!important;left:0!important;top:0!important;width:1000px!important;height:1px!important;min-height:1px!important;padding:0!important;border:0!important;overflow:hidden!important}
+    #engineShell .map-container {position:absolute!important;left:0!important;top:0!important;width:1000px!important;height:700px!important;padding:0!important;margin:0!important;flex:none!important}
+    #engineShell #map {position:absolute!important;inset:0!important;width:1000px!important;height:700px!important;min-height:700px!important}
+    #engineShell #wrfNotice, #engineShell #wrfTutorial, #engineShell .sideral-site-footer, #engineShell #exportModal {display:none!important}
+    #engineShell .sideral-see-also {display:none!important}
+    @media(max-width:720px){#metbrUI .metbr-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}#metbrUI .metbr-sidebar{display:none;max-height:42vh;border-right:0;border-bottom:1px solid var(--border)}#metbrUI .metbr-sidebar.is-open{display:block}}
+
+
+    #metbrUI{position:fixed;inset:0;display:flex;flex-direction:column;overflow:hidden;z-index:1000;background:var(--bg)}
+    #metbrUI .site-header{position:relative!important;top:auto!important;left:auto!important;height:78px;min-height:78px;flex:0 0 78px;width:100%;z-index:20}
+    #metbrUI .app{height:auto;min-height:0;flex:1;overflow:hidden}
+    #metbrUI .metbr-layout{min-height:0}
+    #metbrUI .map-pair{min-height:0}
+    #engineShell{position:fixed!important;left:-12000px!important;top:0!important;width:1000px!important;height:700px!important;overflow:hidden!important;pointer-events:none!important;z-index:-1!important;opacity:.001!important}
+    @media(max-width:720px){#metbrUI .site-header{height:66px;min-height:66px;flex-basis:66px}}
+
+    /* O boletim METBR usa um único mapa em tela cheia. A segunda variável
+       continuava sendo renderizada em paralelo e deixava os produtos estreitos. */
+    #metbrUI .map-pair{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr)!important}
+    #metbrUI .map-card:nth-child(2),
+    #metbrUI #uiVariableB,
+    #metbrUI label[for="uiVariableB"]{display:none!important}
+    #metbrUI .map-card-head{display:none!important}
+    #metbrUI .map-export-row{border-top:0}
+    #metbrUI .header-nav:not(.metbr-nav){display:none!important}
+
+
+#metbrUI .brand{gap:9px;text-decoration:none}
+#metbrUI .brand-x{display:inline-block;color:#ed3448;font-size:31px;line-height:1;font-weight:900}
+#metbrUI .brand-name{color:#edf1f7;font-size:13px;font-weight:900;letter-spacing:.13em}
+#metbrUI .header-nav a[aria-current="page"]{color:#ff7b87}
+#metbrUI img.bulletin{width:100%;height:auto;max-width:100%;display:block;object-fit:contain;background:#10151c}
+#metbrUI .image-wrap{background:#10151c}
+#metbrUI .image-state{z-index:2}
+#metbrUI .model-variant[hidden]{display:none!important}
+#metbrUI #uiModelInfo[data-state="stale"]{color:#ffbd69}
+#metbrUI #uiModelInfo[data-state="error"]{color:#ff9696}
+#metbrUI #uiErrorMessage{color:#ff9696}
+#metbrUI .map-actions button:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:900px){#metbrUI .header-inner{width:calc(100% - 20px);gap:10px}#metbrUI .header-nav{justify-content:flex-start;overflow-x:auto;max-width:100%}#metbrUI .brand-name{font-size:11px}}
+
 </style>
-</head><body>
-<header><div class="logo">Sideral • GEFS Ensemble</div><nav class="model-nav" aria-label="Modelos numéricos"><a href="ecmwf.html">ECMWF</a><a href="gfs.html">GFS</a><a href="icon.html">ICON</a><a href="ukmet.html">UKMET</a><a href="gefs.html" aria-current="page">GEFS</a></nav><div class="run" id="run">carregando rodada...</div><div class="status" id="status">● conectando</div></header>
-<div class="layout">
-<aside class="sidebar">
-<div class="title">Variável</div><select id="product" class="select" aria-label="Variável meteorológica"></select>
-<div id="variantWrap" hidden><div class="title" id="variantTitle">Configuração</div><select id="variant" class="select" aria-label="Variante do modelo"></select></div>
-<div class="title">Hora de previsão</div><div class="steps" id="steps"></div>
-<div class="controls"><button id="prev" type="button">‹ Anterior</button><button id="play" type="button" aria-label="Animar previsão">▶</button><button id="next" type="button">Próxima ›</button></div>
-<div class="notice" id="notice"></div>
-<div class="meta" id="meta"><b>Modelo</b><br>GEFS<br><br><b>Resolução</b><br>Ensemble global</div>
-</aside>
-<main class="main"><div class="frame"><img id="map" alt="Mapa de previsão GEFS" hidden><div class="loading" id="placeholder">Carregando catálogo de mapas…</div><div class="caption"><span id="valid">—</span><span id="source">Sideral Meteorologia</span></div></div></main>
+</head>
+<body>
+
+<div id="metbrUI">
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="Sideral Meteorologia"><span class="brand-x">X</span><span class="brand-name">SIDERAL METEOROLOGIA</span></a>
+      <nav class="header-nav metbr-nav" aria-label="Modelos numéricos"><a href="ecmwf.html">ECMWF</a><a href="gfs.html">GFS</a><a href="icon.html">ICON</a><a href="ukmet.html">UKMET</a><a href="gefs.html" aria-current="page">GEFS</a></nav>
+      <div class="header-actions"><a class="head-button" href="index.html">Modelos</a></div>
+    </div>
+  </header>
+  <main class="app">
+    <div class="metbr-toolbar" role="toolbar" aria-label="Controles NOAA GEFS">
+      <div class="metbr-tool-group">
+        <button class="icon-btn" id="uiToggleSidebar" title="Mostrar/ocultar variáveis" aria-label="Mostrar/ocultar variáveis" aria-pressed="false"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"></rect><path d="M9 4v16"></path></svg></button>
+        <button class="icon-btn" id="uiPlay" title="Animar previsão" aria-label="Animar previsão" aria-pressed="false"><svg id="uiPlayIcon" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z" fill="currentColor" stroke="none"></path></svg></button>
+        <input class="speed optional" id="uiSpeed" type="range" min="1" max="10" value="7" aria-label="Velocidade da animação" title="Velocidade">
+      </div>
+      <div class="metbr-tool-group timeline">
+        <button class="icon-btn optional" id="uiPrev" title="Horário anterior" aria-label="Horário anterior"><svg viewBox="0 0 24 24"><path d="M18 5 8 12l10 7z" fill="currentColor" stroke="none"></path><path d="M5 5v14"></path></svg></button>
+        <input id="uiFrameSlider" type="range" min="0" max="0" value="0" step="1" aria-label="Horário de previsão" disabled>
+        <span class="readout" id="uiFrameReadout">F000</span>
+        <button class="icon-btn optional" id="uiNext" title="Próximo horário" aria-label="Próximo horário" disabled><svg viewBox="0 0 24 24"><path d="m6 5 10 7-10 7z" fill="currentColor" stroke="none"></path><path d="M19 5v14"></path></svg></button>
+      </div>
+      <div class="metbr-tool-group"><button class="icon-btn" id="uiFullscreen" title="Tela cheia" aria-label="Tela cheia"><svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"></path></svg></button></div>
+    </div>
+    <div class="metbr-layout" id="uiLayout">
+      <aside class="metbr-sidebar" id="uiSidebar">
+        <div class="side-head"><h1>NOAA GEFS</h1><div class="cycle-line" id="uiCycleLine">Carregando metadados do modelo…</div></div>
+        <section class="side-section">
+          <h2 class="side-label">Variáveis</h2>
+          <label class="field-label" for="uiVariableA">Mapa 1</label><select class="select" id="uiVariableA" disabled><option>Carregando…</option></select>
+          <label class="field-label" for="uiVariableB">Mapa 2</label><select class="select" id="uiVariableB" disabled><option>Carregando…</option></select>
+          <div class="model-variant" id="uiVariantBlock" hidden>
+            <label class="field-label" for="uiVariant" id="uiVariantLabel">Configuração</label>
+            <select class="select" id="uiVariant"></select>
+          </div>
+          <p class="help-line" id="uiModelInfo">Modelo: NOAA GEFS Ensemble<br>Resolução: Ensemble global • grade do produto</p>
+          <p class="help-line" id="uiErrorMessage" role="status" aria-live="polite"></p>
+        </section>
+      </aside>
+      <section class="map-panel" aria-label="Previsão NOAA GEFS">
+        <div class="map-pair">
+          <article class="map-card">
+            <header class="map-card-head"><strong id="uiTitleA">Mapa 1</strong></header>
+            <div class="map-export-row"><div class="map-actions"><button type="button" id="uiDownloadA">PNG</button></div></div>
+            <div class="image-wrap"><img class="bulletin" id="uiImageA" alt="NOAA GEFS — mapa 1" hidden><div class="image-state" id="uiStateA">Aguardando dados publicados…</div></div>
+          </article>
+          <article class="map-card">
+            <header class="map-card-head"><strong id="uiTitleB">Mapa 2</strong></header>
+            <div class="map-export-row"><div class="map-actions"><button type="button" id="uiDownloadB">PNG</button></div></div>
+            <div class="image-wrap"><img class="bulletin" id="uiImageB" alt="NOAA GEFS — mapa 2" hidden><div class="image-state" id="uiStateB">Aguardando dados publicados…</div></div>
+          </article>
+        </div>
+        <footer class="status-bar"><span id="uiValidTime">—</span><span class="status-right" id="uiFrameStatus">Conectando ao catálogo do modelo…</span></footer>
+      </section>
+    </div>
+  </main>
 </div>
+
 <script>
-const CFG={"key":"gefs","title":"GEFS Ensemble","model":"GEFS","branch":"model-gefs","family":"gefs","manifestUrl":"https://raw.githubusercontent.com/progames12301-hash/ecmwf-backend/model-gefs/site/maps/gefs/generation-report.json","dataRoot":"https://raw.githubusercontent.com/progames12301-hash/ecmwf-backend/model-gefs/site/","defaultProduct":"precip","defaultVariant":"mean","resolution":"Ensemble global"};
-const LABELS={"precip":"Precipitação","temp2m":"Temperatura a 2 m","dew2m":"Ponto de orvalho a 2 m","wind10m":"Vento a 10 m","gust10m":"Rajada máxima a 10 m","mslp":"Pressão ao nível do mar","cloud":"Cobertura de nuvens","tcwv":"Água precipitável (TCWV)","cape":"CAPE","t850":"Temperatura a 850 hPa","wind850":"Vento a 850 hPa","gh500":"Geopotencial 500 hPa","wind500":"Vento 500 hPa","wind250":"Vento 250 hPa","temperature_2m":"Temperatura a 2 m","dew_point_2m":"Ponto de orvalho a 2 m","wind_speed_10m":"Velocidade do vento a 10 m","wind_gust_10m":"Rajada de vento a 10 m","pressure_msl":"Pressão ao nível do mar","cape_surface":"CAPE à superfície","geopotential_height_500hPa":"Altura geopotencial 500 hPa","precipitation":"Precipitação"};
-const state={manifest:null,steps:[],step:0,product:CFG.defaultProduct,variant:CFG.defaultVariant,timer:null,products:[],variants:[]};
-const $=id=>document.getElementById(id);
-function parseRun(raw){if(typeof raw!=="string")return null;if(/^\d{10}$/.test(raw))return new Date(raw.slice(0,4)+"-"+raw.slice(4,6)+"-"+raw.slice(6,8)+"T"+raw.slice(8,10)+":00:00Z");const d=new Date(raw);return Number.isNaN(d.getTime())?null:d}
-function pad(n){return String(n).padStart(3,"0")}
-function productLabel(key){return LABELS[key]||key.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase())}
-function stepList(m){return [...new Set((m.steps||m.forecastHours||[]).map(Number).filter(Number.isFinite))].sort((a,b)=>a-b)}
-function variantsFor(m){
- if(CFG.family==="gfs")return Object.keys(m.variants||{});
- if(CFG.family==="gefs"){const set=new Set();for(const item of (m.generated||[])){const a=item.replace(/^site\//,"").split("/");if(a[0]==="maps"&&a[1]==="gefs"&&a[2]==="atmos.5")set.add(a[3])}return [...set]}
- return [];
+(function(){
+'use strict';
+const CFG = {"key":"gefs","title":"NOAA GEFS","model":"NOAA GEFS Ensemble","resolution":"Ensemble global • grade do produto","family":"gefs","manifestUrl":"https://raw.githubusercontent.com/progames12301-hash/ecmwf-backend/model-gefs/site/maps/gefs/generation-report.json","dataRoot":"https://raw.githubusercontent.com/progames12301-hash/ecmwf-backend/model-gefs/site/","defaultA":"precip","defaultB":"temp2m","defaultVariant":"mean"};
+const LABELS = {
+  precip:'Precipitação', precipitation:'Precipitação acumulada', temp2m:'Temperatura a 2 m',
+  dew2m:'Ponto de orvalho a 2 m', wind10m:'Vento a 10 m', gust10m:'Rajada máxima a 10 m',
+  mslp:'Pressão ao nível do mar', cloud:'Cobertura de nuvens', tcwv:'Água precipitável (TCWV)',
+  cape:'CAPE', t850:'Temperatura a 850 hPa', wind850:'Vento a 850 hPa', gh500:'Geopotencial em 500 hPa',
+  wind500:'Vento em 500 hPa', wind250:'Vento em 250 hPa', temperature_2m:'Temperatura a 2 m',
+  dew_point_2m:'Ponto de orvalho a 2 m', wind_speed_10m:'Vento a 10 m',
+  wind_gust_10m:'Rajada a 10 m', pressure_msl:'Pressão ao nível do mar', cape_surface:'CAPE à superfície'
+};
+const $ = id => document.getElementById(id);
+const state = {manifest:null, assets:new Map(), products:[], variants:[], variant:CFG.defaultVariant, a:CFG.defaultA, b:CFG.defaultB, hours:[], hour:0, timer:null, token:0};
+function pad(n){return String(n).padStart(3,'0');}
+function parseRun(raw){
+  if(raw instanceof Date)return raw;
+  if(typeof raw!=='string')return null;
+  if(/^\d{10}$/.test(raw))return new Date(raw.slice(0,4)+'-'+raw.slice(4,6)+'-'+raw.slice(6,8)+'T'+raw.slice(8,10)+':00:00Z');
+  const d=new Date(raw);return Number.isNaN(d.getTime())?null:d;
 }
-function productRecords(m){
- if(CFG.family==="ecmwf")return Object.entries(m.products||{}).map(([id,v])=>({id,label:v.label||productLabel(id)}));
- const out=new Set();
- for(const item of (m.generated||[])){
-  const p=item.replace(/^site\//,"").split("/");let id="";
-  if(CFG.family==="gfs"&&p.length===6&&p[0]==="maps"&&p[1]==="gfs"&&p[3]===m.run)id=p[4];
-  if(CFG.family==="icon"&&p.length===6&&p[0]==="maps"&&p[1]==="icon"&&p[2]==="global"&&p[3]===m.run)id=p[4];
-  if(CFG.family==="ukmet"&&p.length===5&&p[0]==="maps"&&p[1]==="ukmet"&&p[2]===m.run)id=p[3];
-  if(CFG.family==="gefs"&&p.length===7&&p[0]==="maps"&&p[1]==="gefs"&&p[2]==="atmos.5"&&p[4]===m.run)id=p[5];
-  if(id&&/^f\d+\.png$/.test(p[p.length-1]))out.add(id);
- }
- return [...out].sort().map(id=>({id,label:productLabel(id)}));
+function fmtTime(raw){
+  const d=parseRun(raw);if(!d)return String(raw||'—');
+  return new Intl.DateTimeFormat('pt-BR',{timeZone:'UTC',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(d)+' UTC';
 }
-function renderProducts(){
- const el=$("product");el.innerHTML="";
- for(const p of state.products){const o=document.createElement("option");o.value=p.id;o.textContent=p.label;el.appendChild(o)}
- if(!state.products.some(p=>p.id===state.product))state.product=state.products[0]?.id||"";
- el.value=state.product;
+function productLabel(id){
+  if(LABELS[id])return LABELS[id];
+  return String(id||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
 }
-function renderVariants(){
- const sel=$("variant");sel.innerHTML="";$("variantWrap").hidden=!state.variants.length;if(!state.variants.length)return;
- $("variantTitle").textContent=CFG.family==="gfs"?"Resolução da grade":"Produto de conjunto";
- for(const v of state.variants){const o=document.createElement("option");o.value=v;o.textContent=CFG.family==="gfs"?({"0p25":"0,25° — maior resolução","0p50":"0,50°","1p00":"1,00°"}[v]||v):({"mean":"Média do ensemble","spread":"Dispersão do ensemble","spr":"Dispersão do ensemble","c00":"Membro controle","control":"Membro controle"}[v]||v);sel.appendChild(o)}
- if(!state.variants.includes(state.variant))state.variant=state.variants[0];sel.value=state.variant;
+function addAsset(variant, product, hour){
+  if(!Number.isFinite(hour))return;
+  const key=String(variant||'')+'|'+product;
+  if(!state.assets.has(key))state.assets.set(key,new Set());
+  state.assets.get(key).add(hour);
 }
-function makeImagePath(){
- const m=state.manifest,p=state.product,s=pad(state.step),v=state.variant;
- if(CFG.family==="ecmwf")return "maps/"+m.run_id+"/"+p+"/f"+s+".png";
- if(CFG.family==="gfs")return "maps/gfs/"+v+"/"+m.run+"/"+p+"/f"+s+".png";
- if(CFG.family==="icon")return "maps/icon/global/"+m.run+"/"+p+"/f"+s+".png";
- if(CFG.family==="ukmet")return "maps/ukmet/"+m.run+"/"+p+"/f"+s+".png";
- if(CFG.family==="gefs")return "maps/gefs/atmos.5/"+v+"/"+m.run+"/"+p+"/f"+s+".png";
- return "";
+function parseGeneratedPath(path){
+  const parts=String(path||'').replace(/^site\//,'').split('/');
+  let variant='',product='',hour=null,run='';
+  const last=parts[parts.length-1]||'';
+  const m=last.match(/^f(\d+)\.png$/);if(!m)return;
+  hour=Number(m[1]);
+  if(CFG.family==='gfs' && parts.length===6 && parts[0]==='maps' && parts[1]==='gfs'){
+    variant=parts[2];run=parts[3];product=parts[4];
+  }else if(CFG.family==='icon' && parts.length===6 && parts[0]==='maps' && parts[1]==='icon' && parts[2]==='global'){
+    run=parts[3];product=parts[4];
+  }else if(CFG.family==='ukmet' && parts.length===5 && parts[0]==='maps' && parts[1]==='ukmet'){
+    run=parts[2];product=parts[3];
+  }else if(CFG.family==='gefs' && parts.length===7 && parts[0]==='maps' && parts[1]==='gefs' && parts[2]==='atmos.5'){
+    variant=parts[3];run=parts[4];product=parts[5];
+  }else return;
+  if(run && state.manifest && run!==String(state.manifest.run||state.manifest.run_id||''))return;
+  addAsset(variant,product,hour);
 }
-function formatRun(raw){const d=parseRun(raw);if(!d)return String(raw||"—");return new Intl.DateTimeFormat("pt-BR",{timeZone:"UTC",dateStyle:"short",hour:"2-digit",minute:"2-digit",hour12:false}).format(d)+" UTC"}
+function variantList(m){
+  if(CFG.family==='gfs')return Object.keys(m.variants||{});
+  if(CFG.family==='gefs'){
+    const found=new Set();
+    (m.generated||[]).forEach(path=>{
+      const p=String(path).replace(/^site\//,'').split('/');
+      if(p.length===7 && p[0]==='maps' && p[1]==='gefs' && p[2]==='atmos.5')found.add(p[3]);
+    });
+    return Array.from(found).sort();
+  }
+  return [];
+}
+function fillVariants(){
+  const block=$('uiVariantBlock'),select=$('uiVariant');
+  if(!state.variants.length){block.hidden=true;return;}
+  block.hidden=false;
+  $('uiVariantLabel').textContent=CFG.family==='gfs'?'Resolução da grade':'Membro do ensemble';
+  select.replaceChildren();
+  state.variants.forEach(v=>{
+    const option=document.createElement('option');option.value=v;
+    const labels={'0p25':'0,25° — maior resolução','0p50':'0,50°','1p00':'1,00°','mean':'Média do ensemble','spr':'Dispersão do ensemble','spread':'Dispersão do ensemble','c00':'Membro controle','control':'Membro controle'};
+    option.textContent=labels[v]||v;select.appendChild(option);
+  });
+  if(!state.variants.includes(state.variant))state.variant=state.variants[0];
+  select.value=state.variant;
+}
+function allProductIds(){
+  if(CFG.family==='ecmwf')return Object.keys(state.manifest.products||{});
+  const found=new Set();
+  for(const key of state.assets.keys()){
+    const p=key.split('|');if((p[0]||'')===String(state.variant||''))found.add(p[1]);
+  }
+  return Array.from(found).sort();
+}
+function fillProductSelects(){
+  const ids=allProductIds();
+  if(!ids.length)throw new Error('O manifesto não possui imagens publicadas para esta rodada.');
+  function fill(id, chosen, fallback){
+    const sel=$(id),previous=chosen;sel.replaceChildren();
+    ids.forEach(product=>{
+      const option=document.createElement('option');option.value=product;
+      option.textContent=CFG.family==='ecmwf'?(state.manifest.products[product]?.label||productLabel(product)):productLabel(product);
+      sel.appendChild(option);
+    });
+    if(ids.includes(previous))return previous;
+    if(ids.includes(fallback))return fallback;
+    return ids[0];
+  }
+  state.a=fill('uiVariableA',state.a,CFG.defaultA);
+  state.b=fill('uiVariableB',state.b,CFG.defaultB);
+  $('uiVariableA').value=state.a;$('uiVariableB').value=state.b;
+  $('uiVariableA').disabled=false;$('uiVariableB').disabled=false;
+}
+function availableHours(product){
+  if(CFG.family==='ecmwf'){
+    const availability=state.manifest.productAvailability||{};
+    if(availability[product] && availability[product].status==='unavailable')return [];
+    return (state.manifest.steps||[]).map(Number).filter(Number.isFinite);
+  }
+  return Array.from(state.assets.get(String(state.variant||'')+'|'+product)||[]).sort((a,b)=>a-b);
+}
+function recomputeHours(previousHour){
+  const a=new Set(availableHours(state.a)),b=new Set(availableHours(state.b));
+  state.hours=Array.from(a).filter(h=>b.has(h)).sort((x,y)=>x-y);
+  $('uiFrameSlider').disabled=!state.hours.length;
+  $('uiPrev').disabled=!state.hours.length;$('uiNext').disabled=!state.hours.length;
+  if(!state.hours.length){
+    state.hour=0;$('uiFrameSlider').max='0';$('uiFrameSlider').value='0';
+    $('uiFrameReadout').textContent='—';
+    setSideMessage('A','Não há horários comuns publicados para esta combinação.',true);
+    setSideMessage('B','Não há horários comuns publicados para esta combinação.',true);
+    $('uiFrameStatus').textContent='Sem horários comuns';return false;
+  }
+  state.hour=state.hours.includes(previousHour)?previousHour:state.hours[0];
+  $('uiFrameSlider').max=String(state.hours.length-1);
+  $('uiFrameSlider').value=String(state.hours.indexOf(state.hour));
+  return true;
+}
+function assetPath(product,hour){
+  const m=state.manifest,lead='f'+pad(hour)+'.png';
+  if(CFG.family==='ecmwf')return 'maps/'+m.run_id+'/'+product+'/'+lead;
+  if(CFG.family==='gfs')return 'maps/gfs/'+state.variant+'/'+m.run+'/'+product+'/'+lead;
+  if(CFG.family==='icon')return 'maps/icon/global/'+m.run+'/'+product+'/'+lead;
+  if(CFG.family==='ukmet')return 'maps/ukmet/'+m.run+'/'+product+'/'+lead;
+  if(CFG.family==='gefs')return 'maps/gefs/atmos.5/'+state.variant+'/'+m.run+'/'+product+'/'+lead;
+  return '';
+}
+function assetUrl(product,hour){
+  const path=assetPath(product,hour);
+  return path?CFG.dataRoot+path+'?v='+encodeURIComponent(state.manifest.updated||state.manifest.generatedAt||state.manifest.run||Date.now()):'';
+}
+function setSideMessage(side,message,hideImage){
+  const image=$('uiImage'+side),overlay=$('uiState'+side);
+  if(hideImage!==false)image.hidden=true;
+  overlay.textContent=message||'—';overlay.hidden=false;
+}
+function currentAgeHours(){
+  const d=parseRun(state.manifest&&(state.manifest.run_id||state.manifest.run||state.manifest.runUTC));
+  return d?(Date.now()-d.getTime())/3600000:null;
+}
+function updateMetadataLine(){
+  const m=state.manifest,age=currentAgeHours(),runRaw=m.runUTC||m.run||m.run_id||'';
+  const stale=age!==null&&age>48;
+  $('uiCycleLine').textContent='Rodada '+fmtTime(runRaw)+(stale?' · ANTIGA':'');
+  const s=$('uiModelInfo');s.innerHTML='Modelo: '+CFG.model+'<br>Resolução: '+CFG.resolution+'<br>Fonte: dados publicados no repositório Sideral';
+  if(stale){
+    s.dataset.state='stale';
+    s.innerHTML+=' <br><strong>AVISO:</strong> a última rodada de mapas tem mais de 48 horas.';
+    $('uiFrameStatus').textContent='Rodada antiga — confira o horário';
+  }else{
+    s.dataset.state='ok';
+    $('uiFrameStatus').textContent='Mapas publicados';
+  }
+  if(Number(m.failureCount||0)>0){
+    $('uiErrorMessage').textContent='A publicação registrou '+Number(m.failureCount)+' falhas; nem todas as variáveis/horas podem estar disponíveis.';
+  }else $('uiErrorMessage').textContent='';
+}
+function showImage(side,product,hour,token){
+  const image=$('uiImage'+side),overlay=$('uiState'+side),url=assetUrl(product,hour);
+  $('uiTitle'+side).textContent=productLabel(product);
+  image.hidden=true;overlay.hidden=false;overlay.textContent='Carregando '+productLabel(product)+' — F'+pad(hour)+'…';
+  image.onload=function(){
+    if(token!==state.token)return;
+    image.hidden=false;overlay.hidden=true;
+  };
+  image.onerror=function(){
+    if(token!==state.token)return;
+    image.hidden=true;overlay.hidden=false;overlay.textContent='Imagem não publicada neste horário.';
+  };
+  image.src=url;
+}
 function render(){
- const m=state.manifest;if(!m)return;renderProducts();renderVariants();$("steps").innerHTML="";
- for(const s of state.steps){const b=document.createElement("button");b.type="button";b.textContent="F"+pad(s);b.className=s===state.step?"active":"";b.onclick=()=>{state.step=s;render()};$("steps").appendChild(b)}
- $("run").textContent="Init: "+formatRun(m.run_id||m.run);const runDate=parseRun(m.run_id||m.run);const age=runDate?(Date.now()-runDate.getTime())/3600000:null;const stale=age!==null&&age>48;
- $("status").textContent=stale?"● rodada antiga":(m.failureCount>0?"● geração com falhas":"● catálogo carregado");$("status").style.color=stale||m.failureCount>0?"#f4b35e":"#72d38b";
- $("notice").style.display=stale?"block":"none";$("notice").textContent=stale?"A rodada publicada está antiga. Confira a inicialização antes de usar esta previsão.":"";
- $("valid").textContent=productLabel(state.product)+" • F"+pad(state.step)+" • válido "+(runDate?new Date(runDate.getTime()+state.step*3600000).toISOString().replace("T"," ").slice(0,16)+"Z":"—");
- $("source").textContent=(m.source||CFG.model)+" • Sideral";
- $("meta").innerHTML="<b>Modelo</b><br>"+CFG.model+"<br><br><b>Resolução</b><br>"+CFG.resolution+"<br><br><b>Fonte</b><br>"+(m.source||"Dados publicados no repositório Sideral")+"<br><br><b>Rodada</b><br>"+formatRun(m.run_id||m.run)+"<br><br><b>Horários disponíveis</b><br>"+state.steps.length;
- const img=$("map"),placeholder=$("placeholder");placeholder.hidden=false;placeholder.textContent="Carregando "+productLabel(state.product)+" — F"+pad(state.step)+"…";img.hidden=true;
- img.onload=()=>{placeholder.hidden=true;img.hidden=false};img.onerror=()=>{img.hidden=true;placeholder.hidden=false;placeholder.textContent="Mapa não publicado para "+productLabel(state.product)+" em F"+pad(state.step)+". Tente outro horário ou variável."};
- img.src=CFG.dataRoot+makeImagePath()+"?v="+encodeURIComponent(m.updated||m.generatedAt||m.run||Date.now());
+  if(!state.manifest)return;
+  const token=++state.token;
+  if(!recomputeHours(state.hour))return;
+  fillProductSelects();
+  $('uiFrameReadout').textContent='F'+pad(state.hour);
+  $('uiValidTime').textContent=productLabel(state.a)+' / '+productLabel(state.b)+' • F'+pad(state.hour);
+  $('uiFrameStatus').textContent=(state.hours.indexOf(state.hour)+1)+'/'+state.hours.length+' horários disponíveis';
+  showImage('A',state.a,state.hour,token);showImage('B',state.b,state.hour,token);
+  $('uiDownloadA').disabled=false;$('uiDownloadB').disabled=false;
 }
-async function load(){try{const r=await fetch(CFG.manifestUrl+"?v="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);const m=await r.json();state.manifest=m;state.steps=stepList(m);state.products=productRecords(m);state.variants=variantsFor(m);if(!state.steps.length)throw Error("Nenhum horário publicado");if(!state.products.length)throw Error("Nenhuma variável publicada");state.step=state.steps.includes(state.step)?state.step:state.steps[0];if(!state.products.some(p=>p.id===state.product))state.product=state.products[0].id;render()}catch(e){$("status").textContent="● falha ao carregar";$("status").style.color="#ff8b8b";$("placeholder").hidden=false;$("placeholder").textContent="Não foi possível carregar o catálogo deste modelo. Atualize a página e tente novamente.";console.error("Falha no catálogo "+CFG.title,e)}}
-function move(dir){if(!state.steps.length)return;const i=state.steps.indexOf(state.step);state.step=state.steps[(i+dir+state.steps.length)%state.steps.length];render()}
-$("product").onchange=e=>{state.product=e.target.value;render()};$("variant").onchange=e=>{state.variant=e.target.value;render()};$("prev").onclick=()=>move(-1);$("next").onclick=()=>move(1);
-$("play").onclick=()=>{if(state.timer){clearInterval(state.timer);state.timer=null;$("play").textContent="▶"}else{state.timer=setInterval(()=>move(1),900);$("play").textContent="Ⅱ"}};
-load();
+async function loadManifest(){
+  try{
+    const response=await fetch(CFG.manifestUrl+'?v='+Date.now(),{cache:'no-store'});
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    const incoming=await response.json();
+    const valid=CFG.family==='ecmwf'?incoming&&incoming.products&&Array.isArray(incoming.steps):incoming&&Array.isArray(incoming.generated)&&(Array.isArray(incoming.forecastHours)||Array.isArray(incoming.steps));
+    if(!valid)throw new Error('Formato do manifesto não reconhecido');
+    const previousHour=state.hour;
+    state.manifest=incoming;state.assets=new Map();state.variants=variantList(incoming);
+    (incoming.generated||[]).forEach(parseGeneratedPath);
+    if(!state.variants.includes(state.variant)&&state.variants.length)state.variant=state.variants.includes(CFG.defaultVariant)?CFG.defaultVariant:state.variants[0];
+    fillVariants();fillProductSelects();
+    const hours=recomputeHours(previousHour);if(!hours&&state.assets.size)throw new Error('As variáveis escolhidas não possuem horas comuns.');
+    updateMetadataLine();render();
+    $('uiFrameStatus').textContent='Dados disponíveis';
+  }catch(error){
+    $('uiCycleLine').textContent='Catálogo indisponível';
+    $('uiErrorMessage').dataset.state='error';
+    $('uiErrorMessage').textContent='Não foi possível carregar esta rodada: '+String(error.message||error);
+    setSideMessage('A','Falha ao carregar os dados deste modelo.',true);
+    setSideMessage('B','Falha ao carregar os dados deste modelo.',true);
+    $('uiFrameStatus').textContent='Falha na publicação';
+    console.error('Modelo '+CFG.key,error);
+  }
+}
+function move(direction){
+  if(!state.hours.length)return;const index=state.hours.indexOf(state.hour);
+  state.hour=state.hours[(index+direction+state.hours.length)%state.hours.length];render();
+}
+function stopAnimation(){
+  if(state.timer)clearInterval(state.timer);state.timer=null;
+  $('uiPlay').setAttribute('aria-pressed','false');
+  $('uiPlayIcon').innerHTML='<path d="m8 5 11 7-11 7z" fill="currentColor" stroke="none"></path>';
+}
+function startAnimation(){
+  if(state.timer){stopAnimation();return;}
+  if(state.hours.length<2){$('uiErrorMessage').textContent='São necessários pelo menos dois horários para animar.';return;}
+  $('uiPlay').setAttribute('aria-pressed','true');
+  $('uiPlayIcon').innerHTML='<path d="M7 5h4v14H7zM14 5h4v14h-4z" fill="currentColor" stroke="none"></path>';
+  const delay=Math.max(300,1500-(Number($('uiSpeed').value)-1)*130);
+  state.timer=setInterval(()=>move(1),delay);
+}
+async function downloadSide(side){
+  const product=side==='A'?state.a:state.b,url=assetUrl(product,state.hour);
+  if(!url){$('uiFrameStatus').textContent='PNG não disponível';return;}
+  try{
+    const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);
+    const blob=await response.blob(),objectUrl=URL.createObjectURL(blob),link=document.createElement('a');
+    link.href=objectUrl;link.download=CFG.key+'-'+product+'-F'+pad(state.hour)+'.png';
+    document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(objectUrl),10000);
+    $('uiFrameStatus').textContent='Download PNG solicitado';
+  }catch(error){
+    window.open(url,'_blank','noopener,noreferrer');
+    $('uiFrameStatus').textContent='Abrindo PNG em outra aba';
+  }
+}
+$('uiVariableA').addEventListener('change',()=>{const previous=state.hour;state.a=$('uiVariableA').value;recomputeHours(previous);render();});
+$('uiVariableB').addEventListener('change',()=>{const previous=state.hour;state.b=$('uiVariableB').value;recomputeHours(previous);render();});
+$('uiVariant').addEventListener('change',()=>{const previous=state.hour;state.variant=$('uiVariant').value;fillProductSelects();recomputeHours(previous);render();});
+$('uiFrameSlider').addEventListener('input',()=>{const index=Number($('uiFrameSlider').value);state.hour=state.hours[index]??state.hour;render();});
+$('uiPrev').addEventListener('click',()=>move(-1));$('uiNext').addEventListener('click',()=>move(1));
+$('uiPlay').addEventListener('click',startAnimation);
+$('uiSpeed').addEventListener('input',()=>{if(state.timer){stopAnimation();startAnimation();}});
+$('uiToggleSidebar').addEventListener('click',()=>{
+  const layout=$('uiLayout'),sidebar=$('uiSidebar');
+  if(window.matchMedia('(max-width:720px)').matches){sidebar.classList.toggle('is-open');}
+  else layout.classList.toggle('sidebar-collapsed');
+  $('uiToggleSidebar').setAttribute('aria-pressed',String(sidebar.classList.contains('is-open')||layout.classList.contains('sidebar-collapsed')));
+});
+$('uiFullscreen').addEventListener('click',async()=>{
+  const target=document.querySelector('#metbrUI .map-pair');
+  try{if(document.fullscreenElement)await document.exitFullscreen();else await target.requestFullscreen();}catch(error){}
+});
+$('uiDownloadA').addEventListener('click',()=>downloadSide('A'));
+$('uiDownloadB').addEventListener('click',()=>downloadSide('B'));
+window.addEventListener('pagehide',stopAnimation);
+loadManifest();
+window.setInterval(async()=>{
+  if(state.timer){} // metadata refresh must not stop animation
+  const previous=state.hour;
+  try{
+    const response=await fetch(CFG.manifestUrl+'?v='+Date.now(),{cache:'no-store'});
+    if(!response.ok)return;const incoming=await response.json();
+    const oldKey=String(state.manifest&& (state.manifest.updated||state.manifest.generatedAt||state.manifest.run||state.manifest.run_id)||'');
+    const newKey=String(incoming.updated||incoming.generatedAt||incoming.run||incoming.run_id||'');
+    if(newKey===oldKey)return;
+    state.manifest=incoming;state.assets=new Map();state.variants=variantList(incoming);(incoming.generated||[]).forEach(parseGeneratedPath);
+    if(!state.variants.includes(state.variant)&&state.variants.length)state.variant=state.variants.includes(CFG.defaultVariant)?CFG.defaultVariant:state.variants[0];
+    fillVariants();fillProductSelects();recomputeHours(previous);updateMetadataLine();render();
+  }catch(error){}
+},60000);
+})();
 </script>
 </body></html>
