@@ -322,7 +322,8 @@ function render(){
   fillProductSelects();
   $('uiFrameReadout').textContent='F'+pad(state.hour);
   $('uiValidTime').textContent=productLabel(state.a)+' / '+productLabel(state.b)+' • F'+pad(state.hour);
-  $('uiFrameStatus').textContent=(state.hours.indexOf(state.hour)+1)+'/'+state.hours.length+' horários disponíveis';
+  const age=currentAgeHours(), statusText=(age!==null&&age>48)?'rodada antiga':(Number(state.manifest.failureCount||0)>0?'publicação com falhas':'dados publicados');
+  $('uiFrameStatus').textContent=(state.hours.indexOf(state.hour)+1)+'/'+state.hours.length+' horários • '+statusText;
   showImage('A',state.a,state.hour,token);showImage('B',state.b,state.hour,token);
   $('uiDownloadA').disabled=false;$('uiDownloadB').disabled=false;
 }
@@ -340,7 +341,7 @@ async function loadManifest(){
     fillVariants();fillProductSelects();
     const hours=recomputeHours(previousHour);if(!hours&&state.assets.size)throw new Error('As variáveis escolhidas não possuem horas comuns.');
     updateMetadataLine();render();
-    $('uiFrameStatus').textContent='Dados disponíveis';
+    // O render mantém o status da rodada (inclusive quando os dados estão antigos).
   }catch(error){
     $('uiCycleLine').textContent='Catálogo indisponível';
     $('uiErrorMessage').dataset.state='error';
