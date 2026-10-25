@@ -38,6 +38,9 @@ REGIONS = {
     "argentina-patagonia": {"label": "Patagônia Argentina", "extent": (-75.5, -63.0, -55.5, -36.0)},
 }
 
+
+# Regional snapshots: continent-wide imagery remains available at every native lead time.
+REGIONAL_FORECAST_HOURS = (0, 12, 24, 36, 48, 60, 72, 84, 96, 108, 120, 144, 168, 180, 192, 216, 240, 288, 336, 384)
 # Palettes intentionally start at white, including CAPE and cloud cover.
 CMAPS = {
     "precip": LinearSegmentedColormap.from_list("sideral_precip", [
@@ -656,8 +659,12 @@ def render_all_views(lon, lat, values, key, title, valid, output, source,
     region_root = Path(region_root)
     rel = Path(region_relative)
     views = [("América do Sul", EXTENT_SOUTH_AMERICA, output)]
-    for region_key, spec in REGIONS.items():
-        views.append((spec["label"], spec["extent"], region_root / region_key / rel))
+    # Regional render cadence is intentionally sparser than the continent-wide
+    # products to keep 3-member GEFS/GFS publications within hosted-runner limits.
+    # The native continental image and its JSON are still emitted for every step.
+    if forecast_hour is None or int(forecast_hour) in REGIONAL_FORECAST_HOURS:
+        for region_key, spec in REGIONS.items():
+            views.append((spec["label"], spec["extent"], region_root / region_key / rel))
     written = []
     for region_name, view_extent, path in views:
         render_map(
