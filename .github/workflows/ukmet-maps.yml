@@ -80,8 +80,13 @@ jobs:
             raise SystemExit(f"ERRO: generatedCount {r.get('generatedCount')} não bate com fieldMapCounts {expected_maps}")
           if r.get("generatedCount",0) < 100:
             raise SystemExit("ERRO: cobertura UKMO nativa insuficiente")
-          if any(count % 6 for count in counts.values()):
-            raise SystemExit("ERRO: cada saída UKMO deve conter a América do Sul e cinco regiões")
+          view_count=int(r.get("viewCount",12))
+          if any(count % view_count for count in counts.values()):
+            raise SystemExit("ERRO: cada produto UKMO deve conter as visões continentais/regionais configuradas")
+          from pathlib import Path
+          generated=r.get("generated",[])
+          if not generated or not Path(generated[0]).with_suffix(".json.gz").is_file():
+            raise SystemExit("ERRO: UKMO não publicou JSON georreferenciado ao lado do PNG")
           PY
       - name: Publish maps to model-ukmet branch
         run: |
