@@ -350,7 +350,10 @@ def render_map(lon, lat, values, key, title, valid, output, source,
             data /= 100.0
         out_unit = "hPa"
     elif data_family == "height":
-        if np.isfinite(data).any() and float(np.nanmedian(np.abs(data))) > 50000:
+        geopotential_units = ("m²/s²", "m^2/s^2", "m**2 s**-2", "m2 s-2", "m² s⁻²")
+        if any(token in source_unit for token in geopotential_units):
+            data /= 9.80665
+        elif np.isfinite(data).any() and float(np.nanmedian(np.abs(data))) > 50000:
             data /= 9.80665
         out_unit = "m"
     elif data_family == "cloud":
