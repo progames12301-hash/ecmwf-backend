@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GEFS Ensemble | Sideral Meteorologia</title><style>
+:root{--bg:#070707;--panel:#111;--line:#2b2b2b;--text:#f2f2f2;--muted:#999;--accent:#0b86bd}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px Arial,Helvetica,sans-serif;overflow-x:hidden}
+header{min-height:54px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:8px 14px;gap:14px;background:#0a0a0a;position:sticky;top:0;z-index:10;flex-wrap:wrap}
+.logo{font-weight:800;letter-spacing:.06em;white-space:nowrap}
+.model-nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.model-nav a{color:#d8eaf4;text-decoration:none;border:1px solid #303840;background:#15191e;padding:7px 9px;border-radius:4px;font-size:11px;font-weight:700;white-space:nowrap}.model-nav a:hover,.model-nav a[aria-current=page]{background:#0b86bd;border-color:#0b86bd;color:#fff}
+.run{margin-left:auto;color:#bbb;font-size:12px}.status{color:#72d38b;font-size:12px;white-space:nowrap}
+.layout{display:grid;grid-template-columns:275px minmax(0,1fr);min-height:calc(100vh - 54px)}.sidebar{border-right:1px solid var(--line);background:#0b0b0b;padding:14px;overflow:auto}
+.title{font-weight:800;margin:0 0 9px}.select{width:100%;background:#151515;border:1px solid #333;color:#eee;padding:9px;margin-bottom:15px;border-radius:3px}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;max-height:280px;overflow:auto;padding-right:2px}
+.steps button{border:1px solid #303030;background:#151515;color:#ddd;padding:8px 2px;cursor:pointer;font-weight:700;font-size:11px;border-radius:2px}.steps button:hover,.steps button.active{background:#0b86bd;border-color:#0b86bd;color:#fff}
+.controls{margin-top:12px;display:flex;gap:6px}.controls button{flex:1;background:#151515;border:1px solid #333;color:#ddd;padding:9px;cursor:pointer;border-radius:2px}
+.meta{margin-top:16px;color:var(--muted);font-size:12px;line-height:1.6}.notice{display:none;margin-top:12px;padding:10px;border:1px solid #6d4a22;background:#24180a;color:#f3c68a;line-height:1.5;font-size:12px;border-radius:3px}
+.main{padding:14px;display:flex;justify-content:center;align-items:flex-start;min-width:0}.frame{width:min(1400px,100%);background:#fff;border:1px solid #333;box-shadow:0 10px 35px #000;min-height:240px;position:relative}
+.frame img{display:block;width:100%;height:auto;min-height:180px;object-fit:contain;background:#fff}.frame .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#444;background:#fff;text-align:center;padding:24px;font-weight:700;line-height:1.5}
+.caption{padding:9px 12px;background:#0d0d0d;color:#aaa;font-size:11px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.sidebar{border-right:0;border-bottom:1px solid var(--line)}.steps{grid-template-columns:repeat(6,minmax(0,1fr));max-height:200px}.main{padding:6px}header{gap:8px}.run{margin-left:0}.model-nav{order:4;width:100%;overflow-x:auto;flex-wrap:nowrap}.status{margin-left:auto}}
+</style>
+</head><body>
+<header><div class="logo">Sideral • GEFS Ensemble</div><nav class="model-nav" aria-label="Modelos numéricos"><a href="ecmwf.html">ECMWF</a><a href="gfs.html">GFS</a><a href="icon.html">ICON</a><a href="ukmet.html">UKMET</a><a href="gefs.html" aria-current="page">GEFS</a></nav><div class="run" id="run">carregando rodada...</div><div class="status" id="status">● conectando</div></header>
+<div class="layout">
+<aside class="sidebar">
+<div class="title">Variável</div><select id="product" class="select" aria-label="Variável meteorológica"></select>
+<div id="variantWrap" hidden><div class="title" id="variantTitle">Configuração</div><select id="variant" class="select" aria-label="Variante do modelo"></select></div>
+<div class="title">Hora de previsão</div><div class="steps" id="steps"></div>
+<div class="controls"><button id="prev" type="button">‹ Anterior</button><button id="play" type="button" aria-label="Animar previsão">▶</button><button id="next" type="button">Próxima ›</button></div>
+<div class="notice" id="notice"></div>
+<div class="meta" id="meta"><b>Modelo</b><br>GEFS<br><br><b>Resolução</b><br>Ensemble global</div>
+</aside>
+<main class="main"><div class="frame"><img id="map" alt="Mapa de previsão GEFS" hidden><div class="loading" id="placeholder">Carregando catálogo de mapas…</div><div class="caption"><span id="valid">—</span><span id="source">Sideral Meteorologia</span></div></div></main>
+</div>
+<script>
+const CFG={"key":"gefs","title":"GEFS Ensemble","model":"GEFS","branch":"model-gefs","family":"gefs","manifestUrl":"https://raw.githubusercontent.com/progames12301-hash/ecmwf-backend/model-gefs/site/maps/gefs/generation-report.json","dataRoot":"https://raw.githubusercontent.com/progames12301-hash/ecmwf-backend/model-gefs/site/","defaultProduct":"precip","defaultVariant":"mean","resolution":"Ensemble global"};
+const LABELS={"precip":"Precipitação","temp2m":"Temperatura a 2 m","dew2m":"Ponto de orvalho a 2 m","wind10m":"Vento a 10 m","gust10m":"Rajada máxima a 10 m","mslp":"Pressão ao nível do mar","cloud":"Cobertura de nuvens","tcwv":"Água precipitável (TCWV)","cape":"CAPE","t850":"Temperatura a 850 hPa","wind850":"Vento a 850 hPa","gh500":"Geopotencial 500 hPa","wind500":"Vento 500 hPa","wind250":"Vento 250 hPa","temperature_2m":"Temperatura a 2 m","dew_point_2m":"Ponto de orvalho a 2 m","wind_speed_10m":"Velocidade do vento a 10 m","wind_gust_10m":"Rajada de vento a 10 m","pressure_msl":"Pressão ao nível do mar","cape_surface":"CAPE à superfície","geopotential_height_500hPa":"Altura geopotencial 500 hPa","precipitation":"Precipitação"};
+const state={manifest:null,steps:[],step:0,product:CFG.defaultProduct,variant:CFG.defaultVariant,timer:null,products:[],variants:[]};
+const $=id=>document.getElementById(id);
+function parseRun(raw){if(typeof raw!=="string")return null;if(/^\d{10}$/.test(raw))return new Date(raw.slice(0,4)+"-"+raw.slice(4,6)+"-"+raw.slice(6,8)+"T"+raw.slice(8,10)+":00:00Z");const d=new Date(raw);return Number.isNaN(d.getTime())?null:d}
+function pad(n){return String(n).padStart(3,"0")}
+function productLabel(key){return LABELS[key]||key.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase())}
+function stepList(m){return [...new Set((m.steps||m.forecastHours||[]).map(Number).filter(Number.isFinite))].sort((a,b)=>a-b)}
+function variantsFor(m){
+ if(CFG.family==="gfs")return Object.keys(m.variants||{});
+ if(CFG.family==="gefs"){const set=new Set();for(const item of (m.generated||[])){const a=item.replace(/^site\//,"").split("/");if(a[0]==="maps"&&a[1]==="gefs"&&a[2]==="atmos.5")set.add(a[3])}return [...set]}
+ return [];
+}
+function productRecords(m){
+ if(CFG.family==="ecmwf")return Object.entries(m.products||{}).map(([id,v])=>({id,label:v.label||productLabel(id)}));
+ const out=new Set();
+ for(const item of (m.generated||[])){
+  const p=item.replace(/^site\//,"").split("/");let id="";
+  if(CFG.family==="gfs"&&p.length===6&&p[0]==="maps"&&p[1]==="gfs"&&p[3]===m.run)id=p[4];
+  if(CFG.family==="icon"&&p.length===6&&p[0]==="maps"&&p[1]==="icon"&&p[2]==="global"&&p[3]===m.run)id=p[4];
+  if(CFG.family==="ukmet"&&p.length===5&&p[0]==="maps"&&p[1]==="ukmet"&&p[2]===m.run)id=p[3];
+  if(CFG.family==="gefs"&&p.length===7&&p[0]==="maps"&&p[1]==="gefs"&&p[2]==="atmos.5"&&p[4]===m.run)id=p[5];
+  if(id&&/^f\d+\.png$/.test(p[p.length-1]))out.add(id);
+ }
+ return [...out].sort().map(id=>({id,label:productLabel(id)}));
+}
+function renderProducts(){
+ const el=$("product");el.innerHTML="";
+ for(const p of state.products){const o=document.createElement("option");o.value=p.id;o.textContent=p.label;el.appendChild(o)}
+ if(!state.products.some(p=>p.id===state.product))state.product=state.products[0]?.id||"";
+ el.value=state.product;
+}
+function renderVariants(){
+ const sel=$("variant");sel.innerHTML="";$("variantWrap").hidden=!state.variants.length;if(!state.variants.length)return;
+ $("variantTitle").textContent=CFG.family==="gfs"?"Resolução da grade":"Produto de conjunto";
+ for(const v of state.variants){const o=document.createElement("option");o.value=v;o.textContent=CFG.family==="gfs"?({"0p25":"0,25° — maior resolução","0p50":"0,50°","1p00":"1,00°"}[v]||v):({"mean":"Média do ensemble","spread":"Dispersão do ensemble","spr":"Dispersão do ensemble","c00":"Membro controle","control":"Membro controle"}[v]||v);sel.appendChild(o)}
+ if(!state.variants.includes(state.variant))state.variant=state.variants[0];sel.value=state.variant;
+}
+function makeImagePath(){
+ const m=state.manifest,p=state.product,s=pad(state.step),v=state.variant;
+ if(CFG.family==="ecmwf")return "maps/"+m.run_id+"/"+p+"/f"+s+".png";
+ if(CFG.family==="gfs")return "maps/gfs/"+v+"/"+m.run+"/"+p+"/f"+s+".png";
+ if(CFG.family==="icon")return "maps/icon/global/"+m.run+"/"+p+"/f"+s+".png";
+ if(CFG.family==="ukmet")return "maps/ukmet/"+m.run+"/"+p+"/f"+s+".png";
+ if(CFG.family==="gefs")return "maps/gefs/atmos.5/"+v+"/"+m.run+"/"+p+"/f"+s+".png";
+ return "";
+}
+function formatRun(raw){const d=parseRun(raw);if(!d)return String(raw||"—");return new Intl.DateTimeFormat("pt-BR",{timeZone:"UTC",dateStyle:"short",hour:"2-digit",minute:"2-digit",hour12:false}).format(d)+" UTC"}
+function render(){
+ const m=state.manifest;if(!m)return;renderProducts();renderVariants();$("steps").innerHTML="";
+ for(const s of state.steps){const b=document.createElement("button");b.type="button";b.textContent="F"+pad(s);b.className=s===state.step?"active":"";b.onclick=()=>{state.step=s;render()};$("steps").appendChild(b)}
+ $("run").textContent="Init: "+formatRun(m.run_id||m.run);const runDate=parseRun(m.run_id||m.run);const age=runDate?(Date.now()-runDate.getTime())/3600000:null;const stale=age!==null&&age>48;
+ $("status").textContent=stale?"● rodada antiga":(m.failureCount>0?"● geração com falhas":"● catálogo carregado");$("status").style.color=stale||m.failureCount>0?"#f4b35e":"#72d38b";
+ $("notice").style.display=stale?"block":"none";$("notice").textContent=stale?"A rodada publicada está antiga. Confira a inicialização antes de usar esta previsão.":"";
+ $("valid").textContent=productLabel(state.product)+" • F"+pad(state.step)+" • válido "+(runDate?new Date(runDate.getTime()+state.step*3600000).toISOString().replace("T"," ").slice(0,16)+"Z":"—");
+ $("source").textContent=(m.source||CFG.model)+" • Sideral";
+ $("meta").innerHTML="<b>Modelo</b><br>"+CFG.model+"<br><br><b>Resolução</b><br>"+CFG.resolution+"<br><br><b>Fonte</b><br>"+(m.source||"Dados publicados no repositório Sideral")+"<br><br><b>Rodada</b><br>"+formatRun(m.run_id||m.run)+"<br><br><b>Horários disponíveis</b><br>"+state.steps.length;
+ const img=$("map"),placeholder=$("placeholder");placeholder.hidden=false;placeholder.textContent="Carregando "+productLabel(state.product)+" — F"+pad(state.step)+"…";img.hidden=true;
+ img.onload=()=>{placeholder.hidden=true;img.hidden=false};img.onerror=()=>{img.hidden=true;placeholder.hidden=false;placeholder.textContent="Mapa não publicado para "+productLabel(state.product)+" em F"+pad(state.step)+". Tente outro horário ou variável."};
+ img.src=CFG.dataRoot+makeImagePath()+"?v="+encodeURIComponent(m.updated||m.generatedAt||m.run||Date.now());
+}
+async function load(){try{const r=await fetch(CFG.manifestUrl+"?v="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);const m=await r.json();state.manifest=m;state.steps=stepList(m);state.products=productRecords(m);state.variants=variantsFor(m);if(!state.steps.length)throw Error("Nenhum horário publicado");if(!state.products.length)throw Error("Nenhuma variável publicada");state.step=state.steps.includes(state.step)?state.step:state.steps[0];if(!state.products.some(p=>p.id===state.product))state.product=state.products[0].id;render()}catch(e){$("status").textContent="● falha ao carregar";$("status").style.color="#ff8b8b";$("placeholder").hidden=false;$("placeholder").textContent="Não foi possível carregar o catálogo deste modelo. Atualize a página e tente novamente.";console.error("Falha no catálogo "+CFG.title,e)}}
+function move(dir){if(!state.steps.length)return;const i=state.steps.indexOf(state.step);state.step=state.steps[(i+dir+state.steps.length)%state.steps.length];render()}
+$("product").onchange=e=>{state.product=e.target.value;render()};$("variant").onchange=e=>{state.variant=e.target.value;render()};$("prev").onclick=()=>move(-1);$("next").onclick=()=>move(1);
+$("play").onclick=()=>{if(state.timer){clearInterval(state.timer);state.timer=null;$("play").textContent="▶"}else{state.timer=setInterval(()=>move(1),900);$("play").textContent="Ⅱ"}};
+load();
+</script>
+</body></html>
