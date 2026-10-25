@@ -16,7 +16,7 @@ from eccodes import codes_get, codes_grib_new_from_file, codes_release
 from sideral_map_style import render_all_views, REGIONS
 
 EXTENT = (-90, -20, -60, 15)
-STYLE_VERSION = 'sideral-bulletin-v2-20261014'
+STYLE_VERSION = 'sideral-bulletin-v3-20261025-json-regional'
 STEPS = list(range(0, 145, 3)) + list(range(150, 241, 6))
 PRECIP_COLORS = ['#eef8ee', '#c7e9c0', '#74c476', '#31a354', '#006d2c', '#ffffb2', '#fecc5c', '#fd8d3c', '#f03b20', '#bd0026']
 PRECIP_LEVELS = [0.05, 0.2, 0.5, 1, 2, 5, 10, 20, 30, 50, 80]
@@ -33,10 +33,21 @@ PRODUCTS = {
     'cloud': {'label': 'Cobertura de nuvens', 'file': 'cloud', 'group': 'surface'},
     'tcwv': {'label': 'Água precipitável (TCWV)', 'file': 'tcwv', 'group': 'surface'},
     'cape': {'label': 'MUCAPE (parcela mais instável)', 'file': 'cape', 'group': 'surface'},
+    'rh2m': {'label': 'Umidade relativa 2 m', 'file': 'rh2m', 'group': 'surface'},
     't850': {'label': 'Temperatura 850 hPa', 'file': 't850', 'group': 'pressure'},
+    't700': {'label': 'Temperatura 700 hPa', 'file': 't700', 'group': 'pressure'},
+    't500': {'label': 'Temperatura 500 hPa', 'file': 't500', 'group': 'pressure'},
+    't300': {'label': 'Temperatura 300 hPa', 'file': 't300', 'group': 'pressure'},
+    'rh850': {'label': 'Umidade relativa 850 hPa', 'file': 'rh850', 'group': 'pressure'},
+    'rh700': {'label': 'Umidade relativa 700 hPa', 'file': 'rh700', 'group': 'pressure'},
+    'wind925': {'label': 'Vento 925 hPa', 'file': 'wind925', 'group': 'pressure'},
     'wind850': {'label': 'Vento 850 hPa', 'file': 'wind850', 'group': 'pressure'},
+    'wind700': {'label': 'Vento 700 hPa', 'file': 'wind700', 'group': 'pressure'},
     'gh500': {'label': 'Geopotencial 500 hPa', 'file': 'gh500', 'group': 'pressure'},
+    'gh700': {'label': 'Geopotencial 700 hPa', 'file': 'gh700', 'group': 'pressure'},
+    'gh300': {'label': 'Geopotencial 300 hPa', 'file': 'gh300', 'group': 'pressure'},
     'wind500': {'label': 'Vento 500 hPa', 'file': 'wind500', 'group': 'pressure'},
+    'wind300': {'label': 'Vento 300 hPa', 'file': 'wind300', 'group': 'pressure'},
     'wind250': {'label': 'Vento 250 hPa', 'file': 'wind250', 'group': 'pressure'},
 }
 
@@ -59,8 +70,8 @@ def retrieve(client, run, target_dir):
                        target=str(surface))
     if not pressure.exists():
         client.retrieve(date=date, time=hour, stream='oper', type='fc', step=STEPS,
-                       levtype='pl', levelist=[850, 500, 250],
-                       param=['gh', 't', 'u', 'v'], target=str(pressure))
+                       levtype='pl', levelist=[925, 850, 700, 500, 300, 250],
+                       param=['gh', 't', 'u', 'v', 'r'], target=str(pressure))
     return surface, pressure
 
 
@@ -75,7 +86,7 @@ _FIELD_ALIASES = {
     'tcc': ('tcc',), 'tp': ('tp',), 'tcwv': ('tcwv',),
     'mucape': ('mucape', 'cape'), 'cape': ('cape', 'mucape'),
     'msl': ('msl',), 't': ('t',), 'u': ('u',), 'v': ('v',),
-    'gh': ('gh',),
+    'gh': ('gh',), 'r': ('r', 'rh'),
 }
 
 
@@ -228,10 +239,21 @@ FIELD_REQUIREMENTS = {
     'tcwv': [('surface', ('tcwv',), None)],
     # Current ECMWF Open Data lists MUCAPE, not the generic CAPE parameter.
     'cape': [('surface', ('mucape', 'cape'), None)],
+    'rh2m': [('surface', ('2t', 't2m'), 2), ('surface', ('2d', 'd2m'), 2)],
     't850': [('pressure', ('t',), 850)],
+    't700': [('pressure', ('t',), 700)],
+    't500': [('pressure', ('t',), 500)],
+    't300': [('pressure', ('t',), 300)],
+    'rh850': [('pressure', ('r', 'rh'), 850)],
+    'rh700': [('pressure', ('r', 'rh'), 700)],
+    'wind925': [('pressure', ('u',), 925), ('pressure', ('v',), 925)],
     'wind850': [('pressure', ('u',), 850), ('pressure', ('v',), 850)],
+    'wind700': [('pressure', ('u',), 700), ('pressure', ('v',), 700)],
     'gh500': [('pressure', ('gh',), 500)],
+    'gh700': [('pressure', ('gh',), 700)],
+    'gh300': [('pressure', ('gh',), 300)],
     'wind500': [('pressure', ('u',), 500), ('pressure', ('v',), 500)],
+    'wind300': [('pressure', ('u',), 300), ('pressure', ('v',), 300)],
     'wind250': [('pressure', ('u',), 250), ('pressure', ('v',), 250)],
 }
 
@@ -437,6 +459,20 @@ def make_map(surface_path, pressure_path, run, step, out):
         finally:
             ds2.close()
         unit = '°C'
+    elif product == 'rh2m':
+        ds_t = open_field(surface_path, level=2, type_level='heightAboveGround', short_name='2t')
+        ds_td = open_field(surface_path, level=2, type_level='heightAboveGround', short_name='2d')
+        try:
+            temp_c = field(ds_t, '2t', step) - 273.15
+            dew_c = field(ds_td, '2d', step) - 273.15
+            # Magnus saturation-vapour-pressure ratio; no extra source field required.
+            es = np.exp((17.625 * temp_c) / (243.04 + temp_c))
+            e = np.exp((17.625 * dew_c) / (243.04 + dew_c))
+            val = np.clip(100.0 * e / es, 0.0, 100.0)
+        finally:
+            ds_t.close()
+            ds_td.close()
+        unit = '%'
     elif product in ('wind10m', 'gust10m'):
         if product == 'wind10m':
             ds_u = open_field(surface_path, level=10, type_level='heightAboveGround', short_name='10u')
@@ -508,13 +544,30 @@ def make_map(surface_path, pressure_path, run, step, out):
             ds_cape.close()
         unit = 'J kg⁻¹'
     else:
-        level = {'t850': 850, 'wind850': 850, 'gh500': 500, 'wind500': 500, 'wind250': 250}[product]
-        ds = open_field(pressure_path, level=level)
+        pressure_levels = {
+            't850': 850, 't700': 700, 't500': 500, 't300': 300,
+            'rh850': 850, 'rh700': 700,
+            'wind925': 925, 'wind850': 850, 'wind700': 700,
+            'gh500': 500, 'gh700': 700, 'gh300': 300,
+            'wind500': 500, 'wind300': 300, 'wind250': 250,
+        }
+        level = pressure_levels[product]
+        ds = open_field(pressure_path, level=level, short_name=(
+            'r' if product.startswith('rh') else
+            't' if product.startswith('t') else
+            'gh' if product.startswith('gh') else None
+        ))
         try:
-            if product == 't850':
+            if product.startswith('t'):
                 val = field(ds, 't', step) - 273.15
                 unit = '°C'
-            elif product == 'gh500':
+            elif product.startswith('rh'):
+                val = field(ds, 'r', step)
+                if np.isfinite(val).any() and float(np.nanpercentile(val, 95)) <= 1.01:
+                    val = val * 100.0
+                val = np.clip(val, 0.0, 100.0)
+                unit = '%'
+            elif product.startswith('gh'):
                 val = field(ds, 'gh', step)
                 unit = 'm'
             else:
@@ -587,7 +640,7 @@ def main():
                     for region_key in REGIONS
                 ]
                 # Never reuse PNGs from an older bulletin renderer. Missing or stale style marker forces native-grid rerender.
-                if style_cache_valid and out.exists() and all(path.exists() for path in region_paths):
+                if style_cache_valid and out.exists() and out.with_suffix('.json.gz').exists() and all(path.exists() and path.with_suffix('.json.gz').exists() for path in region_paths):
                     reused_count += 1 + len(region_paths)
                     continue
                 if inventory_ok and step not in product_steps:
@@ -616,10 +669,12 @@ def main():
             'run_id': run_id,
             'generatedAt': datetime.now(timezone.utc).isoformat(),
             'generatedMapsThisRun': generated_count,
-            'generatedFullMapsThisRun': generated_count // 6,
-            'generatedRegionalMapsThisRun': generated_count - (generated_count // 6),
+            'generatedFullMapsThisRun': generated_count // (len(REGIONS) + 1),
+            'generatedRegionalMapsThisRun': generated_count - (generated_count // (len(REGIONS) + 1)),
             'existingMapsReused': reused_count,
-            'regionalViewsPerSourceMap': 5,
+            'regionalViewsPerSourceMap': len(REGIONS),
+            'jsonSidecars': True,
+            'jsonSchema': 'sideral-native-grid-v1',
             'nativeGridResolutionPreserved': True,
             'failureCount': len(failures),
             'failures': failures,
@@ -634,7 +689,9 @@ def main():
         'model': 'ECMWF IFS HRES', 'resolution': '0.25°',
         'run': run.isoformat(), 'run_id': run_id, 'steps': STEPS,
         'products': PRODUCTS, 'updated': datetime.now(timezone.utc).isoformat(),
-        'regionalViewsPerSourceMap': 5,
+        'regionalViewsPerSourceMap': len(REGIONS),
+        'jsonSidecars': True,
+        'jsonSchema': 'sideral-native-grid-v1',
         'regionalProducts': {
             region: {
                 'label': details['label'],
