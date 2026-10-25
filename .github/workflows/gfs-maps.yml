@@ -59,11 +59,17 @@ jobs:
           print(json.dumps({"run": r.get("run"), "generatedCount": r.get("generatedCount"),
                             "failureCount": r.get("failureCount"), "variants": r.get("variants")}, indent=2))
           expected_hours = len(list(range(0, 121, 3)) + list(range(126, 385, 6)))
-          expected_maps = (expected_hours * 3 * 14 - 3) * 6  # 14 campos, 3 resoluções, 6 visões por mapa; precip F000 não existe
+          field_count = int(r.get("fieldCount", 22))
+          view_count = int(r.get("viewCount", 12))
+          expected_maps = (expected_hours * 3 * field_count - 3) * view_count  # 3 resoluções; precip F000 não existe
           if r.get("generatedCount", 0) != expected_maps:
               raise SystemExit(f"ERRO: GFS publicou {r.get('generatedCount')} PNG; esperado {expected_maps}")
           if r.get("failureCount", 0) != 0:
               raise SystemExit(f"ERRO: GFS tem {r.get('failureCount')} campos/validades com falha")
+          from pathlib import Path
+          generated = r.get("generated", [])
+          if not generated or not Path(generated[0]).with_suffix(".json.gz").is_file():
+              raise SystemExit("ERRO: GFS não publicou JSON georreferenciado ao lado do PNG")
       - name: Publish maps to model-gfs branch
         run: |
           git config user.name "github-actions[bot]"
