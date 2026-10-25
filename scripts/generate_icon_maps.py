@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-from sideral_map_style import render_all_views
+from sideral_map_style import render_all_views, REGIONS
 
 EXTENT=(-90,-20,-60,15)
 def steps_for_run(run):
@@ -48,6 +48,12 @@ PRESSURE_FIELDS={
  "wind850":{"level":850,"label":"Vento em 850 hPa","unit":"m/s","u_folder":"u","u_suffix":"U","v_folder":"v","v_suffix":"V"},
  "wind500":{"level":500,"label":"Vento em 500 hPa","unit":"m/s","u_folder":"u","u_suffix":"U","v_folder":"v","v_suffix":"V"},
  "wind250":{"level":250,"label":"Vento em 250 hPa","unit":"m/s","u_folder":"u","u_suffix":"U","v_folder":"v","v_suffix":"V"},
+ "t700":{"folder":"t","suffix":"T","level":700,"label":"Temperatura em 700 hPa","unit":"K"},
+ "t500":{"folder":"t","suffix":"T","level":500,"label":"Temperatura em 500 hPa","unit":"K"},
+ "wind700":{"level":700,"label":"Vento em 700 hPa","unit":"m/s","u_folder":"u","u_suffix":"U","v_folder":"v","v_suffix":"V"},
+ "wind300":{"level":300,"label":"Vento em 300 hPa","unit":"m/s","u_folder":"u","u_suffix":"U","v_folder":"v","v_suffix":"V"},
+ "gh700":{"folder":"fi","suffix":"FI","level":700,"label":"Altura geopotencial em 700 hPa","unit":"m²/s²"},
+ "gh300":{"folder":"fi","suffix":"FI","level":300,"label":"Altura geopotencial em 300 hPa","unit":"m²/s²"},
 }
 
 
@@ -239,7 +245,7 @@ def main():
     report["failures"].append({"hour":step,"field":key,"error":f"{type(exc).__name__}: {exc}"})
     print(f"FALHA ICON F{step:03d} {key}: {exc}",flush=True)
  OUT.mkdir(parents=True,exist_ok=True)
- report["generatedCount"]=len(report["generated"]); report["failureCount"]=len(report["failures"]); report["regionalViewsPerSourceMap"]=5; report["gridResolutionPreserved"]=True
+ report["generatedCount"]=len(report["generated"]); report["failureCount"]=len(report["failures"]); report["regionalViewsPerSourceMap"]=len(REGIONS); report["gridResolutionPreserved"]=True
  (OUT/"generation-report.json").write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
  print(json.dumps({k:report[k] for k in ("run","generatedCount","failureCount")},indent=2))
  if report["generatedCount"]==0: raise SystemExit("Nenhum mapa ICON gerado; consulte o relatório")
