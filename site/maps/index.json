@@ -1,8 +1,8 @@
 {
   "model": "ECMWF IFS HRES",
   "resolution": "0.25\u00b0",
-  "run": "2026-10-28T00:00:00+00:00",
-  "run_id": "2026102800",
+  "run": "2026-10-28T12:00:00+00:00",
+  "run_id": "2026102812",
   "steps": [
     0,
     3,
@@ -197,7 +197,7 @@
       "group": "pressure"
     }
   },
-  "updated": "2026-10-28T17:23:47.075126+00:00",
+  "updated": "2026-10-29T02:49:43.272830+00:00",
   "regionalViewsPerSourceMap": 11,
   "regionalForecastHours": [
     0,
@@ -233,8 +233,8 @@
         -18.5,
         1.5
       ],
-      "pathTemplate": "maps/regions/nordeste/2026102800/<product>/f<step>.png",
-      "jsonPathTemplate": "maps/regions/nordeste/2026102800/<product>/f<step>.json.gz",
+      "pathTemplate": "maps/regions/nordeste/2026102812/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/nordeste/2026102812/<product>/f<step>.json.gz",
       "regionalForecastHours": [
         0,
         12,
@@ -266,8 +266,8 @@
         -26.5,
         -14.0
       ],
-      "pathTemplate": "maps/regions/sudeste/2026102800/<product>/f<step>.png",
-      "jsonPathTemplate": "maps/regions/sudeste/2026102800/<product>/f<step>.json.gz",
+      "pathTemplate": "maps/regions/sudeste/2026102812/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/sudeste/2026102812/<product>/f<step>.json.gz",
       "regionalForecastHours": [
         0,
         12,
@@ -299,8 +299,8 @@
         -34.5,
         -22.0
       ],
-      "pathTemplate": "maps/regions/sul/2026102800/<product>/f<step>.png",
-      "jsonPathTemplate": "maps/regions/sul/2026102800/<product>/f<step>.json.gz",
+      "pathTemplate": "maps/regions/sul/2026102812/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/sul/2026102812/<product>/f<step>.json.gz",
       "regionalForecastHours": [
         0,
         12,
@@ -332,8 +332,8 @@
         -13.5,
         6.0
       ],
-      "pathTemplate": "maps/regions/norte/2026102800/<product>/f<step>.png",
-      "jsonPathTemplate": "maps/regions/norte/2026102800/<product>/f<step>.json.gz",
+      "pathTemplate": "maps/regions/norte/2026102812/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/norte/2026102812/<product>/f<step>.json.gz",
       "regionalForecastHours": [
         0,
         12,
@@ -365,8 +365,8 @@
         -25.5,
         -7.0
       ],
-      "pathTemplate": "maps/regions/centro-oeste/2026102800/<product>/f<step>.png",
-      "jsonPathTemplate": "maps/regions/centro-oeste/2026102800/<product>/f<step>.json.gz",
+      "pathTemplate": "maps/regions/centro-oeste/2026102812/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/centro-oeste/2026102812/<product>/f<step>.json.gz",
       "regionalForecastHours": [
         0,
         12,
@@ -398,8 +398,8 @@
         -56.0,
         -21.0
       ],
-      "pathTemplate": "maps/regions/argentina/2026102800/<product>/f<step>.png",
-      "jsonPathTemplate": "maps/regions/argentina/2026102800/<product>/f<step>.json.gz",
+      "pathTemplate": "maps/regions/argentina/2026102812/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/argentina/2026102812/<product>/f<step>.json.gz",
       "regionalForecastHours": [
         0,
         12,
@@ -431,8 +431,8 @@
         -31.0,
         -21.0
       ],
-      "pathTemplate": "maps/regions/argentina-norte/2026102800/<product>/f<step>.png",
-      "jsonPathTemplate": "maps/regions/argentina-norte/2026102800/<product>/f<step>.json.gz",
+      "pathTemplate": "maps/regions/argentina-norte/2026102812/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/argentina-norte/2026102812/<product>/f<step>.json.gz",
       "regionalForecastHours": [
         0,
         12,
@@ -464,8 +464,8 @@
         -34.5,
         -25.0
       ],
-      "pathTemplate": "maps/regions/argentina-litoral/2026102800/<product>/f<step>.png",
-      "jsonPathTemplate": "maps/regions/argentina-litoral/2026102800/<product>/f<step>.json.gz",
+      "pathTemplate": "maps/regions/argentina-litoral/2026102812/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/argentina-litoral/2026102812/<product>/f<step>.json.gz",
       "regionalForecastHours": [
         0,
         12,
@@ -497,8 +497,8 @@
         -39.5,
         -29.0
       ],
-      "pathTemplate": "maps/regions/argentina-centro/2026102800/<product>/f<step>.png",
-      "jsonPathTemplate": "maps/regions/argentina-centro/2026102800/<product>/f<step>.json.gz",
+      "pathTemplate": "maps/regions/argentina-centro/2026102812/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/argentina-centro/2026102812/<product>/f<step>.json.gz",
       "regionalForecastHours": [
         0,
         12,
@@ -530,8 +530,8 @@
         -37.5,
         -28.0
       ],
-      "pathTemplate": "maps/regions/argentina-cuyo/2026102800/<product>/f<step>.png",
-      "jsonPathTemplate": "maps/regions/argentina-cuyo/2026102800/<product>/f<step>.json.gz",
+      "pathTemplate": "maps/regions/argentina-cuyo/2026102812/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/argentina-cuyo/2026102812/<product>/f<step>.json.gz",
       "regionalForecastHours": [
         0,
         12,
@@ -563,8 +563,8 @@
         -55.5,
         -36.0
       ],
-      "pathTemplate": "maps/regions/argentina-patagonia/2026102800/<product>/f<step>.png",
-      "jsonPathTemplate": "maps/regions/argentina-patagonia/2026102800/<product>/f<step>.json.gz",
+      "pathTemplate": "maps/regions/argentina-patagonia/2026102812/<product>/f<step>.png",
+      "jsonPathTemplate": "maps/regions/argentina-patagonia/2026102812/<product>/f<step>.json.gz",
       "regionalForecastHours": [
         0,
         12,
@@ -589,8 +589,8 @@
       ]
     }
   },
-  "fieldInventory": "maps/2026102800/field-inventory.json",
-  "generationReport": "maps/2026102800/generation-report.json",
+  "fieldInventory": "maps/2026102812/field-inventory.json",
+  "generationReport": "maps/2026102812/generation-report.json",
   "productAvailability": {
     "precip": {
       "status": "available",
